@@ -1,0 +1,48 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hamse cheats panel</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--accent:#ff0033;--accent2:#7c00ff;--bg:#000;--card:#0c0c0c;--border:#1a1a1a;--text:#fff;--muted:#666}
+[data-theme="light"]{--bg:#f5f5f7;--card:#fff;--border:#e0e0e0;--text:#111;--muted:#666}
+[data-accent="red"]{--accent:#ff0033;--accent2:#7c00ff}
+[data-accent="purple"]{--accent:#7c00ff;--accent2:#c800ff}
+[data-accent="cyan"]{--accent:#00bcd4;--accent2:#00e5ff}
+[data-accent="green"]{--accent:#00c853;--accent2:#00e676}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif;min-height:100vh;padding:14px}
+.hamb{position:fixed;top:14px;left:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:16px;cursor:pointer;z-index:101;color:var(--text)}
+.breadcrumb{font-size:10px;color:var(--muted);letter-spacing:2px;margin:14px 0;padding-left:44px}
+.breadcrumb b{color:var(--accent)}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}
+.sec h3{font-size:12px;letter-spacing:2px;margin-bottom:14px}
+.ucard{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;display:flex;gap:12px;align-items:center}
+.ucard .av{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0}
+.ucard .info{flex:1;min-width:0}
+.ucard .nm{font-size:14px;font-weight:700;margin-bottom:2px}
+.ucard .rl{font-size:10px;color:var(--accent);font-weight:700;letter-spacing:1px;margin-bottom:4px}
+.ucard .mt{font-size:10px;color:var(--muted);letter-spacing:.5px}
+.ucard .badge{background:var(--accent);color:#fff;font-size:10px;padding:4px 10px;border-radius:8px;font-weight:700;flex-shrink:0}
+.foot{text-align:center;font-size:9px;color:var(--muted);margin:18px 0;letter-spacing:2px}
+</style></head><body data-theme="{{theme}}" data-accent="{{accent}}">
+<div class="hamb" onclick="location.href='/dashboard'">←</div>
+<div class="breadcrumb">DASHBOARD / <b>USERS</b></div>
+
+<div class="sec">
+  <h3>👥 Users ({{ users_list|length }})</h3>
+  {% for user in users_list %}
+  <div class="ucard">
+    <div class="av">{{user['user'][0]|upper}}</div>
+    <div class="info">
+      <div class="nm">{{user['user']}}</div>
+      <div class="rl">{{user['role']}}</div>
+      <div class="mt">Created: {{user['created'][:10] if user['created'] else 'N/A'}}</div>
+      <div class="mt">Last login: {{user['last_login'][:19].replace('T',' ') if user['last_login'] else 'Never'}}</div>
+    </div>
+    <div class="badge">{{user['kcount']}} keys</div>
+  </div>
+  {% endfor %}
+  {% if not users_list %}<div style="color:var(--muted);font-size:11px;text-align:center;padding:14px">Ma jiro user</div>{% endif %}
+</div>
+
+<div class="foot">© 2026 Hamse cheats panel • @hamsecheatsvip</div>
+</body></html>

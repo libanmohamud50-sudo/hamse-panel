@@ -1,0 +1,174 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hamse Cheats Panel XYZ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--accent:#ff0033;--accent2:#7c00ff;--bg:#000;--card:#0c0c0c;--border:#1a1a1a;--text:#fff;--muted:#666}
+[data-theme="light"]{--bg:#f5f5f7;--card:#fff;--border:#e0e0e0;--text:#111;--muted:#666}
+[data-accent="red"]{--accent:#ff0033;--accent2:#7c00ff}
+[data-accent="purple"]{--accent:#7c00ff;--accent2:#c800ff}
+[data-accent="cyan"]{--accent:#00bcd4;--accent2:#00e5ff}
+[data-accent="green"]{--accent:#00c853;--accent2:#00e676}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif;min-height:100vh;padding:14px;transition:.3s}
+.side{position:fixed;top:0;left:-280px;width:280px;height:100vh;background:var(--card);border-right:1px solid var(--border);padding:20px 16px;z-index:100;transition:.3s;overflow-y:auto}
+.side.open{left:0}
+.ov{position:fixed;inset:0;background:#000a;z-index:99;display:none}.ov.on{display:block}
+.sb-brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.sb-brand .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px}
+.sb-brand .txt{font-size:12px;font-weight:800;letter-spacing:.5px;line-height:1.2}
+.sb-brand .txt small{display:block;color:var(--muted);font-size:9px;letter-spacing:2px;font-weight:400;margin-top:2px}
+.nav-lbl{font-size:9px;color:var(--muted);letter-spacing:2px;margin:18px 0 8px;padding-left:12px}
+.nav .item{padding:12px 14px;border-radius:10px;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:4px;display:flex;align-items:center;gap:10px;transition:.2s}
+.nav .item:hover,.nav .item.on{background:var(--accent);color:#fff}
+.sb-user{position:absolute;bottom:20px;left:16px;right:16px;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px}
+.sb-user .av{width:36px;height:36px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
+.sb-user .tx{font-size:12px;font-weight:700}
+.sb-user .tx small{display:block;color:var(--muted);font-size:9px;font-weight:400}
+.hamb{position:fixed;top:14px;left:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:16px;cursor:pointer;z-index:101;color:var(--text)}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-left:44px;flex-wrap:wrap;gap:8px}
+.clock-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:1px}
+.clock-box .big{font-size:15px;color:var(--accent)}
+.icons{display:flex;gap:8px}
+.ib{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:14px;cursor:pointer;color:var(--text)}
+.themes-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:12px}
+.themes-box h4{font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:10px}
+.themes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.t-opt{height:36px;border-radius:10px;cursor:pointer;border:2px solid transparent}
+.t-opt.on{border-color:var(--text)}
+.t-red{background:linear-gradient(135deg,#ff0033,#7c00ff)}
+.t-purple{background:linear-gradient(135deg,#7c00ff,#c800ff)}
+.t-cyan{background:linear-gradient(135deg,#00bcd4,#00e5ff)}
+.t-green{background:linear-gradient(135deg,#00c853,#00e676)}
+.mode-row{display:flex;gap:8px;margin-top:10px}
+.mode-btn{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:8px;font-size:11px;cursor:pointer;font-weight:600}
+.mode-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.welcome{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.welcome .av{width:44px;height:44px;border-radius:12px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff}
+.welcome .tx{font-size:14px;font-weight:700}
+.welcome .tx small{display:block;color:var(--muted);font-size:10px;font-weight:400;letter-spacing:1px;margin-top:2px}
+.sec-title{font-size:10px;color:var(--accent);letter-spacing:3px;margin-bottom:4px;font-weight:700}
+.sec-h1{font-size:22px;font-weight:800;margin-bottom:6px}
+.sec-desc{font-size:12px;color:var(--muted);margin-bottom:16px}
+.gen{width:100%;background:var(--accent);color:#fff;border:0;border-radius:12px;padding:14px;font-size:13px;font-weight:700;letter-spacing:1.5px;cursor:pointer;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.c{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;position:relative;overflow:hidden}
+.c::after{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent)}
+.ic{font-size:16px;margin-bottom:8px}
+.n{font-size:24px;font-weight:800;margin-bottom:2px}
+.l{font-size:9px;color:var(--muted);letter-spacing:2px}
+.exp-card{grid-column:1/-1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
+.exp-card .lbl{font-size:9px;color:var(--muted);letter-spacing:3px;font-weight:700}
+.exp-card .tm{font-size:20px;font-weight:800;color:var(--accent);letter-spacing:2px;margin-top:8px;font-variant-numeric:tabular-nums}
+.foot{text-align:center;font-size:9px;color:var(--muted);margin:18px 0;letter-spacing:2px}
+</style></head><body data-theme="{{theme}}" data-accent="{{accent}}">
+
+<div class="ov" id="ov" onclick="toggleSide()"></div>
+<div class="side" id="side">
+  <div class="sb-brand">
+    <div class="logo">🛡️</div>
+    <div class="txt">HAMSE CHEATS<br>PANEL XYZ<small>4.6.0 VIP</small></div>
+  </div>
+  <div class="nav-lbl">WORKSPACE</div>
+  <div class="nav">
+    <div class="item on">📊 Dashboard</div>
+    <div class="item" onclick="location.href='/keymanager'">🔑 Key Manager</div>
+    <div class="item" onclick="location.href='/generate'">✨ Generate Keys</div><div class="item" onclick="location.href='/users'">👥 Users</div>
+  </div>
+  <div class="nav-lbl">ACCOUNT</div>
+  <div class="nav">
+    <div class="item" onclick="location.href='/settings'">⚙️ Settings</div>
+    <div class="item" onclick="location.href='/logout'">🚪 Logout</div>
+  </div>
+  <div class="sb-user">
+    <div class="av">{{u[0]|upper}}</div>
+    <div class="tx">{{u}}<small>{{user_role}}</small></div>
+  </div>
+</div>
+
+<div class="hamb" onclick="toggleSide()">☰</div>
+
+<div class="top">
+  <div class="clock-box">
+    <div class="big" id="clock">--:--:--</div>
+    <div id="date">Loading...</div>
+  </div>
+  <div class="icons">
+    <div class="ib" onclick="location.reload()">⟳</div>
+    <div class="ib" onclick="location.href='/logout'">⏻</div>
+  </div>
+</div>
+
+<div class="themes-box">
+  <h4>🎨 ACCENT COLOR</h4>
+  <div class="themes">
+    <div class="t-opt t-red {{'on' if accent=='red' else ''}}" onclick="setAccent('red',this)"></div>
+    <div class="t-opt t-purple {{'on' if accent=='purple' else ''}}" onclick="setAccent('purple',this)"></div>
+    <div class="t-opt t-cyan {{'on' if accent=='cyan' else ''}}" onclick="setAccent('cyan',this)"></div>
+    <div class="t-opt t-green {{'on' if accent=='green' else ''}}" onclick="setAccent('green',this)"></div>
+  </div>
+  <div class="mode-row">
+    <div class="mode-btn {{'on' if theme=='dark' else ''}}" onclick="setMode('dark',this)">🌙 DARK</div>
+    <div class="mode-btn {{'on' if theme=='light' else ''}}" onclick="setMode('light',this)">☀️ LIGHT</div>
+    <div class="mode-btn" onclick="setClock('{{'12' if clock=='24' else '24'}}')">{{'12h' if clock=='24' else '24h'}}</div>
+  </div>
+</div>
+
+<div class="welcome">
+  <div class="av">{{u[0]|upper}}</div>
+  <div class="tx">Welcome back, {{u}}!<small>{{user_role}}</small></div>
+</div>
+
+<div class="sec-title">HAMSE CHEATS CONTROL CENTER</div>
+<div class="sec-h1">Dashboard</div>
+<div class="sec-desc">Manage your PUBG license panel from one powerful interface.</div>
+
+<button class="gen" onclick="location.href='/generate'">+ GENERATE PUBG KEY</button>
+
+<div class="grid">
+  <div class="c"><div class="ic">🔑</div><div class="n">{{total}}</div><div class="l">TOTAL KEYS</div></div>
+  <div class="c"><div class="ic">🔓</div><div class="n">{{unused}}</div><div class="l">UNUSED</div></div>
+  <div class="c"><div class="ic">🔒</div><div class="n">{{used}}</div><div class="l">USED</div></div>
+  <div class="c"><div class="ic">👥</div><div class="n">{{users}}</div><div class="l">USERS</div></div>
+  <div class="exp-card"><div class="lbl">ACCOUNT EXPIRATION</div><div class="tm" id="tm">849d : 00h : 00m : 00s</div></div>
+</div>
+
+<div class="foot">© 2026 Hamse Cheats Panel XYZ • @hamsecheatsvip</div>
+
+<script>
+let clockMode = "{{clock}}";
+function toggleSide(){document.getElementById('side').classList.toggle('open');document.getElementById('ov').classList.toggle('on')}
+async function setAccent(a,el){
+  document.body.setAttribute('data-accent',a);
+  document.querySelectorAll('.t-opt').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  await fetch('/api/theme',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accent:a})});
+}
+async function setMode(m,el){
+  document.body.setAttribute('data-theme',m);
+  document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  await fetch('/api/theme',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({theme:m})});
+}
+async function setClock(c){
+  await fetch('/api/theme',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clock:c})});
+  location.reload();
+}
+function tick(){
+  const n = new Date();
+  let h = n.getHours();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  if(clockMode === '12'){ h = h % 12 || 12; }
+  const hh = String(h).padStart(2,'0');
+  const mm = String(n.getMinutes()).padStart(2,'0');
+  const ss = String(n.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = hh+':'+mm+':'+ss+(clockMode==='12'?' '+ampm:'');
+  const days=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  document.getElementById('date').textContent = days[n.getDay()]+' • '+String(n.getDate()).padStart(2,'0')+' '+months[n.getMonth()]+' '+n.getFullYear();
+}
+tick(); setInterval(tick, 1000);
+let sec=849*24*3600;
+setInterval(()=>{sec--;const d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60),s=sec%60;
+document.getElementById('tm').textContent=d+'d : '+String(h).padStart(2,'0')+'h : '+String(m).padStart(2,'0')+'m : '+String(s).padStart(2,'0')+'s'},1000);
+</script>
+</body></html>
