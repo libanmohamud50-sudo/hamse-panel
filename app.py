@@ -247,3 +247,18 @@ if __name__ == "__main__":
     print("HAMSE SERVER wuu shaqeynayaa")
     print("Fur: http://127.0.0.1:5000")
     APP.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+@app.route("/api/admin/seed", methods=["POST"])
+def admin_seed():
+    secret = request.headers.get("X-Admin-Secret", "")
+    if secret != os.environ.get("ADMIN_SECRET", "hamse_admin_2026"):
+        return jsonify({"e": "Unauthorized"}), 401
+    data = request.get_json() or {}
+    key = data.get("key", "HC-VIP01")
+    hrs = int(data.get("hrs", 8760))
+    dev = int(data.get("dev", 1))
+    d = db()
+    d.execute("INSERT OR REPLACE INTO keys(k,game,hrs,duration,devices,st,exp,created) VALUES(?,?,?,?,?,?,?,?)",
+              (key, "PUBG", hrs, dur_label(hrs), dev, "unused",
+               exp_iso(hrs), datetime.now().isoformat()))
+    d.commit()
+    return jsonify({"ok": True, "key": key})
