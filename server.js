@@ -88,16 +88,6 @@ app.post('/api/admin/login', (req, res) => {
     res.json({ code: 0, msg: 'success', token, role: 'admin', email });
 });
 
-app.post('/api/admin/generate', auth, (req, res) => {
-    const { durationDays = 30, count = 1, prefix = 'ABDI-VIP' } = req.body || {};
-    const out = [];
-    for (let i = 0; i < count; i++) {
-        const r = crypto.randomBytes(4).toString('hex').toUpperCase();
-        out.push(`${prefix}-${r}`);
-    }
-    res.json({ code: 0, msg: 'success', keys: out });
-});
-
 app.get('/api/admin/keys', auth, (req, res) => {
     const keys = Object.keys(KEYS_FALLBACK).map((k, i) => ({ id: i + 1, key_value: k, ...KEYS_FALLBACK[k] }));
     res.json({ code: 0, keys });
@@ -113,7 +103,7 @@ app.get('/health', (req, res) => {
 
 app.use(express.static(path.join(__dirname)));
 app.get('/', (req, res) => {
-    res.send(`<html><body style="background:#0a0a0f;color:#fff;font-family:sans-serif;padding:40px;text-align:center"><h1 style="color:#4ecdc4">Hamse Panel</h1><p>Server online</p><a href="/health" style="color:#667eea">Health</a></body></html>`);
+    res.send('<html><body style="background:#0a0a0f;color:#fff;font-family:sans-serif;padding:40px;text-align:center"><h1 style="color:#4ecdc4">Hamse Panel</h1><p>Server online</p></body></html>');
 });
 
 const PORT = process.env.PORT || 5000;
