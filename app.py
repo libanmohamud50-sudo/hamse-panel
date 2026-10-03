@@ -243,7 +243,7 @@ def verify_app():
         "game": row["game"]
     })
 
-@app.route("/api/admin/seed", methods=["POST"])
+@APP.route("/api/admin/seed", methods=["POST"])
 def admin_seed():
     secret = request.headers.get("X-Admin-Secret", "")
     if secret != os.environ.get("ADMIN_SECRET", "hamse_admin_2026"):
