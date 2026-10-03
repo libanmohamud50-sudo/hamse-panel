@@ -243,10 +243,6 @@ def verify_app():
         "game": row["game"]
     })
 
-if __name__ == "__main__":
-    print("HAMSE SERVER wuu shaqeynayaa")
-    print("Fur: http://127.0.0.1:5000")
-    APP.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 @app.route("/api/admin/seed", methods=["POST"])
 def admin_seed():
     secret = request.headers.get("X-Admin-Secret", "")
@@ -262,3 +258,8 @@ def admin_seed():
                exp_iso(hrs), datetime.now().isoformat()))
     d.commit()
     return jsonify({"ok": True, "key": key})
+
+if __name__ == "__main__":
+    print("HAMSE SERVER wuu shaqeynayaa")
+    print("Fur: http://127.0.0.1:5000")
+    APP.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
