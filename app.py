@@ -243,9 +243,9 @@ def api_verify():
     if status in ("revoked", "expired"):
         return jsonify({"valid": False, "status": status, "message": "License " + status})
     try:
-        exp14 = datetime.fromisoformat(row["exp"]).strftime("%Y%m%d%H%M%S")
+        exp14 = datetime.fromisoformat(row["exp"]).strftime("%Y-%m-%d %H:%M:%S")
     except Exception:
-        exp14 = "20991231235959"
+        exp14 = "2099-12-31 23:59:59"
     if row["st"] == "unused":
         d.execute("UPDATE keys SET st='used' WHERE id=?", (row["id"],))
         d.commit()
