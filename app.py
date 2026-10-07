@@ -233,6 +233,7 @@ def extend(i):
 def api_verify():
     data = request.get_json(silent=True) or request.form
     key = (data.get("key") or data.get("user_key") or "").strip()
+    serial = (data.get("serial") or "").strip()
     if not key:
         return jsonify({"valid": False, "status": "invalid", "message": "Missing key"})
     d = db()
@@ -240,16 +241,25 @@ def api_verify():
     if not row:
         return jsonify({"valid": False, "status": "invalid", "message": "Invalid license key"})
     status = st_of(row)
-    if status in ("revoked", "expired"):
-        return jsonify({"valid": False, "status": status, "message": "License " + status})
+    if status == "revoked":
+        return jsonify({"valid": False, "status": "revoked", "message": "License revoked"})
+    if status == "expired":
+        return jsonify({"valid": False, "status": "expired", "message": "License expired"})
+    max_dev = row["devices"] or 1
+    if max_dev > 1:
+        used = d.execute("SELECT COUNT(DISTINCT used_by) c FROM keys WHERE k=? AND used_by != ''", (key,)).fetchone()["c"]
+        if used >= max_dev and row["used_by"] != serial:
+            return jsonify({"valid": False, "status": "max_devices", "message": "Max devices reached"})
     try:
-        exp14 = datetime.fromisoformat(row["exp"]).strftime("%Y-%m-%d %H:%M:%S")
+        exp14 = datetime.fromisoformat(row["exp"]).strftime("%Y%m%d%H%M%S")
     except Exception:
-        exp14 = "2099-12-31 23:59:59"
+        exp14 = "20991231235959"
     if row["st"] == "unused":
-        d.execute("UPDATE keys SET st='used' WHERE id=?", (row["id"],))
+        d.execute("UPDATE keys SET st='used', used_by=? WHERE id=?", (serial, row["id"]))
         d.commit()
-    return jsonify({"valid": True, "status": "active", "expire": exp14, "message": "", "reason": ""})
+    return jsonify({"valid": True, "status": "active", "expire": exp14,
+                    "duration": row["duration"], "device_limit": max_dev,
+                    "message": "", "reason": ""})
 
 if __name__ == "__main__":
     print("Hamse cheats panel wuu shaqeynayaa")
