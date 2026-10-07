@@ -246,7 +246,7 @@ def api_verify():
     if status == "expired":
         return jsonify({"valid": False, "status": "expired", "message": "License expired"})
     max_dev = row["devices"] or 1
-    if max_dev > 1:
+    if max_dev >= 1:
         used = d.execute("SELECT COUNT(DISTINCT used_by) c FROM keys WHERE k=? AND used_by != ''", (key,)).fetchone()["c"]
         if used >= max_dev and row["used_by"] != serial:
             return jsonify({"valid": False, "status": "max_devices", "message": "Max devices reached"})
