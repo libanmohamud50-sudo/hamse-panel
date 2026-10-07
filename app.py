@@ -228,6 +228,29 @@ def extend(i):
     d.execute("UPDATE keys SET exp=? WHERE id=?",(new_exp,i)); d.commit()
     return jsonify({"ok":1})
 
+
+@APP.route("/api/verify", methods=["POST"])
+def api_verify():
+    data = request.get_json(silent=True) or request.form
+    key = (data.get("key") or data.get("user_key") or "").strip()
+    if not key:
+        return jsonify({"valid": False, "status": "invalid", "message": "Missing key"})
+    d = db()
+    row = d.execute("SELECT * FROM keys WHERE k=?", (key,)).fetchone()
+    if not row:
+        return jsonify({"valid": False, "status": "invalid", "message": "Invalid license key"})
+    status = st_of(row)
+    if status in ("revoked", "expired"):
+        return jsonify({"valid": False, "status": status, "message": "License " + status})
+    try:
+        exp14 = datetime.fromisoformat(row["exp"]).strftime("%Y%m%d%H%M%S")
+    except Exception:
+        exp14 = "20991231235959"
+    if row["st"] == "unused":
+        d.execute("UPDATE keys SET st='used' WHERE id=?", (row["id"],))
+        d.commit()
+    return jsonify({"valid": True, "status": "active", "expire": exp14, "message": "", "reason": ""})
+
 if __name__ == "__main__":
     print("Hamse cheats panel wuu shaqeynayaa")
     print("Fur: http://127.0.0.1:5000")
