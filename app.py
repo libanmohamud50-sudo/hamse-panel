@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for, g
 
 APP = Flask(__name__)
+PANEL_TOKEN = os.environ.get("PANEL_TOKEN", "")
 APP.secret_key = "hamse_cheats_panel_xyz_2026_v2"
 DB = os.path.join(os.path.dirname(__file__), "hc.db")
 
@@ -116,8 +117,19 @@ def dash():
         elif s=="expired": expired+=1
         elif s=="revoked": revoked+=1
     users = d.execute("SELECT COUNT(*) c FROM users").fetchone()["c"]
+    try:
+        devices = d.execute("SELECT k, used_by, last_used, exp, game FROM keys WHERE used_by IS NOT NULL AND used_by != '' ORDER BY last_used DESC LIMIT 50").fetchall()
+        devices = [dict(r) for r in devices]
+    except Exception:
+        devices = []
+    try:
+        activity = d.execute("SELECT user, action, status, created FROM activities ORDER BY id DESC LIMIT 30").fetchall()
+        activity = [dict(r) for r in activity]
+    except Exception:
+        activity = []
     ctx = base_ctx(); ctx.update(dict(keys=keys, total=total, unused=unused, used=used,
-        expired=expired, revoked=revoked, users=users))
+        expired=expired, revoked=revoked, users=users,
+        devices=devices, activity=activity))
     return render_template("dash.html", **ctx)
 
 @APP.route("/generate")
@@ -227,6 +239,88 @@ def extend(i):
     new_exp = (datetime.fromisoformat(cur)+timedelta(hours=hrs)).isoformat()
     d.execute("UPDATE keys SET exp=? WHERE id=?",(new_exp,i)); d.commit()
     return jsonify({"ok":1})
+
+
+
+def _require_token():
+    tok = request.headers.get("X-Panel-Token", "") or request.args.get("token", "")
+    if not PANEL_TOKEN or not hmac.compare_digest(tok, PANEL_TOKEN):
+        return False
+    return True
+
+
+@APP.route("/api/verify", methods=["POST"])
+def api_verify():
+    if not _require_token():
+        return jsonify(valid=False, error="unauth"), 401
+    data = request.get_json(force=True, silent=True) or {}
+    key = (data.get("key") or data.get("user_key") or "").strip()
+    serial = (data.get("serial") or "").strip()
+    if not key:
+        return jsonify(valid=False, error="no_key")
+    d = db()
+    row = d.execute("SELECT * FROM keys WHERE k=?", (key,)).fetchone()
+    if not row:
+        return jsonify(valid=False, error="not_found")
+    try:
+        exp_dt = datetime.strptime(row["exp"], "%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return jsonify(valid=False, error="bad_date")
+    if exp_dt < datetime.utcnow():
+        return jsonify(valid=False, error="expired")
+    if row["st"] and row["st"].lower() not in ("active", "used", "1", "valid"):
+        return jsonify(valid=False, error="revoked")
+    if row["used_by"] and serial and row["used_by"] != serial:
+        return jsonify(valid=False, error="device_mismatch")
+    if not row["used_by"] and serial:
+        try:
+            d.execute("UPDATE keys SET used_by=?, last_used=?, st='used' WHERE id=?",
+                      (serial, datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), row["id"]))
+            d.commit()
+        except Exception:
+            d.execute("UPDATE keys SET used_by=? WHERE id=?", (serial, row["id"]))
+            d.commit()
+    return jsonify(valid=True, expire=row["exp"])
+
+
+@APP.route("/api/stats")
+def api_stats():
+    if not _require_token():
+        return jsonify(valid=False, error="unauth"), 401
+    d = db()
+    total = d.execute("SELECT COUNT(*) c FROM keys").fetchone()["c"]
+    return jsonify(total=total)
+
+
+@APP.route("/api/devices")
+def api_devices():
+    if not _require_token():
+        return jsonify(valid=False, error="unauth"), 401
+    d = db()
+    try:
+        rows = d.execute("SELECT k, used_by, last_used, exp, game FROM keys WHERE used_by IS NOT NULL AND used_by != '' ORDER BY last_used DESC LIMIT 500").fetchall()
+        return jsonify([dict(r) for r in rows])
+    except Exception:
+        return jsonify([])
+
+
+@APP.route("/api/keys")
+def api_keys():
+    if not _require_token():
+        return jsonify(valid=False, error="unauth"), 401
+    d = db()
+    rows = d.execute("SELECT id, k, game, hrs, duration, devices, st, exp, created FROM keys ORDER BY id DESC LIMIT 500").fetchall()
+    return jsonify([dict(r) for r in rows])
+
+
+@APP.route("/api/activity")
+def api_activity():
+    if not _require_token():
+        return jsonify(valid=False, error="unauth"), 401
+    d = db()
+    rows = d.execute("SELECT id, user, action, status, created FROM activities ORDER BY id DESC LIMIT 200").fetchall()
+    return jsonify([dict(r) for r in rows])
+
 
 if __name__ == "__main__":
     print("Hamse cheats panel wuu shaqeynayaa")
