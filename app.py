@@ -8,6 +8,12 @@ APP.secret_key = "hamse_cheats_panel_xyz_2026_v2"
 DB = os.path.join(os.path.dirname(__file__), "hc.db")
 
 def init():
+    try:
+        _init_real()
+    except Exception as e:
+        print('init error:', e)
+
+def _init_real():
     c = sqlite3.connect(DB)
     c.execute("""CREATE TABLE IF NOT EXISTS users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -255,6 +261,12 @@ def _require_token():
 
 @APP.route("/api/verify", methods=["POST"])
 def api_verify():
+    try:
+        return _api_verify_impl()
+    except Exception as e:
+        return jsonify(valid=False, error="exception: " + str(e)), 500
+
+def _api_verify_impl():
     if not _require_token():
         return jsonify(valid=False, error="unauth"), 401
     data = request.get_json(force=True, silent=True) or {}
@@ -289,11 +301,14 @@ def api_verify():
 
 @APP.route("/api/stats")
 def api_stats():
-    if not _require_token():
-        return jsonify(valid=False, error="unauth"), 401
-    d = db()
-    total = d.execute("SELECT COUNT(*) c FROM keys").fetchone()["c"]
-    return jsonify(total=total)
+    try:
+        if not _require_token():
+            return jsonify(valid=False, error="unauth"), 401
+        d = db()
+        total = d.execute("SELECT COUNT(*) c FROM keys").fetchone()[0]
+        return jsonify(total=total)
+    except Exception as e:
+        return jsonify(valid=False, error="exception: " + str(e), total=0), 500
 
 
 @APP.route("/api/devices")
