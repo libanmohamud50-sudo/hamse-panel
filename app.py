@@ -36,7 +36,19 @@ def _init_real():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         key TEXT, serial TEXT, ip TEXT, ua TEXT,
         action TEXT, status TEXT, created TEXT DEFAULT CURRENT_TIMESTAMP)""")
-    c.commit(); c.close()
+    c.commit()
+
+    # === AUTO-SEED KEYS (Trial-ka Volume la'aan) ===
+    try:
+        c.execute("INSERT OR IGNORE INTO keys (k, game, hrs, duration, devices, st, exp, created) VALUES (?,?,?,?,?,?,?,?)",
+                  ("HC-D830BF", "PUBG", 72, "3d", 1, "unused", "2026-12-31 23:59:59", "2026-10-14 02:00:00"))
+        c.execute("INSERT OR IGNORE INTO keys (k, game, hrs, duration, devices, st, exp, created) VALUES (?,?,?,?,?,?,?,?)",
+                  ("HC-ADMIN01", "PUBG", 999, "∞", 5, "unused", "2099-12-31 23:59:59", "2026-10-14 02:00:00"))
+        c.commit()
+        print("Seed OK: HC-D830BF + HC-ADMIN01")
+    except Exception as e:
+        print("Seed error:", e)
+; c.close()
 init()
 
 def db():
