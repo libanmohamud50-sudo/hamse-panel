@@ -313,7 +313,7 @@ def _api_verify_impl():
         return jsonify(valid=False, error="bad_date")
     if exp_dt < datetime.utcnow():
         return jsonify(valid=False, error="expired")
-    if row["st"] and row["st"].lower() not in ("active", "used", "1", "valid"):
+    if row["st"] and row["st"].lower() not in ("active", "unused", "used", "1", "valid"):
         return jsonify(valid=False, error="revoked")
     if row["used_by"] and serial and row["used_by"] != serial:
         return jsonify(valid=False, error="device_mismatch")
