@@ -253,6 +253,35 @@ def extend(i):
 
 
 
+
+def _parse_exp(exp_str):
+    if exp_str is None or exp_str == "":
+        return None
+    # Integer timestamp
+    if isinstance(exp_str, (int, float)):
+        try:
+            return datetime.utcfromtimestamp(int(exp_str))
+        except Exception:
+            pass
+    s = str(exp_str).strip()
+    # Integer string timestamp
+    if s.isdigit() and len(s) >= 10:
+        try:
+            return datetime.utcfromtimestamp(int(s))
+        except Exception:
+            pass
+    # Replace T with space, drop microseconds
+    s2 = s.replace("T", " ").split(".")[0].split("+")[0].strip()
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d",
+                "%d/%m/%Y %H:%M:%S", "%d/%m/%Y", "%m/%d/%Y %H:%M:%S",
+                "%m/%d/%Y", "%Y/%m/%d %H:%M:%S", "%Y/%m/%d"):
+        try:
+            return datetime.strptime(s2, fmt)
+        except Exception:
+            continue
+    return None
+
+
 def _require_token():
     tok = request.headers.get("X-Panel-Token", "") or request.args.get("token", "")
     if not PANEL_TOKEN or not hmac.compare_digest(tok, PANEL_TOKEN):
@@ -279,9 +308,8 @@ def _api_verify_impl():
     row = d.execute("SELECT * FROM keys WHERE k=?", (key,)).fetchone()
     if not row:
         return jsonify(valid=False, error="not_found")
-    try:
-        exp_dt = datetime.strptime(row["exp"], "%Y-%m-%d %H:%M:%S")
-    except Exception:
+    exp_dt = _parse_exp(row["exp"])
+    if exp_dt is None:
         return jsonify(valid=False, error="bad_date")
     if exp_dt < datetime.utcnow():
         return jsonify(valid=False, error="expired")
