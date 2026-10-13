@@ -282,4 +282,4 @@ def api_devices():
 if __name__ == "__main__":
     print("Hamse cheats panel wuu shaqeynayaa")
     print("Fur: http://127.0.0.1:5000")
-    APP.run(host="0.0.0.0", port=5000)
+    APP.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
