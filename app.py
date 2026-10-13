@@ -25,6 +25,10 @@ def init():
     c.execute("""CREATE TABLE IF NOT EXISTS notifications(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user TEXT, msg TEXT, type TEXT, seen INTEGER DEFAULT 0, created TEXT)""")
+    c.execute("""CREATE TABLE IF NOT EXISTS activity(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT, serial TEXT, ip TEXT, ua TEXT,
+        action TEXT, status TEXT, created TEXT DEFAULT CURRENT_TIMESTAMP)""")
     c.commit(); c.close()
 init()
 
@@ -123,7 +127,7 @@ def dash():
     except Exception:
         devices = []
     try:
-        activity = d.execute("SELECT user, action, status, created FROM activities ORDER BY id DESC LIMIT 30").fetchall()
+        activity = d.execute("SELECT key, action, status, created FROM activity ORDER BY id DESC LIMIT 30").fetchall()
         activity = [dict(r) for r in activity]
     except Exception:
         activity = []
@@ -318,8 +322,11 @@ def api_activity():
     if not _require_token():
         return jsonify(valid=False, error="unauth"), 401
     d = db()
-    rows = d.execute("SELECT id, user, action, status, created FROM activities ORDER BY id DESC LIMIT 200").fetchall()
-    return jsonify([dict(r) for r in rows])
+    try:
+        rows = d.execute("SELECT id, key, action, status, created FROM activity ORDER BY id DESC LIMIT 200").fetchall()
+        return jsonify([dict(r) for r in rows])
+    except Exception:
+        return jsonify([])
 
 
 if __name__ == "__main__":
