@@ -171,4 +171,65 @@ let sec=849*24*3600;
 setInterval(()=>{sec--;const d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60),s=sec%60;
 document.getElementById('tm').textContent=d+'d : '+String(h).padStart(2,'0')+'h : '+String(m).padStart(2,'0')+'m : '+String(s).padStart(2,'0')+'s'},1000);
 </script>
+
+<!-- DEVICES -->
+<div style="margin-top:20px">
+  <h3 style="color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px">🖥️ Active Devices</h3>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead>
+        <tr style="background:rgba(255,255,255,.03)">
+          <th style="padding:8px;text-align:left;color:var(--muted)">KEY</th>
+          <th style="padding:8px;text-align:left;color:var(--muted)">DEVICE</th>
+          <th style="padding:8px;text-align:left;color:var(--muted)">LAST USED</th>
+          <th style="padding:8px;text-align:left;color:var(--muted)">EXPIRE</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in devices %}
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:8px">{{ d.k }}</td>
+          <td style="padding:8px;color:var(--muted);font-size:10px">{{ d.used_by[:20] }}...</td>
+          <td style="padding:8px;color:var(--muted)">{{ d.last_used or '—' }}</td>
+          <td style="padding:8px">{{ d.exp }}</td>
+        </tr>
+        {% endfor %}
+        {% if not devices %}
+        <tr><td colspan="4" style="padding:14px;text-align:center;color:var(--muted)">No devices yet</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ACTIVITY -->
+<div style="margin-top:20px">
+  <h3 style="color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px">📋 Recent Activity</h3>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead>
+        <tr style="background:rgba(255,255,255,.03)">
+          <th style="padding:8px;text-align:left;color:var(--muted)">USER</th>
+          <th style="padding:8px;text-align:left;color:var(--muted)">ACTION</th>
+          <th style="padding:8px;text-align:left;color:var(--muted)">STATUS</th>
+          <th style="padding:8px;text-align:left;color:var(--muted)">TIME</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in activity %}
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:8px">{{ a.user }}</td>
+          <td style="padding:8px">{{ a.action }}</td>
+          <td style="padding:8px;color:{% if a.status=='ok' %}var(--accent){% else %}#ff3d81{% endif %}">{{ a.status }}</td>
+          <td style="padding:8px;color:var(--muted)">{{ a.created[:19] }}</td>
+        </tr>
+        {% endfor %}
+        {% if not activity %}
+        <tr><td colspan="4" style="padding:14px;text-align:center;color:var(--muted)">No activity yet</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 </body></html>

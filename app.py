@@ -17,7 +17,7 @@ def init():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         k TEXT UNIQUE, game TEXT DEFAULT 'PUBG', hrs INTEGER, duration TEXT,
         devices INTEGER DEFAULT 1, st TEXT DEFAULT 'unused',
-        exp TEXT, created TEXT, used_by TEXT)""")
+        exp TEXT, created TEXT, used_by TEXT, last_used TEXT)""")
     c.execute("""CREATE TABLE IF NOT EXISTS activities(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user TEXT, action TEXT, status TEXT, created TEXT)""")
@@ -116,8 +116,11 @@ def dash():
         elif s=="expired": expired+=1
         elif s=="revoked": revoked+=1
     users = d.execute("SELECT COUNT(*) c FROM users").fetchone()["c"]
+    devices = d.execute("SELECT k, used_by, last_used, exp, game FROM keys WHERE used_by IS NOT NULL AND used_by != '' ORDER BY last_used DESC LIMIT 50").fetchall()
+    activity = d.execute("SELECT user, action, status, created FROM activities ORDER BY id DESC LIMIT 30").fetchall()
     ctx = base_ctx(); ctx.update(dict(keys=keys, total=total, unused=unused, used=used,
-        expired=expired, revoked=revoked, users=users))
+        expired=expired, revoked=revoked, users=users,
+        devices=[dict(r) for r in devices], activity=[dict(r) for r in activity]))
     return render_template("dash.html", **ctx)
 
 @APP.route("/generate")
@@ -227,6 +230,54 @@ def extend(i):
     new_exp = (datetime.fromisoformat(cur)+timedelta(hours=hrs)).isoformat()
     d.execute("UPDATE keys SET exp=? WHERE id=?",(new_exp,i)); d.commit()
     return jsonify({"ok":1})
+
+
+
+@app.route("/api/stats")
+def api_stats():
+    tok = request.headers.get("X-Panel-Token", "") or request.args.get("token", "")
+    if not PANEL_TOKEN or not hmac.compare_digest(tok, PANEL_TOKEN):
+        return jsonify(valid=False, error="unauth"), 401
+    d = db()
+    total = d.execute("SELECT COUNT(*) FROM keys").fetchone()[0]
+    active = d.execute("SELECT COUNT(*) FROM keys WHERE st='active'").fetchone()[0]
+    used = d.execute("SELECT COUNT(*) FROM keys WHERE used_by IS NOT NULL AND used_by != ''").fetchone()[0]
+    devices = d.execute("SELECT COUNT(DISTINCT used_by) FROM keys WHERE used_by IS NOT NULL AND used_by != ''").fetchone()[0]
+    today = d.execute("SELECT COUNT(*) FROM activities WHERE date(created)=date('now')").fetchone()[0]
+    return jsonify(total=total, active=active, used=used, devices=devices, today_requests=today)
+
+
+@app.route("/api/keys")
+def api_keys():
+    tok = request.headers.get("X-Panel-Token", "") or request.args.get("token", "")
+    if not PANEL_TOKEN or not hmac.compare_digest(tok, PANEL_TOKEN):
+        return jsonify(valid=False, error="unauth"), 401
+    d = db()
+    rows = d.execute("SELECT id, k, game, hrs, duration, devices, st, exp, used_by, last_used, created FROM keys ORDER BY id DESC LIMIT 500").fetchall()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route("/api/activity")
+def api_activity():
+    tok = request.headers.get("X-Panel-Token", "") or request.args.get("token", "")
+    if not PANEL_TOKEN or not hmac.compare_digest(tok, PANEL_TOKEN):
+        return jsonify(valid=False, error="unauth"), 401
+    d = db()
+    rows = d.execute("SELECT id, user, action, status, created FROM activities ORDER BY id DESC LIMIT 200").fetchall()
+    return jsonify([dict(r) for r in rows])
+
+
+
+
+@APP.route("/api/devices")
+def api_devices():
+    tok = request.headers.get("X-Panel-Token", "") or request.args.get("token", "")
+    if not PANEL_TOKEN or not hmac.compare_digest(tok, PANEL_TOKEN):
+        return jsonify(valid=False, error="unauth"), 401
+    d = db()
+    rows = d.execute("SELECT k, used_by, last_used, exp, game FROM keys WHERE used_by IS NOT NULL AND used_by != '' ORDER BY last_used DESC LIMIT 500").fetchall()
+    return jsonify([dict(r) for r in rows])
+
 
 if __name__ == "__main__":
     print("Hamse cheats panel wuu shaqeynayaa")
