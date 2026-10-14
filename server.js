@@ -98,6 +98,16 @@ app.post('/api/register', (req, res) => {
   res.json({ success: true, message: 'Isdiiwaangelinta guuleystay', referral_code: newRefCode });
 });
 
+
+function calcExpiry(hours) {
+  if (!hours || hours === 0 || hours === '0' || hours === 'lifetime') return '2099-12-31 23:59:59';
+  const h = parseInt(hours);
+  if (isNaN(h)) return '2099-12-31 23:59:59';
+  const d = new Date(Date.now() + h * 3600 * 1000);
+  const pad = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+}
+
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Username iyo password waa loo baahan yahay' });
