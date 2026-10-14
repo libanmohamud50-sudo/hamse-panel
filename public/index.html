@@ -149,7 +149,6 @@ table th { background: #f0f4f8; color: #0a1f44; font-weight: 600; font-size: 13p
     <a onclick="showSection('licenses')" id="nav-licenses">🔑 Licenses</a>
     <a onclick="showSection('referrals')" id="nav-referrals">🎁 Referrals</a>
     <a onclick="showSection('server')" id="nav-server">🖥️ Server Edit</a>
-    <a onclick="showSection('worker')" id="nav-worker">☁️ Cloudflare Worker</a>
     <a onclick="showSection('status')" id="nav-status">⚡ System Status</a>
     <a onclick="showSection('settings')" id="nav-settings">⚙️ Settings</a>
     <a onclick="doLogout()" style="margin-top:20px;color:#ff8888;">🚪 Logout</a>
@@ -271,35 +270,6 @@ table th { background: #f0f4f8; color: #0a1f44; font-weight: 600; font-size: 13p
   <div class="card" id="deployLogCard" style="display:none;">
     <h3>Deploy Log</h3>
     <div id="deployLogContent" style="margin-top:12px;font-family:monospace;font-size:12px;"></div>
-  </div>
-</div>
-<div id="section-worker" class="hidden">
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h3 style="margin:0;">☁️ Cloudflare Worker</h3>
-      <button class="btn-sm btn-primary" onclick="loadWorkerPage()">🔄 Refresh</button>
-    </div>
-    <div class="grid" style="margin-bottom:16px;">
-      <div class="card" style="margin:0;"><h3>Status</h3><div class="big" id="cw-status" style="font-size:20px;">-</div></div>
-      <div class="card" style="margin:0;"><h3>Code Size</h3><div class="big" id="cw-code-size" style="font-size:20px;">-</div></div>
-      <div class="card" style="margin:0;"><h3>Response Time</h3><div class="big" id="cw-response" style="font-size:20px;">-</div></div>
-      <div class="card" style="margin:0;"><h3>Worker URL</h3><div class="big" id="cw-url" style="font-size:12px;word-break:break-all;">-</div></div>
-    </div>
-  </div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="margin:0;">💻 Worker Code</h3>
-      <div class="toolbar" style="margin:0;">
-        <button class="btn-sm btn-primary" onclick="selectAllWorkerCode()">Select All</button>
-        <button class="btn-sm btn-warn" onclick="removeAllWorkerCode()">Remove All</button>
-        <button class="btn-sm btn-success" onclick="saveWorkerCode()" id="cw-save-btn">🚀 Deploy</button>
-      </div>
-    </div>
-    <div class="editor-wrap">
-      <div class="line-numbers" id="cwLineNumbers">1</div>
-      <textarea id="cw-code" class="code-input" spellcheck="false" placeholder="// Worker code halkan..." oninput="updateLineNumbers('cw-code', 'cwLineNumbers')" onscroll="syncScroll('cw-code', 'cwLineNumbers')"></textarea>
-    </div>
-    <div id="cw-result" style="margin-top:12px;"></div>
   </div>
 </div>
 <div id="section-status" class="hidden">
@@ -871,9 +841,9 @@ async function loadDeployLog() {
 function syncScroll(a,b){var t=document.getElementById(a),l=document.getElementById(b);if(t&&l)l.scrollTop=t.scrollTop;}
 function cwSelectAll(){var t=document.getElementById('cw-code');t.focus();t.select();showToast('La doortay','info');}
 function cwRemoveAll(){if(!confirm('Tirtir?'))return;document.getElementById('cw-code').value='';updateLineNumbers('cw-code','cwLineNumbers');}
-async function loadWorkerPage(){try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/status',{headers:{'Authorization':'Bearer '+t}});var d=await r.json();var sE=document.getElementById('cw-status'),zE=document.getElementById('cw-code-size'),rE=document.getElementById('cw-response'),uE=document.getElementById('cw-url');if(d.success&&d.online){sE.innerHTML='Online';zE.textContent=(d.code_length||0)+' bytes';rE.textContent=(d.response_time||'N/A');uE.textContent=(d.worker_url||'N/A');}else{sE.innerHTML='Offline';}var cr=await fetch('/api/worker/code',{headers:{'Authorization':'Bearer '+t}});var cd=await cr.json();var c=document.getElementById('cw-code');if(cd.success&&c){c.value=cd.code||'';updateLineNumbers('cw-code','cwLineNumbers');}else if(c){c.value='// '+(cd.error||'Code lama helin');updateLineNumbers('cw-code','cwLineNumbers');}}catch(e){showToast('Worker: '+e.message,'error');}}
-async function cwDeploy(){var b=document.getElementById('cw-save-btn');var c=document.getElementById('cw-code').value;var rs=document.getElementById('cw-result');if(!c){showToast('Code ma jiro','error');return;}b.disabled=true;b.textContent='Deploying...';rs.innerHTML='<p>Deploy socda...</p>';try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/code',{method:'POST',headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({code:c})});var d=await r.json();if(d.success){rs.innerHTML='<div style="padding:15px;background:#d4f4dd;border:1px solid #0a7a3a;border-radius:10px;color:#0a7a3a;"><b>Deploy Successful!</b> '+(d.message||'')+'</div>';showToast('La deploy-gareeyay!','success');setTimeout(loadWorkerPage,1500);}else{rs.innerHTML='<div style="padding:15px;background:#fde0e0;border:1px solid #a02020;border-radius:10px;color:#a02020;"><b>Failed!</b> '+(d.error||'')+'</div>';showToast('Fail','error');}}catch(e){rs.innerHTML='<div style="padding:15px;background:#fde0e0;border-radius:10px;">Error: '+e.message+'</div>';}b.disabled=false;b.textContent='Deploy';}
-(function(){var o=window.showSection;window.showSection=function(n){if(o)o(n);if(n==='worker')loadWorkerPage();if(n==='server'&&typeof loadServerFiles==='function')loadServerFiles();};})();
+});var d=await r.json();var sE=document.getElementById('cw-status'),zE=document.getElementById('cw-code-size'),rE=document.getElementById('cw-response'),uE=document.getElementById('cw-url');if(d.success&&d.online){sE.innerHTML='Online';zE.textContent=(d.code_length||0)+' bytes';rE.textContent=(d.response_time||'N/A');uE.textContent=(d.worker_url||'N/A');}else{sE.innerHTML='Offline';}var cr=await fetch('/api/worker/code',{headers:{'Authorization':'Bearer '+t}});var cd=await cr.json();var c=document.getElementById('cw-code');if(cd.success&&c){c.value=cd.code||'';updateLineNumbers('cw-code','cwLineNumbers');}else if(c){c.value='// '+(cd.error||'Code lama helin');updateLineNumbers('cw-code','cwLineNumbers');}}catch(e){showToast('Worker: '+e.message,'error');}}
+b.disabled=true;b.textContent='Deploying...';rs.innerHTML='<p>Deploy socda...</p>';try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/code',{method:'POST',headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({code:c})});var d=await r.json();if(d.success){rs.innerHTML='<div style="padding:15px;background:#d4f4dd;border:1px solid #0a7a3a;border-radius:10px;color:#0a7a3a;"><b>Deploy Successful!</b> '+(d.message||'')+'</div>';showToast('La deploy-gareeyay!','success');setTimeout(loadWorkerPage,1500);}else{rs.innerHTML='<div style="padding:15px;background:#fde0e0;border:1px solid #a02020;border-radius:10px;color:#a02020;"><b>Failed!</b> '+(d.error||'')+'</div>';showToast('Fail','error');}}catch(e){rs.innerHTML='<div style="padding:15px;background:#fde0e0;border-radius:10px;">Error: '+e.message+'</div>';}b.disabled=false;b.textContent='Deploy';}
+(function(){var o=window.showSection;window.showSection=function(n){if(o)o(n);if(n==='server'&&typeof loadServerFiles==='function')loadServerFiles();};})();
 </script>
 </body>
 </html>

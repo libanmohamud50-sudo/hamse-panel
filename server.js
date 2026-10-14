@@ -31,9 +31,11 @@ async function initDB() {
     db = new SQL.Database();
   }
   db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL, fullname TEXT, role TEXT DEFAULT 'user', license_key TEXT, referral_code TEXT UNIQUE, referred_by TEXT, status TEXT DEFAULT 'active', created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
-  db.run("CREATE TABLE IF NOT EXISTS licenses (id INTEGER PRIMARY KEY AUTOINCREMENT, license_key TEXT UNIQUE NOT NULL, user_id INTEGER, device_id TEXT, serial TEXT, duration TEXT, expires_at DATETIME, status TEXT DEFAULT 'unused', used_at DATETIME)");
+  db.run("CREATE TABLE IF NOT EXISTS licenses (id INTEGER PRIMARY KEY AUTOINCREMENT, license_key TEXT UNIQUE NOT NULL, user_id INTEGER, device_id TEXT, serial TEXT, max_devices INTEGER DEFAULT 1, used_devices TEXT DEFAULT '[]', duration TEXT, expires_at DATETIME, status TEXT DEFAULT 'unused', used_at DATETIME)");
 
   try { db.run("ALTER TABLE licenses ADD COLUMN serial TEXT"); } catch (e) {}
+  try { db.run("ALTER TABLE licenses ADD COLUMN max_devices INTEGER DEFAULT 1"); } catch (e) {}
+  try { db.run("ALTER TABLE licenses ADD COLUMN used_devices TEXT DEFAULT '[]'"); } catch (e) {}
   db.run("CREATE TABLE IF NOT EXISTS referrals (id INTEGER PRIMARY KEY AUTOINCREMENT, referrer_code TEXT, referred_user TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
   const adminExists = db.exec("SELECT id FROM users WHERE username = '" + ADMIN_USERNAME + "'");
   if (!adminExists.length || !adminExists[0].values.length) {
@@ -244,11 +246,16 @@ app.post('/api/verify', async (req, res) => {
       }
     }
     if (serial) {
-      if (!lic.serial) {
-        db.run("UPDATE licenses SET serial=?, device_id=?, status='active', used_at=CURRENT_TIMESTAMP WHERE id=?", [serial, serial, lic.id]);
+      var maxDev = parseInt(lic.max_devices) || 1;
+      var used = [];
+      try { used = JSON.parse(lic.used_devices || '[]'); } catch(e) { used = []; }
+      if (used.indexOf(serial) === -1) {
+        if (used.length >= maxDev) {
+          return res.json({ valid: false, reason: 'Device limit (' + maxDev + ') gaartay' });
+        }
+        used.push(serial);
+        db.run("UPDATE licenses SET used_devices=?, status='active', used_at=CURRENT_TIMESTAMP WHERE id=?", [JSON.stringify(used), lic.id]);
         saveDB();
-      } else if (lic.serial !== serial) {
-        return res.json({ valid: false, reason: 'Serial khaldan' });
       }
     }
     res.json({ valid: true, expire: lic.expires_at || '2099-12-31 23:59:59', status: 'active', duration: lic.duration });
