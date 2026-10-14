@@ -218,6 +218,40 @@ app.get('/api/worker/status', authMiddleware, adminMiddleware, async (req, res) 
   } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
+
+// ===== WORKER VERIFY ENDPOINT =====
+app.post('/api/verify', async (req, res) => {
+  try {
+    const tok = req.headers['x-panel-token'] || '';
+    const expected = process.env.PANEL_TOKEN || 'HAMSE_PANEL_TOKEN_2026';
+    let okToken = false;
+    try { okToken = tok.length === expected.length && crypto.timingSafeEqual(Buffer.from(tok), Buffer.from(expected)); } catch(e) {}
+    if (!okToken) return res.status(401).json({ valid: false, error: 'Panel token khaldan' });
+    const body = req.body || {};
+    const key = body.key;
+    const serial = body.serial;
+    if (!key) return res.json({ valid: false, reason: 'Key ma jiro' });
+    const lic = queryOne('SELECT * FROM licenses WHERE license_key = ?', [key]);
+    if (!lic) return res.json({ valid: false, reason: 'Key lama helin' });
+    if (lic.status === 'banned') return res.json({ valid: false, reason: 'Key waa la xannibay' });
+    if (lic.expires_at && lic.expires_at !== '2099-12-31 23:59:59') {
+      if (new Date(lic.expires_at) < new Date()) {
+        db.run("UPDATE licenses SET status='expired' WHERE id=?", [lic.id]);
+        saveDB();
+        return res.json({ valid: false, reason: 'Key wuu dhacay', expire: lic.expires_at });
+      }
+    }
+    if (serial) {
+      if (!lic.serial) {
+        db.run("UPDATE licenses SET serial=?, device_id=?, status='active', used_at=CURRENT_TIMESTAMP WHERE id=?", [serial, serial, lic.id]);
+        saveDB();
+      } else if (lic.serial !== serial) {
+        return res.json({ valid: false, reason: 'Serial khaldan' });
+      }
+    }
+    res.json({ valid: true, expire: lic.expires_at || '2099-12-31 23:59:59', status: 'active', duration: lic.duration });
+  } catch (err) { res.status(500).json({ valid: false, error: err.message }); }
+});
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 initDB().then(() => {
