@@ -1,0 +1,129 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hamse cheats panel</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--accent:#ff0033;--accent2:#7c00ff;--bg:#000;--card:#0c0c0c;--border:#1a1a1a;--text:#fff;--muted:#666}
+[data-theme="light"]{--bg:#f5f5f7;--card:#fff;--border:#e0e0e0;--text:#111;--muted:#666}
+[data-accent="red"]{--accent:#ff0033;--accent2:#7c00ff}
+[data-accent="purple"]{--accent:#7c00ff;--accent2:#c800ff}
+[data-accent="cyan"]{--accent:#00bcd4;--accent2:#00e5ff}
+[data-accent="green"]{--accent:#00c853;--accent2:#00e676}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif;min-height:100vh;padding:14px}
+.hamb{position:fixed;top:14px;left:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:16px;cursor:pointer;z-index:101;color:var(--text)}
+.breadcrumb{font-size:10px;color:var(--muted);letter-spacing:2px;margin:14px 0;padding-left:44px}
+.breadcrumb b{color:var(--accent)}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px}
+.sec h3{font-size:12px;letter-spacing:2px;margin-bottom:14px;color:var(--accent)}
+label{font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;display:block}
+input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--text);font-size:14px;margin-bottom:12px;outline:none}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #ff003325}
+.btn{width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:0;border-radius:12px;padding:14px;font-size:13px;font-weight:700;letter-spacing:1.5px;cursor:pointer;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
+.row:last-child{border:0}
+.row .k{color:var(--muted)}.row .v{font-weight:700}
+.themes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.t-opt{height:36px;border-radius:10px;cursor:pointer;border:2px solid transparent}
+.t-opt.on{border-color:var(--text)}
+.t-red{background:linear-gradient(135deg,#ff0033,#7c00ff)}
+.t-purple{background:linear-gradient(135deg,#7c00ff,#c800ff)}
+.t-cyan{background:linear-gradient(135deg,#00bcd4,#00e5ff)}
+.t-green{background:linear-gradient(135deg,#00c853,#00e676)}
+.mode-row{display:flex;gap:8px;margin-bottom:12px}
+.mode-btn{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:10px;font-size:11px;cursor:pointer;font-weight:600}
+.mode-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.err{background:#ff003320;color:#ff8080;padding:10px;border-radius:10px;font-size:12px;text-align:center;margin-bottom:14px;border:1px solid #ff003340}
+.ok{background:#00ff2015;color:#00ff80;padding:10px;border-radius:10px;font-size:12px;text-align:center;margin-bottom:14px;border:1px solid #00ff2040}
+.foot{text-align:center;font-size:9px;color:var(--muted);margin:18px 0;letter-spacing:2px}
+</style></head><body data-theme="{{theme}}" data-accent="{{accent}}">
+<div class="hamb" onclick="location.href='/dashboard'">←</div>
+<div class="breadcrumb">DASHBOARD / <b>SETTINGS</b></div>
+
+<div class="sec">
+  <h3>🎨 APPEARANCE</h3>
+  <label>ACCENT COLOR</label>
+  <div class="themes">
+    <div class="t-opt t-red {{'on' if accent=='red' else ''}}" onclick="setAccent('red',this)"></div>
+    <div class="t-opt t-purple {{'on' if accent=='purple' else ''}}" onclick="setAccent('purple',this)"></div>
+    <div class="t-opt t-cyan {{'on' if accent=='cyan' else ''}}" onclick="setAccent('cyan',this)"></div>
+    <div class="t-opt t-green {{'on' if accent=='green' else ''}}" onclick="setAccent('green',this)"></div>
+  </div>
+  <label>THEME</label>
+  <div class="mode-row">
+    <div class="mode-btn {{'on' if theme=='dark' else ''}}" onclick="setMode('dark',this)">🌙 DARK</div>
+    <div class="mode-btn {{'on' if theme=='light' else ''}}" onclick="setMode('light',this)">☀️ LIGHT</div>
+  </div>
+  <label>CLOCK</label>
+  <div class="mode-row">
+    <div class="mode-btn {{'on' if clock=='24' else ''}}" onclick="setClock('24',this)">24 HOUR</div>
+    <div class="mode-btn {{'on' if clock=='12' else ''}}" onclick="setClock('12',this)">12 HOUR</div>
+  </div>
+</div>
+
+<div class="sec">
+  <h3>🔐 CHANGE PASSWORD</h3>
+  <div id="msg"></div>
+  <label>CURRENT PASSWORD</label>
+  <input id="cur" type="password" placeholder="••••••••">
+  <label>NEW PASSWORD</label>
+  <input id="new" type="password" placeholder="••••••••">
+  <label>CONFIRM PASSWORD</label>
+  <input id="conf" type="password" placeholder="••••••••">
+  <button class="btn" onclick="changePw()">💾 SAVE PASSWORD</button>
+</div>
+
+<div class="sec">
+  <h3>ℹ️ ACCOUNT</h3>
+  <div class="row"><span class="k">Username</span><span class="v">{{u}}</span></div>
+  <div class="row"><span class="k">Role</span><span class="v">{{user_role}}</span></div>
+  <div class="row"><span class="k">Panel</span><span class="v">Hamse cheats panel</span></div>
+  <div class="row"><span class="k">Owner</span><span class="v">@hamsecheatsvip</span></div>
+</div>
+
+<div class="sec">
+  <h3>🖥️ SYSTEM</h3>
+  <div class="row"><span class="k">Server</span><span class="v" style="color:#00ff80">● ONLINE</span></div>
+  <div class="row"><span class="k">Database</span><span class="v" style="color:#00ff80">● CONNECTED</span></div>
+  <div class="row"><span class="k">API</span><span class="v" style="color:#00ff80">● ONLINE</span></div>
+  <div class="row"><span class="k">Version</span><span class="v">v2.0</span></div>
+</div>
+
+<div class="sec">
+  <h3>🚪 LOGOUT</h3>
+  <button class="btn" onclick="location.href='/logout'">🚪 LOGOUT</button>
+</div>
+
+<div class="foot">© 2026 Hamse cheats panel • @hamsecheatsvip</div>
+<script>
+async function setAccent(a,el){
+  document.body.setAttribute('data-accent',a);
+  document.querySelectorAll('.t-opt').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  await fetch('/api/theme',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accent:a})});
+}
+async function setMode(m,el){
+  document.body.setAttribute('data-theme',m);
+  document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  await fetch('/api/theme',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({theme:m})});
+}
+async function setClock(c,el){
+  document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  await fetch('/api/theme',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clock:c})});
+}
+async function changePw(){
+  const msg = document.getElementById('msg');
+  msg.innerHTML='';
+  const cur=document.getElementById('cur').value;
+  const nw=document.getElementById('new').value;
+  const cf=document.getElementById('conf').value;
+  if(nw !== cf){ msg.innerHTML='<div class="err">Password cusub isku mid ma aha</div>'; return; }
+  const r = await fetch('/api/password',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({cur:cur,new:nw})});
+  const d = await r.json();
+  if(d.ok){ msg.innerHTML='<div class="ok">✅ Password la beddelay</div>'; document.getElementById('cur').value=''; document.getElementById('new').value=''; document.getElementById('conf').value=''; }
+  else { msg.innerHTML='<div class="err">'+(d.e||'Khalad')+'</div>'; }
+}
+</script>
+</body></html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hamse Cheats Panel XYZ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--accent:#ff0033;--accent2:#7c00ff;--bg:#000;--card:#0c0c0c;--border:#1a1a1a;--text:#fff;--muted:#666}
+[data-theme="light"]{--bg:#f5f5f7;--card:#fff;--border:#e0e0e0;--text:#111;--muted:#666}
+[data-accent="red"]{--accent:#ff0033;--accent2:#7c00ff}
+[data-accent="purple"]{--accent:#7c00ff;--accent2:#c800ff}
+[data-accent="cyan"]{--accent:#00bcd4;--accent2:#00e5ff}
+[data-accent="green"]{--accent:#00c853;--accent2:#00e676}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif;min-height:100vh;padding:14px}
+.hamb{position:fixed;top:14px;left:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:16px;cursor:pointer;z-index:101;color:var(--text)}
+.breadcrumb{font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:14px;padding-left:44px;margin-top:14px}
+.breadcrumb b{color:var(--accent)}
+.bal{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.bal .ico{font-size:20px}
+.bal .t{font-size:14px;font-weight:700}
+.bal .t small{display:block;color:var(--muted);font-size:9px;letter-spacing:2px;font-weight:400;margin-top:2px}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px}
+.sec h3{font-size:12px;letter-spacing:2px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.vk{background:transparent;border:1px solid var(--border);color:var(--accent);border-radius:8px;padding:5px 10px;font-size:10px;cursor:pointer}
+label{font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;display:block;margin-left:2px}
+select,input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--text);font-size:14px;margin-bottom:14px;outline:none;appearance:none}
+select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #ff003325}
+.chk{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:13px;color:var(--text);cursor:pointer}
+.chk input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.gen{width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:0;border-radius:14px;padding:16px;font-size:13px;font-weight:800;letter-spacing:2px;cursor:pointer;margin-top:6px}
+.gen:active{transform:scale(.97)}
+.kb{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.kb .kc{font-family:ui-monospace,monospace;font-size:12px;color:var(--accent);flex:1;word-break:break-all;font-weight:700}
+.kb .x{background:var(--border);border:0;color:var(--text);border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer}
+.foot{text-align:center;font-size:9px;color:var(--muted);margin:18px 0;letter-spacing:2px}
+.err{background:#ff003320;color:#ff8080;padding:10px;border-radius:10px;font-size:12px;text-align:center;margin-bottom:14px;border:1px solid #ff003340}
+</style></head><body data-theme="{{theme}}" data-accent="{{accent}}">
+<div class="hamb" onclick="location.href='/dashboard'">←</div>
+<div class="breadcrumb">DASHBOARD / <b>GENERATE</b></div>
+
+<div class="bal"><div class="ico">💰</div><div class="t">Total Saldo $999,998,004<small>RESELLER BALANCE</small></div></div>
+
+<div class="sec">
+  <h3>🔑 Create PUBG License <button class="vk" onclick="location.href='/keymanager'">📋 View Keys</button></h3>
+  <div id="err" class="err" style="display:none"></div>
+  <label>GAME</label>
+  <select id="game" disabled><option value="PUBG">PUBG MOBILE</option></select>
+  <label>MAX DEVICES (1 - 5000)</label>
+  <input id="dev" type="number" value="1" min="1" max="5000">
+  <label>DURATION</label>
+  <select id="dur">
+    <option value="1">1 Hour</option>
+    <option value="2">2 Hours</option>
+    <option value="3">3 Hours</option>
+    <option value="4">4 Hours</option>
+    <option value="5">5 Hours</option>
+    <option value="6">6 Hours</option>
+    <option value="12">12 Hours</option>
+    <option value="24">24 Hours</option>
+    <option value="48">48 Hours</option>
+    <option value="72">72 Hours</option>
+    <option value="168">7 Days</option>
+    <option value="720">30 Days</option>
+    <option value="1440">60 Days</option>
+  </select>
+  <label>CUSTOM DURATION (Hours)</label>
+  <input id="customh" type="number" placeholder="Tusaale: 8, 15, 36, 100" min="1" max="100000">
+  <label class="chk"><input type="checkbox" id="ck"> Custom Key (gacanta)</label>
+  <input id="ckey" placeholder="HC-XXXXXX" style="display:none">
+  <label>BULK KEYS (1 - 5000)</label>
+  <input id="bulk" type="number" value="1" min="1" max="5000">
+  <label>ESTIMATION</label>
+  <input id="est" value="10" readonly>
+  <button class="gen" id="btn" onclick="genKey()">🔑 Generate PUBG License</button>
+</div>
+
+<div class="sec" id="result" style="display:none"><h3>✅ Keys Generated</h3><div id="list"></div></div>
+
+<div class="foot">© 2026 Hamse Cheats Panel XYZ • @hamsecheatsvip</div>
+<script>
+function updBtn(){
+  const h = parseInt(document.getElementById('customh').value || document.getElementById('dur').value);
+  const btn = document.getElementById('btn');
+  let lbl = '1 Hour';
+  if(h === 1) lbl='1 Hour'; else if(h<24) lbl=h+' Hours';
+  else if(h === 24) lbl='1 Day'; else if(h<168) lbl=(h/24)+' Days';
+  else if(h === 168) lbl='7 Days'; else if(h === 720) lbl='30 Days';
+  else if(h === 1440) lbl='60 Days'; else lbl=h+' Hours';
+  btn.textContent = '🔑 GENERATE ' + lbl.toUpperCase() + ' KEY';
+}
+document.getElementById('dur').onchange = updBtn;
+document.getElementById('customh').oninput = updBtn;
+document.getElementById('ck').onchange = function(){
+  document.getElementById('ckey').style.display = this.checked ? 'block':'none';
+};
+document.getElementById('bulk').oninput = function(){
+  document.getElementById('est').value = (this.value*10);
+};
+async function genKey(){
+  const err = document.getElementById('err'); err.style.display='none';
+  let h = document.getElementById('customh').value;
+  if(!h) h = document.getElementById('dur').value;
+  h = parseInt(h);
+  const dev = parseInt(document.getElementById('dev').value);
+  const bulk = parseInt(document.getElementById('bulk').value);
+  const custom = document.getElementById('ck').checked ? document.getElementById('ckey').value : '';
+
+  if(h < 1){ err.textContent='Duration waa inuu ka weyn yahay 0'; err.style.display='block'; return; }
+  if(dev < 1 || dev > 5000){ err.textContent='Devices waa 1-5000'; err.style.display='block'; return; }
+  if(bulk < 1 || bulk > 5000){ err.textContent='Bulk waa 1-5000'; err.style.display='block'; return; }
+  if(custom && bulk > 1){ err.textContent='Custom key hal key oo keliya'; err.style.display='block'; return; }
+
+  document.getElementById('btn').textContent = 'LOADING...';
+  const r = await fetch('/api/gen',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({h:h,dev:dev,bulk:bulk,custom:custom})});
+  const d = await r.json();
+  if(d.ok){
+    document.getElementById('result').style.display='block';
+    const list = document.getElementById('list'); list.innerHTML='';
+    d.keys.forEach(k=>{
+      const b=document.createElement('div');b.className='kb';
+      b.innerHTML='<div class="kc">'+k+'</div><button class="x" onclick="navigator.clipboard.writeText(\''+k+'\');this.textContent=\'✅\'">📋</button>';
+      list.appendChild(b);
+    });
+    updBtn();
+  } else {
+    err.textContent = d.e || 'Khalad'; err.style.display='block'; updBtn();
+  }
+}
+updBtn();
+</script>
+</body></html>
