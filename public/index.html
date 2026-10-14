@@ -89,26 +89,9 @@ table th { background: #f0f4f8; color: #0a1f44; font-weight: 600; font-size: 13p
 .worker-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .badge-online { background: #d4f4dd; color: #0a7a3a; }
 .badge-offline { background: #fde0e0; color: #a02020; }
-
-body.dark { background: #0d1117; color: #c9d1d9; }
-body.dark .card { background: #161b22; border-color: #30363d; color: #c9d1d9; }
-body.dark .sidebar { background: #010409; }
-body.dark .main { background: #0d1117; }
-body.dark .topbar { background: #161b22; border-color: #30363d; }
-body.dark input, body.dark select, body.dark textarea { background: #0d1117; color: #c9d1d9; border-color: #30363d; }
-body.dark table { color: #c9d1d9; }
-body.dark th, body.dark td { border-color: #30363d; }
-body.dark .modal { background: #161b22; color: #c9d1d9; }
-body.dark .btn { background: #21262d; color: #c9d1d9; border-color: #30363d; }
-body.dark .btn:hover { background: #30363d; }
-body.dark #cw-code { background: #0d1117; color: #c9d1d9; }
-.theme-toggle { position: fixed; top: 14px; right: 14px; z-index: 9999; background: #0a1f44; color: #fff; border: none; border-radius: 50%; width: 42px; height: 42px; font-size: 20px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
-body.dark .theme-toggle { background: #f0f6fc; color: #0d1117; }
-
 </style>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleDark()" id="themeBtn">🌙</button>
 
 <!-- ========== LOGIN PAGE ========== -->
 <div id="loginPage">
@@ -160,10 +143,15 @@ body.dark .theme-toggle { background: #f0f6fc; color: #0d1117; }
 <!-- ========== PANEL PAGE ========== -->
 <div id="panelPage" class="hidden">
   <div class="sidebar">
-    <h2>🔥 HAMSE CHEATS VIP</h2>
-    <a onclick="showSection('dashboard')" id="nav-dashboard">📊 Dashboard</a>
-      <a onclick="showSection('keys')" id="nav-keys">🔑 Key Manager</a>
-      <a onclick="showSection('worker')" id="nav-worker">Cloudflare Worker</a>
+    <h2>🔥 HAMSE VIP</h2>
+    <a onclick="showSection('dashboard')" id="nav-dashboard" class="active">📊 Dashboard</a>
+    <a onclick="showSection('users')" id="nav-users">👥 Users</a>
+    <a onclick="showSection('licenses')" id="nav-licenses">🔑 Licenses</a>
+    <a onclick="showSection('referrals')" id="nav-referrals">🎁 Referrals</a>
+    <a onclick="showSection('server')" id="nav-server">🖥️ Server Edit</a>
+    <a onclick="showSection('worker')" id="nav-worker">Cloudflare Worker</a>
+    <a onclick="showSection('status')" id="nav-status">⚡ System Status</a>
+    <a onclick="showSection('settings')" id="nav-settings">⚙️ Settings</a>
     <a onclick="doLogout()" style="margin-top:20px;color:#ff8888;">🚪 Logout</a>
   </div>
 
@@ -174,29 +162,117 @@ body.dark .theme-toggle { background: #f0f6fc; color: #0d1117; }
     </div>
 
     <!-- DASHBOARD -->
-    
-<div id="section-dashboard" class="hidden">
+    <div id="section-dashboard">
+      <div class="grid">
+        <div class="card"><h3>Total Users</h3><div class="big" id="statUsers">0</div></div>
+        <div class="card"><h3>Total Licenses</h3><div class="big" id="statLicenses">0</div></div>
+        <div class="card"><h3>Active Licenses</h3><div class="big" id="statActive">0</div></div>
+        <div class="card"><h3>Referrals</h3><div class="big" id="statReferrals">0</div></div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="section-users" class="hidden">
+      <div class="card">
+        <h3>Liiska Users-ka</h3>
+        <div style="overflow-x:auto;margin-top:12px;">
+          <table>
+            <thead><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="usersTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- LICENSES -->
+    <div id="section-licenses" class="hidden">
+      <div class="card">
+        <h3>Licenses Management</h3>
+        <button class="btn btn-primary" style="width:auto;padding:10px 20px;margin:12px 0;" onclick="openLicenseModal()">+ Abuur Licenses</button>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>ID</th><th>License Key</th><th>Duration</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="licensesTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFERRALS -->
+    <div id="section-referrals" class="hidden">
+      <div class="card">
+        <h3>Liiska Referrals-ka</h3>
+        <div style="overflow-x:auto;margin-top:12px;">
+          <table>
+            <thead><tr><th>ID</th><th>Referrer Code</th><th>Referred User</th><th>Date</th></tr></thead>
+            <tbody id="referralsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS -->
+    <div id="section-server" class="hidden">
   <div class="card">
-    <h3 style="margin-bottom:16px;">📊 Dashboard</h3>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
-      <div style="padding:16px;background:#0a1f44;color:#fff;border-radius:10px;"><div style="font-size:12px;opacity:.7;">Total Users</div><div id="dashUsers" style="font-size:24px;font-weight:700;">-</div></div>
-      <div style="padding:16px;background:#0a1f44;color:#fff;border-radius:10px;"><div style="font-size:12px;opacity:.7;">Total Keys</div><div id="dashKeys" style="font-size:24px;font-weight:700;">-</div></div>
-      <div style="padding:16px;background:#0a7a3a;color:#fff;border-radius:10px;"><div style="font-size:12px;opacity:.7;">Active</div><div id="dashActive" style="font-size:24px;font-weight:700;">-</div></div>
-      <div style="padding:16px;background:#a02020;color:#fff;border-radius:10px;"><div style="font-size:12px;opacity:.7;">Expired</div><div id="dashExpired" style="font-size:24px;font-weight:700;">-</div></div>
+    <h3>Server Files (Edit Code)</h3>
+    <p style="margin:8px 0;color:#6b7c93;font-size:13px;">Fayl dooro, code beddel, kadibna Save.</p>
+    <div class="file-list" id="fileList"></div>
+    <div class="form-group"><label>Faylka la doortay</label><input type="text" id="currentFile" readonly style="background:#f0f4f8;"></div>
+    <div class="toolbar">
+      <button class="btn-sm btn-primary" onclick="selectAllCode()">Select All</button>
+      <button class="btn-sm btn-warn" onclick="removeAllCode()">Remove All</button>
+      <button class="btn-sm btn-success" onclick="copyCode()">Copy</button>
+      <button class="btn-sm btn-outline" onclick="pasteCode()">Paste</button>
+    </div>
+    <div class="editor-wrap">
+      <div class="line-numbers" id="lineNumbers">1</div>
+      <textarea id="codeEditor" class="code-input" spellcheck="false" placeholder="Dooro fayl..." oninput="updateLineNumbers('codeEditor', 'lineNumbers')" onscroll="syncScroll('codeEditor', 'lineNumbers')"></textarea>
+    </div>
+    <div class="worker-actions">
+      <button class="btn btn-primary" style="width:auto;padding:10px 20px;" onclick="saveFile()">Save File</button>
+      <button class="btn btn-outline" style="width:auto;padding:10px 20px;" onclick="loadDeployLog()">Deploy Log</button>
     </div>
   </div>
-</div>
-
-<div id="section-keys" class="hidden">
   <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h3>🔑 Key Manager</h3>
-      <button class="btn" onclick="genKey()">+ Generate Key</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">Cloudflare Worker</h3>
+      <button class="btn-sm btn-primary" onclick="deployWorker()">Deploy</button>
     </div>
-    <div id="keysList" style="margin-top:12px;"></div>
+    <p style="margin:8px 0;color:#6b7c93;font-size:13px;">Worker code toos ka edit, kadibna Deploy riix.</p>
+    <div class="worker-stats" id="workerStats" style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+      <div class="stat-box"><div style="font-size:11px;color:#6b7c93;">Status</div><div id="wsStatus" style="font-weight:700;color:#0a7a3a;">Online</div></div>
+      <div class="stat-box"><div style="font-size:11px;color:#6b7c93;">Code Size</div><div id="wsSize" style="font-weight:700;">-</div></div>
+      <div class="stat-box"><div style="font-size:11px;color:#6b7c93;">Worker URL</div><div id="wsUrl" style="font-weight:700;font-size:11px;">-</div></div>
+    </div>
+    <div class="toolbar">
+      <button class="btn-sm btn-primary" onclick="selectAllWorker()">Select All</button>
+      <button class="btn-sm btn-warn" onclick="removeAllWorker()">Remove All</button>
+      <button class="btn-sm btn-outline" onclick="reloadWorker()">Reload</button>
+    </div>
+    <div class="editor-wrap">
+      <div class="line-numbers" id="workerLineNumbers">1</div>
+      <textarea id="workerEditor" class="code-input" spellcheck="false" placeholder="// worker.js code halkan..." oninput="updateLineNumbers('workerEditor', 'workerLineNumbers')" onscroll="syncScroll('workerEditor', 'workerLineNumbers')"></textarea>
+    </div>
+    <div class="worker-actions">
+      <button class="btn btn-primary" style="width:auto;padding:10px 20px;" onclick="saveWorkerCode()">Save Worker Code</button>
+      <button class="btn btn-success" style="width:auto;padding:10px 20px;" onclick="deployWorker()">Deploy</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Cloudflare Credentials</h3>
+    <div class="form-group"><label>Worker URL</label><input type="text" id="envWorkerUrl" placeholder="https://a.hamse.workers.dev"></div>
+    <div class="form-group"><label>Cloudflare Account ID</label><input type="text" id="envCfAccount"></div>
+    <div class="form-group"><label>Cloudflare API Token</label><input type="password" id="envCfToken"></div>
+    <div class="form-group"><label>Worker Name</label><input type="text" id="envCfWorkerName" placeholder="a"></div>
+    <div class="form-group"><label>PANEL_TOKEN</label><input type="text" id="envPanelToken"></div>
+    <div class="form-group"><label>Railway Webhook URL</label><input type="text" id="envRailwayWebhook"></div>
+    <button class="btn btn-primary" style="width:auto;padding:10px 20px;" onclick="saveAllEnv()">Save All Env</button>
+  </div>
+  <div class="card" id="deployLogCard" style="display:none;">
+    <h3>Deploy Log</h3>
+    <div id="deployLogContent" style="margin-top:12px;font-family:monospace;font-size:12px;"></div>
   </div>
 </div>
-
 <div id="section-worker" class="hidden">
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -242,7 +318,25 @@ body.dark .theme-toggle { background: #f0f6fc; color: #0d1117; }
     <div id="cw-result" style="margin-top:12px;"></div>
   </div>
 </div>
+<div id="section-status" class="hidden">
+      <div class="card">
+        <h3>⚡ System Status</h3>
+        <p style="margin-top:12px;font-size:15px;">Server: <span class="badge badge-active" id="srvStatus">Checking...</span></p>
+        <p style="margin-top:8px;font-size:15px;">Cloudflare Worker: <span class="badge badge-active" id="workerStatus">Checking...</span></p>
+        <p style="margin-top:8px;font-size:15px;">Database: <span class="badge badge-active">SQLite Online</span></p>
+      </div>
+    </div>
 
+    <!-- SETTINGS -->
+    <div id="section-settings" class="hidden">
+      <div class="card">
+        <h3>⚙️ Settings</h3>
+        <p style="margin-top:12px;"><b>Username:</b> <span id="setUsername">-</span></p>
+        <p style="margin-top:6px;"><b>Role:</b> <span id="setRole">-</span></p>
+        <p style="margin-top:6px;"><b>Referral Code:</b> <span id="setRefCode">-</span></p>
+        <button class="btn btn-primary" style="width:auto;padding:10px 20px;margin-top:16px;" onclick="exportData()">📥 Export Data (JSON)</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -796,89 +890,17 @@ async
 (function(){var o=window.showSection;window.showSection=function(n){if(o)o(n);if(n==='worker'&&typeof loadWorkerPage==='function')loadWorkerPage();};})();
 </script>
 <script>
-
-
-
-
-
-async 
-
-
-async 
-async 
-(function(){var o=window.showSection;window.showSection=function(n){if(o)o(n);if(n==='worker'&&typeof loadWorkerPage==='function')loadWorkerPage();};})();
-</script>
-<script>
-
-
-
-
-
-
-
-
-
-async 
-async 
-loadWorkerPage();
-</script>
-<script>
-function updateLineNumbers(taId,lnId){var ta=document.getElementById(taId);var ln=document.getElementById(lnId);if(!ta||!ln)return;var n=ta.value.split(String.fromCharCode(10)).length;var s='';for(var i=1;i<=n;i++)s+=i+String.fromCharCode(10);ln.textContent=s;}
-function syncScroll(taId,lnId){var ta=document.getElementById(taId);var ln=document.getElementById(lnId);if(ta&&ln)ln.scrollTop=ta.scrollTop;}
-function cwSelectAll(){var t=document.getElementById('cw-code');if(!t)return;t.focus();t.select();}
+function updateLineNumbers(a,b){var t=document.getElementById(a),l=document.getElementById(b);if(!t||!l)return;var n=t.value.split(String.fromCharCode(10)).length;var s='';for(var i=1;i<=n;i++)s+=i+String.fromCharCode(10);l.textContent=s;}
+function syncScroll(a,b){var t=document.getElementById(a),l=document.getElementById(b);if(t&&l)l.scrollTop=t.scrollTop;}
+function cwSelectAll(){var t=document.getElementById('cw-code');if(!t)return;t.focus();t.select();showToast('La doortay','info');}
 function cwCut(){var t=document.getElementById('cw-code');if(!t)return;t.focus();document.execCommand('cut');}
-function cwCopy(){var t=document.getElementById('cw-code');if(!t)return;t.focus();t.select();document.execCommand('copy');}
-function cwPaste(){var t=document.getElementById('cw-code');if(!t)return;t.focus();document.execCommand('paste');}
+function cwCopy(){var t=document.getElementById('cw-code');if(!t)return;t.select();document.execCommand('copy');showToast('Copy','success');}
+async function cwPaste(){try{var txt=await navigator.clipboard.readText();var t=document.getElementById('cw-code');t.value=txt;updateLineNumbers('cw-code','cwLineNumbers');}catch(e){showToast('Paste ma shaqeyn','error');}}
 function cwUndo(){document.execCommand('undo');}
-function cwRedo(){document.execCommand('redo');}
-function cwRemoveAll(){if(!confirm('Tirtir code-ka oo dhan?'))return;var t=document.getElementById('cw-code');if(!t)return;t.value='';updateLineNumbers('cw-code','cwLineNumbers');}
-async function loadWorkerPage(){try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/status',{headers:{'Authorization':'Bearer '+t}});var d=await r.json();var sE=document.getElementById('cw-status'),zE=document.getElementById('cw-code-size'),rE=document.getElementById('cw-response'),uE=document.getElementById('cw-url');if(!sE)return;if(d.success&&d.online){sE.innerHTML='Online';sE.style.color='#0a7a3a';zE.textContent=(d.code_length||0)+' bytes';rE.textContent=(d.response_time||'N/A');uE.textContent=(d.worker_url||'N/A');}else{sE.innerHTML='Offline';sE.style.color='#a02020';}var cr=await fetch('/api/worker/code',{headers:{'Authorization':'Bearer '+t}});var cd=await cr.json();var ce=document.getElementById('cw-code');if(cd.success&&ce){ce.value=cd.code||'';updateLineNumbers('cw-code','cwLineNumbers');}else if(ce){ce.value='// '+(cd.error||'Code lama helin');updateLineNumbers('cw-code','cwLineNumbers');}}catch(e){console.log('Worker error: '+e.message);}}
-async function cwDeploy(){var b=document.getElementById('cw-save-btn');var code=document.getElementById('cw-code').value;var rs=document.getElementById('cw-result');if(!code){alert('Code ma jiro');return;}b.disabled=true;b.textContent='Deploying...';rs.innerHTML='<p>Deploy socda...</p>';try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/code',{method:'POST',headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({code:code})});var d=await r.json();if(d.success){rs.innerHTML='<div style="padding:15px;background:#d4f4dd;border:1px solid #0a7a3a;border-radius:10px;color:#0a7a3a;"><b>Deploy Successful!</b> '+(d.message||'')+'</div>';setTimeout(loadWorkerPage,1500);}else{rs.innerHTML='<div style="padding:15px;background:#fde0e0;border:1px solid #a02020;border-radius:10px;color:#a02020;"><b>Failed!</b> '+(d.error||'')+'</div>';}}catch(e){rs.innerHTML='<div style="padding:15px;background:#fde0e0;border-radius:10px;">Error: '+e.message+'</div>';}b.disabled=false;b.textContent='Deploy';}
-window.addEventListener('load',function(){if(typeof loadWorkerPage==='function')loadWorkerPage();});
-
-function toggleDark() {
-  document.body.classList.toggle('dark');
-  var on = document.body.classList.contains('dark');
-  localStorage.setItem('hamse_dark', on ? '1' : '0');
-  document.getElementById('themeBtn').textContent = on ? '☀️' : '🌙';
-}
-if (localStorage.getItem('hamse_dark') === '1') {
-  document.body.classList.add('dark');
-  document.getElementById('themeBtn').textContent = '☀️';
-}
-async function loadDashboard() {
-  try {
-    var r = await fetch('/api/stats', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('hamse_token') } });
-    var d = await r.json();
-    document.getElementById('dashUsers').textContent = d.totalUsers || 0;
-    document.getElementById('dashKeys').textContent = d.totalLicenses || 0;
-    document.getElementById('dashActive').textContent = d.activeLicenses || 0;
-    document.getElementById('dashExpired').textContent = (d.totalLicenses || 0) - (d.activeLicenses || 0);
-  } catch(e) { showToast('Dashboard error: ' + e.message, 'error'); }
-}
-async function loadKeys() {
-  try {
-    var r = await fetch('/api/licenses', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('hamse_token') } });
-    var d = await r.json();
-    var list = (d.licenses || d.keys || []);
-    var html = '<table style="width:100%;border-collapse:collapse;"><tr><th style="text-align:left;padding:8px;border-bottom:2px solid #d8e0ec;">Key</th><th style="text-align:left;padding:8px;border-bottom:2px solid #d8e0ec;">Status</th><th style="text-align:left;padding:8px;border-bottom:2px solid #d8e0ec;">Expires</th></tr>';
-    if (list.length === 0) html += '<tr><td colspan="3" style="padding:12px;text-align:center;color:#6b7c93;">Ma jiro key</td></tr>';
-    for (var i=0;i<list.length;i++) {
-      var k = list[i];
-      html += '<tr><td style="padding:8px;border-bottom:1px solid #eee;font-family:monospace;">' + (k.license_key||k.key||'') + '</td><td style="padding:8px;border-bottom:1px solid #eee;">' + (k.status||'-') + '</td><td style="padding:8px;border-bottom:1px solid #eee;">' + (k.expires_at||'-') + '</td></tr>';
-    }
-    html += '</table>';
-    document.getElementById('keysList').innerHTML = html;
-  } catch(e) { showToast('Keys error: ' + e.message, 'error'); }
-}
-function genKey() {
-  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  var k = 'HAMSE-';
-  for (var i=0;i<4;i++) { for (var j=0;j<4;j++) k += chars[Math.floor(Math.random()*chars.length)]; if (i<3) k += '-'; }
-  navigator.clipboard.writeText(k);
-  showToast('Key: ' + k + ' (copied)', 'success');
-}
-
+function cwRemoveAll(){if(!confirm('Tirtir?'))return;var t=document.getElementById('cw-code');if(!t)return;t.value='';updateLineNumbers('cw-code','cwLineNumbers');}
+async function loadWorkerPage(){try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/status',{headers:{'Authorization':'Bearer '+t}});var d=await r.json();var sE=document.getElementById('cw-status'),zE=document.getElementById('cw-code-size'),rE=document.getElementById('cw-response'),uE=document.getElementById('cw-url');if(!sE)return;if(d.success&&d.online){sE.innerHTML='Online';sE.style.color='#0a7a3a';zE.textContent=(d.code_length||0)+' bytes';rE.textContent=(d.response_time||'N/A');uE.textContent=(d.worker_url||'N/A');}else{sE.innerHTML='Offline';sE.style.color='#a02020';}var cr=await fetch('/api/worker/code',{headers:{'Authorization':'Bearer '+t}});var cd=await cr.json();var c=document.getElementById('cw-code');if(cd.success&&c){c.value=cd.code||'';updateLineNumbers('cw-code','cwLineNumbers');}else if(c){c.value='// '+(cd.error||'Code lama helin');updateLineNumbers('cw-code','cwLineNumbers');}}catch(e){showToast('Worker: '+e.message,'error');}}
+async function cwDeploy(){var b=document.getElementById('cw-save-btn');var c=document.getElementById('cw-code').value;var rs=document.getElementById('cw-result');if(!c){showToast('Code ma jiro','error');return;}b.disabled=true;b.textContent='Deploying...';rs.innerHTML='<p style="color:#6b7c93;">Deploy socda...</p>';try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/code',{method:'POST',headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({code:c})});var d=await r.json();if(d.success){rs.innerHTML='<div style="padding:15px;background:#d4f4dd;border:1px solid #0a7a3a;border-radius:10px;color:#0a7a3a;"><b>Deploy Successful!</b> '+(d.message||'')+'</div>';showToast('La deploy-gareeyay!','success');setTimeout(loadWorkerPage,1500);}else{rs.innerHTML='<div style="padding:15px;background:#fde0e0;border:1px solid #a02020;border-radius:10px;color:#a02020;"><b>Failed!</b> '+(d.error||'')+'</div>';showToast('Fail','error');}}catch(e){rs.innerHTML='<div style="padding:15px;background:#fde0e0;border-radius:10px;">Error: '+e.message+'</div>';}b.disabled=false;b.textContent='Deploy';}
+(function(){var o=window.showSection;window.showSection=function(n){if(o)o(n);if(n==='worker'&&typeof loadWorkerPage==='function')loadWorkerPage();};})();
 </script>
 </body>
 </html>
