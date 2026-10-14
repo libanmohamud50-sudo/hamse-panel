@@ -89,9 +89,26 @@ table th { background: #f0f4f8; color: #0a1f44; font-weight: 600; font-size: 13p
 .worker-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .badge-online { background: #d4f4dd; color: #0a7a3a; }
 .badge-offline { background: #fde0e0; color: #a02020; }
+
+body.dark { background: #0d1117; color: #c9d1d9; }
+body.dark .card { background: #161b22; border-color: #30363d; color: #c9d1d9; }
+body.dark .sidebar { background: #010409; }
+body.dark .main { background: #0d1117; }
+body.dark .topbar { background: #161b22; border-color: #30363d; }
+body.dark input, body.dark select, body.dark textarea { background: #0d1117; color: #c9d1d9; border-color: #30363d; }
+body.dark table { color: #c9d1d9; }
+body.dark th, body.dark td { border-color: #30363d; }
+body.dark .modal { background: #161b22; color: #c9d1d9; }
+body.dark .btn { background: #21262d; color: #c9d1d9; border-color: #30363d; }
+body.dark .btn:hover { background: #30363d; }
+body.dark #cw-code { background: #0d1117; color: #c9d1d9; }
+.theme-toggle { position: fixed; top: 14px; right: 14px; z-index: 9999; background: #0a1f44; color: #fff; border: none; border-radius: 50%; width: 42px; height: 42px; font-size: 20px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+body.dark .theme-toggle { background: #f0f6fc; color: #0d1117; }
+
 </style>
 </head>
 <body>
+<button class="theme-toggle" onclick="toggleDark()" id="themeBtn">🌙</button>
 
 <!-- ========== LOGIN PAGE ========== -->
 <div id="loginPage">
@@ -144,7 +161,9 @@ table th { background: #f0f4f8; color: #0a1f44; font-weight: 600; font-size: 13p
 <div id="panelPage" class="hidden">
   <div class="sidebar">
     <h2>🔥 HAMSE VIP</h2>
-    <a onclick="showSection('worker')" id="nav-worker">Cloudflare Worker</a>
+    <a onclick="showSection('dashboard')" id="nav-dashboard">📊 Dashboard</a>
+      <a onclick="showSection('keys')" id="nav-keys">🔑 Key Manager</a>
+      <a onclick="showSection('worker')" id="nav-worker">Cloudflare Worker</a>
     <a onclick="doLogout()" style="margin-top:20px;color:#ff8888;">🚪 Logout</a>
   </div>
 
@@ -155,7 +174,30 @@ table th { background: #f0f4f8; color: #0a1f44; font-weight: 600; font-size: 13p
     </div>
 
     <!-- DASHBOARD -->
-    <div id="section-worker" class="hidden">
+    
+<div id="section-dashboard" class="hidden">
+  <div class="card">
+    <h3 style="margin-bottom:16px;">📊 Dashboard</h3>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+      <div style="padding:16px;background:#0a1f44;color:#fff;border-radius:10px;"><div style="font-size:12px;opacity:.7;">Total Users</div><div id="dashUsers" style="font-size:24px;font-weight:700;">-</div></div>
+      <div style="padding:16px;background:#0a1f44;color:#fff;border-radius:10px;"><div style="font-size:12px;opacity:.7;">Total Keys</div><div id="dashKeys" style="font-size:24px;font-weight:700;">-</div></div>
+      <div style="padding:16px;background:#0a7a3a;color:#fff;border-radius:10px;"><div style="font-size:12px;opacity:.7;">Active</div><div id="dashActive" style="font-size:24px;font-weight:700;">-</div></div>
+      <div style="padding:16px;background:#a02020;color:#fff;border-radius:10px;"><div style="font-size:12px;opacity:.7;">Expired</div><div id="dashExpired" style="font-size:24px;font-weight:700;">-</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="section-keys" class="hidden">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3>🔑 Key Manager</h3>
+      <button class="btn" onclick="genKey()">+ Generate Key</button>
+    </div>
+    <div id="keysList" style="margin-top:12px;"></div>
+  </div>
+</div>
+
+<div id="section-worker" class="hidden">
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <h3 style="margin:0;">Cloudflare Worker</h3>
@@ -793,6 +835,50 @@ function cwRemoveAll(){if(!confirm('Tirtir code-ka oo dhan?'))return;var t=docum
 async function loadWorkerPage(){try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/status',{headers:{'Authorization':'Bearer '+t}});var d=await r.json();var sE=document.getElementById('cw-status'),zE=document.getElementById('cw-code-size'),rE=document.getElementById('cw-response'),uE=document.getElementById('cw-url');if(!sE)return;if(d.success&&d.online){sE.innerHTML='Online';sE.style.color='#0a7a3a';zE.textContent=(d.code_length||0)+' bytes';rE.textContent=(d.response_time||'N/A');uE.textContent=(d.worker_url||'N/A');}else{sE.innerHTML='Offline';sE.style.color='#a02020';}var cr=await fetch('/api/worker/code',{headers:{'Authorization':'Bearer '+t}});var cd=await cr.json();var ce=document.getElementById('cw-code');if(cd.success&&ce){ce.value=cd.code||'';updateLineNumbers('cw-code','cwLineNumbers');}else if(ce){ce.value='// '+(cd.error||'Code lama helin');updateLineNumbers('cw-code','cwLineNumbers');}}catch(e){console.log('Worker error: '+e.message);}}
 async function cwDeploy(){var b=document.getElementById('cw-save-btn');var code=document.getElementById('cw-code').value;var rs=document.getElementById('cw-result');if(!code){alert('Code ma jiro');return;}b.disabled=true;b.textContent='Deploying...';rs.innerHTML='<p>Deploy socda...</p>';try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/code',{method:'POST',headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({code:code})});var d=await r.json();if(d.success){rs.innerHTML='<div style="padding:15px;background:#d4f4dd;border:1px solid #0a7a3a;border-radius:10px;color:#0a7a3a;"><b>Deploy Successful!</b> '+(d.message||'')+'</div>';setTimeout(loadWorkerPage,1500);}else{rs.innerHTML='<div style="padding:15px;background:#fde0e0;border:1px solid #a02020;border-radius:10px;color:#a02020;"><b>Failed!</b> '+(d.error||'')+'</div>';}}catch(e){rs.innerHTML='<div style="padding:15px;background:#fde0e0;border-radius:10px;">Error: '+e.message+'</div>';}b.disabled=false;b.textContent='Deploy';}
 window.addEventListener('load',function(){if(typeof loadWorkerPage==='function')loadWorkerPage();});
+
+function toggleDark() {
+  document.body.classList.toggle('dark');
+  var on = document.body.classList.contains('dark');
+  localStorage.setItem('hamse_dark', on ? '1' : '0');
+  document.getElementById('themeBtn').textContent = on ? '☀️' : '🌙';
+}
+if (localStorage.getItem('hamse_dark') === '1') {
+  document.body.classList.add('dark');
+  document.getElementById('themeBtn').textContent = '☀️';
+}
+async function loadDashboard() {
+  try {
+    var r = await fetch('/api/stats', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('hamse_token') } });
+    var d = await r.json();
+    document.getElementById('dashUsers').textContent = d.totalUsers || 0;
+    document.getElementById('dashKeys').textContent = d.totalLicenses || 0;
+    document.getElementById('dashActive').textContent = d.activeLicenses || 0;
+    document.getElementById('dashExpired').textContent = (d.totalLicenses || 0) - (d.activeLicenses || 0);
+  } catch(e) { showToast('Dashboard error: ' + e.message, 'error'); }
+}
+async function loadKeys() {
+  try {
+    var r = await fetch('/api/licenses', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('hamse_token') } });
+    var d = await r.json();
+    var list = (d.licenses || d.keys || []);
+    var html = '<table style="width:100%;border-collapse:collapse;"><tr><th style="text-align:left;padding:8px;border-bottom:2px solid #d8e0ec;">Key</th><th style="text-align:left;padding:8px;border-bottom:2px solid #d8e0ec;">Status</th><th style="text-align:left;padding:8px;border-bottom:2px solid #d8e0ec;">Expires</th></tr>';
+    if (list.length === 0) html += '<tr><td colspan="3" style="padding:12px;text-align:center;color:#6b7c93;">Ma jiro key</td></tr>';
+    for (var i=0;i<list.length;i++) {
+      var k = list[i];
+      html += '<tr><td style="padding:8px;border-bottom:1px solid #eee;font-family:monospace;">' + (k.license_key||k.key||'') + '</td><td style="padding:8px;border-bottom:1px solid #eee;">' + (k.status||'-') + '</td><td style="padding:8px;border-bottom:1px solid #eee;">' + (k.expires_at||'-') + '</td></tr>';
+    }
+    html += '</table>';
+    document.getElementById('keysList').innerHTML = html;
+  } catch(e) { showToast('Keys error: ' + e.message, 'error'); }
+}
+function genKey() {
+  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var k = 'HAMSE-';
+  for (var i=0;i<4;i++) { for (var j=0;j<4;j++) k += chars[Math.floor(Math.random()*chars.length)]; if (i<3) k += '-'; }
+  navigator.clipboard.writeText(k);
+  showToast('Key: ' + k + ' (copied)', 'success');
+}
+
 </script>
 </body>
 </html>
