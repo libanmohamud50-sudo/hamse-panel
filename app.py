@@ -315,7 +315,9 @@ def _api_verify_impl():
         return jsonify(valid=False, error="expired")
     if row["st"] and row["st"].lower() not in ("active", "unused", "used", "1", "valid"):
         return jsonify(valid=False, error="revoked")
-    if row["used_by"] and serial and row["used_by"] != serial:
+    # Device binding — kaliya haddii devices = 1
+    max_dev = row["devices"] if "devices" in row.keys() else 1
+    if max_dev and int(max_dev) <= 1 and row["used_by"] and serial and row["used_by"] != serial:
         return jsonify(valid=False, error="device_mismatch")
     if not row["used_by"] and serial:
         try:
