@@ -149,19 +149,26 @@ app.delete('/api/admin/users/:id', authMiddleware, adminMiddleware, (req, res) =
   res.json({ success: true, message: 'User la tirtiray' });
 });
 
-app.post('/api/admin/licenses/bulk', authMiddleware, adminMiddleware, (req, res) => {
+app.post("/api/admin/licenses/bulk", authMiddleware, adminMiddleware, (req, res) => {
   const count = req.body.count || 1;
   const duration = req.body.duration || '30d';
+  const custom_key = req.body.custom_key || '';
+  const max_devices = req.body.max_devices || 1;
+  const game = req.body.game || 'PUBG MOBILE';
   const created = [];
   for (let i = 0; i < count; i++) {
-    const key = 'HAMSE-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-    db.run("INSERT INTO licenses (license_key, duration, status) VALUES (?, ?, 'unused')", [key, duration]);
-    created.push(key);
+    let key;
+    if (custom_key && count === 1) {
+      key = custom_key.toUpperCase();
+    } else {
+      key = "HAMSE-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+    db.run("INSERT INTO licenses (license_key, duration, max_devices, status) VALUES (?, ?, ?, 'unused')", [key, duration, max_devices]);
+    created.push({ key: key, game: game, max_devices: max_devices });
   }
   saveDB();
   res.json({ success: true, count: created.length, licenses: created });
 });
-
 app.get('/api/licenses', authMiddleware, (req, res) => {
   res.json({ licenses: queryAll('SELECT * FROM licenses ORDER BY id DESC') });
 });
