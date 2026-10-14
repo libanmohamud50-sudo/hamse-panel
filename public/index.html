@@ -234,15 +234,22 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
     <div class="form-group"><label>Game</label>
       <select id="licGame" style="width:100%;padding:12px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;color:#e6edf3">
         <option value="PUBG MOBILE" selected>PUBG MOBILE</option>
-        <option value="FREE FIRE">FREE FIRE</option>
       </select>
     </div>
-    <div class="form-group"><label>Max Devices (1-10)</label><input type="number" id="licMaxDevices" value="1" min="1" max="10"></div>
+    <div class="form-group"><label>Max Devices (1-500)</label><input type="number" id="licMaxDevices" value="1" min="1" max="500"></div>
     <div class="form-group"><label>Duration</label>
       <select id="licDuration" style="width:100%;padding:12px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;color:#e6edf3">
-        <option value="1d">1 Day</option><option value="7d">7 Days</option>
-        <option value="30d" selected>30 Days</option><option value="90d">90 Days</option>
-        <option value="365d">1 Year</option><option value="lifetime">Lifetime</option>
+        <option value="30m">30 Minutes</option>
+        <option value="1h">1 Hour</option>
+        <option value="2h">2 Hours</option>
+        <option value="6h">6 Hours</option>
+        <option value="12h">12 Hours</option>
+        <option value="1d">1 Day</option>
+        <option value="7d">7 Days</option>
+        <option value="30d" selected>30 Days</option>
+        <option value="90d">90 Days</option>
+        <option value="365d">1 Year</option>
+        <option value="lifetime">Lifetime</option>
       </select>
     </div>
     <div class="form-group"><label>Custom Key (optional)</label><input type="text" id="licCustomKey" placeholder="HAMSE-CUSTOM-KEY"></div>
@@ -365,14 +372,27 @@ async function loadLicenses() {
   try {
     var d = await api('/api/licenses');
     var list = d.licenses || [];
-    var html = '<table><tr><th>Key</th><th>Status</th><th>Expires</th></tr>';
-    if (list.length === 0) html += '<tr><td colspan="3" style="text-align:center;color:#8b949e">Ma jiro license</td></tr>';
+    var html = '<table><tr><th>Key</th><th>Devices</th><th>Status</th><th>Expires</th><th></th></tr>';
+    if (list.length === 0) html += '<tr><td colspan="5" style="text-align:center;color:#8b949e">Ma jiro license</td></tr>';
     list.forEach(function(k){
-      html += '<tr><td style="font-family:monospace;font-size:12px">'+(k.license_key||'')+'</td><td>'+k.status+'</td><td>'+(k.expires_at||'-')+'</td></tr>';
+      var used = 0;
+      try { used = JSON.parse(k.used_devices || '[]').length; } catch(e) {}
+      html += '<tr>';
+      html += '<td style="font-family:monospace;font-size:12px">'+(k.license_key||'')+'</td>';
+      html += '<td>' + used + '/' + (k.max_devices || 1) + '</td>';
+      html += '<td>' + (k.status || '-') + '</td>';
+      html += '<td>' + (k.expires_at || '-') + '</td>';
+      html += '<td><button onclick="copyKey(\'' + (k.license_key||'') + '\')" style="background:#1f6feb;border:none;border-radius:6px;color:#fff;padding:4px 10px;font-size:12px;cursor:pointer">Copy</button></td>';
+      html += '</tr>';
     });
     html += '</table>';
     document.getElementById('licensesList').innerHTML = html;
   } catch(e) { showToast(e.message, 'error'); }
+}
+
+function copyKey(k) {
+  navigator.clipboard.writeText(k);
+  showToast('Key la copy-gareeyay: ' + k, 'success');
 }
 
 async function loadReferrals() {

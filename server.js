@@ -158,10 +158,22 @@ app.post("/api/admin/licenses/bulk", authMiddleware, adminMiddleware, (req, res)
   const created = [];
   for (let i = 0; i < count; i++) {
     let key;
+    let durationLabel = duration;
+    if (duration === '30m') durationLabel = '30mins';
+    else if (duration === '1h') durationLabel = '1hour';
+    else if (duration === '2h') durationLabel = '2hours';
+    else if (duration === '6h') durationLabel = '6hours';
+    else if (duration === '12h') durationLabel = '12hours';
+    else if (duration === '1d') durationLabel = '1day';
+    else if (duration === '7d') durationLabel = '7days';
+    else if (duration === '30d') durationLabel = '30days';
+    else if (duration === '90d') durationLabel = '90days';
+    else if (duration === '365d') durationLabel = '1year';
+    else if (duration === 'lifetime') durationLabel = 'lifetime';
     if (custom_key && count === 1) {
-      key = custom_key.toUpperCase();
+      key = durationLabel + '-' + custom_key.toUpperCase();
     } else {
-      key = "HAMSE-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+      key = durationLabel + '-HAMSE-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     }
     db.run("INSERT INTO licenses (license_key, duration, max_devices, status) VALUES (?, ?, ?, 'unused')", [key, duration, max_devices]);
     created.push({ key: key, game: game, max_devices: max_devices });
