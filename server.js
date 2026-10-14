@@ -31,7 +31,9 @@ async function initDB() {
     db = new SQL.Database();
   }
   db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL, fullname TEXT, role TEXT DEFAULT 'user', license_key TEXT, referral_code TEXT UNIQUE, referred_by TEXT, status TEXT DEFAULT 'active', created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
-  db.run("CREATE TABLE IF NOT EXISTS licenses (id INTEGER PRIMARY KEY AUTOINCREMENT, license_key TEXT UNIQUE NOT NULL, user_id INTEGER, device_id TEXT, duration TEXT, expires_at DATETIME, status TEXT DEFAULT 'unused', used_at DATETIME)");
+  db.run("CREATE TABLE IF NOT EXISTS licenses (id INTEGER PRIMARY KEY AUTOINCREMENT, license_key TEXT UNIQUE NOT NULL, user_id INTEGER, device_id TEXT, serial TEXT, duration TEXT, expires_at DATETIME, status TEXT DEFAULT 'unused', used_at DATETIME)");
+
+  try { db.run("ALTER TABLE licenses ADD COLUMN serial TEXT"); } catch (e) {}
   db.run("CREATE TABLE IF NOT EXISTS referrals (id INTEGER PRIMARY KEY AUTOINCREMENT, referrer_code TEXT, referred_user TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
   const adminExists = db.exec("SELECT id FROM users WHERE username = '" + ADMIN_USERNAME + "'");
   if (!adminExists.length || !adminExists[0].values.length) {
