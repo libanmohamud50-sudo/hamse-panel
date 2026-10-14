@@ -175,8 +175,28 @@ app.post("/api/admin/licenses/bulk", authMiddleware, adminMiddleware, (req, res)
     } else {
       key = durationLabel + '-HAMSE-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     }
-    db.run("INSERT INTO licenses (license_key, duration, max_devices, status) VALUES (?, ?, ?, 'unused')", [key, duration, max_devices]);
-    created.push({ key: key, game: game, max_devices: max_devices });
+    var now = new Date();
+    var expiresAt = null;
+    if (duration === 'lifetime') {
+      expiresAt = '2099-12-31 23:59:59';
+    } else {
+      var ms = 0;
+      if (duration === '30m') ms = 30 * 60 * 1000;
+      else if (duration === '1h') ms = 60 * 60 * 1000;
+      else if (duration === '2h') ms = 2 * 60 * 60 * 1000;
+      else if (duration === '6h') ms = 6 * 60 * 60 * 1000;
+      else if (duration === '12h') ms = 12 * 60 * 60 * 1000;
+      else if (duration === '1d') ms = 24 * 60 * 60 * 1000;
+      else if (duration === '7d') ms = 7 * 24 * 60 * 60 * 1000;
+      else if (duration === '30d') ms = 30 * 24 * 60 * 60 * 1000;
+      else if (duration === '90d') ms = 90 * 24 * 60 * 60 * 1000;
+      else if (duration === '365d') ms = 365 * 24 * 60 * 60 * 1000;
+      else ms = 30 * 24 * 60 * 60 * 1000;
+      var exp = new Date(now.getTime() + ms);
+      expiresAt = exp.toISOString().replace('T', ' ').substring(0, 19);
+    }
+    db.run("INSERT INTO licenses (license_key, duration, max_devices, status, expires_at) VALUES (?, ?, ?, 'unused', ?)", [key, duration, max_devices, expiresAt]);
+    created.push({ key: key, game: game, max_devices: max_devices, expires_at: expiresAt });
   }
   saveDB();
   res.json({ success: true, count: created.length, licenses: created });
