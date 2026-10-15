@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HAMSE CHEATS VIP PANEL</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#0a0e1a;color:#e6edf3;min-height:100vh}
+.hidden{display:none!important}
+#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0a0e1a,#1a1f35)}
+.login-box{background:#111827;padding:32px;border-radius:16px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid #1f2937}
+.login-box h1{font-size:24px;margin-bottom:8px;color:#f0f6fc}
+.login-box p{color:#8b949e;margin-bottom:24px;font-size:14px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;margin-bottom:6px;font-size:13px;color:#8b949e}
+.form-group input{width:100%;padding:12px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;color:#e6edf3;font-size:14px}
+.form-group input:focus{outline:none;border-color:#3b82f6}
+.btn{width:100%;padding:12px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+.btn:hover{opacity:.9}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:#0d1117;border-right:1px solid #1f2937;overflow-y:auto;padding:16px 0}
+.sidebar h2{padding:0 20px 16px;font-size:16px;color:#f0f6fc;border-bottom:1px solid #1f2937;margin-bottom:8px}
+.sidebar .section-label{padding:12px 20px 6px;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:1px}
+.sidebar a{display:flex;align-items:center;gap:10px;padding:10px 20px;color:#8b949e;text-decoration:none;font-size:14px;cursor:pointer;border-left:3px solid transparent}
+.sidebar a:hover{background:#161b22;color:#e6edf3}
+.sidebar a.active{background:#161b22;color:#58a6ff;border-left-color:#58a6ff}
+.main{margin-left:240px;padding:24px;min-height:100vh}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.topbar h1{font-size:22px;color:#f0f6fc}
+.clock{font-size:14px;color:#8b949e;font-family:monospace}
+.card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:20px;margin-bottom:16px}
+.card h3{margin-bottom:12px;color:#f0f6fc;font-size:16px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:20px}
+.stat-card .label{font-size:12px;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.stat-card .value{font-size:28px;font-weight:700;color:#58a6ff}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px;font-size:12px;color:#8b949e;text-transform:uppercase;border-bottom:1px solid #1f2937}
+td{padding:10px;font-size:14px;border-bottom:1px solid #1f2937}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-online{background:#1f3d2e;color:#3fb950}
+.badge-offline{background:#3d1f1f;color:#f85149}
+.badge-active{background:#1f3d2e;color:#3fb950}
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:10px;color:#fff;font-size:14px;z-index:9999;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+.toast.success{background:#238636}
+.toast.error{background:#da3633}
+.toast.info{background:#1f6feb}
+textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;color:#e6edf3;font-family:'Courier New',monospace;font-size:13px;line-height:1.5;resize:vertical}
+.code-editor{width:100%;min-height:400px;padding:16px;background:#0a1f44;border:2px solid #1f2937;border-radius:10px;color:#d4e4ff;font-family:'Courier New',monospace;font-size:13px;line-height:1.5;resize:vertical}
+@media(max-width:768px){.sidebar{width:60px}.sidebar h2,.sidebar a span,.sidebar .section-label{display:none}.sidebar a{justify-content:center;padding:12px}.main{margin-left:60px}}
+
+.sidebar{width:230px!important;min-width:230px!important;padding-top:0!important}
+.sidebar a{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}
+.sidebar a span{display:inline-block!important;visibility:visible!important;opacity:1!important}
+.sidebar a svg{min-width:16px;min-height:16px}
+@media(max-width:768px){.sidebar{width:180px!important;min-width:180px!important}.sidebar a span{font-size:12px}}
+
+
+.sidebar{width:240px!important;min-width:240px!important;max-width:240px!important;padding:0!important;overflow-x:hidden!important}
+.sidebar h2{padding:18px 20px!important;font-size:15px!important;line-height:1.3!important;white-space:normal!important}
+.sidebar a{padding:11px 18px!important;gap:12px!important;font-size:14px!important;min-height:44px!important}
+.sidebar a svg{width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;flex-shrink:0!important;display:block!important}
+.sidebar a span{display:block!important;visibility:visible!important;opacity:1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:14px!important}
+.sidebar .section-label{padding:14px 20px 8px!important;font-size:11px!important}
+@media(max-width:768px){.sidebar{width:200px!important;min-width:200px!important;max-width:200px!important}.sidebar a{padding:10px 14px!important;font-size:13px!important;gap:10px!important}}
+
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{--bg:#0a0e14;--bg2:#0d1117;--bg3:#161b22;--border:#21262d;--text:#e6edf3;--dim:#7d8590;--accent:#1f6feb;--accent2:#388bfd;--green:#238636;--green2:#2ea043;--red:#f85149;--orange:#d29922;--purple:#8957e5}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;line-height:1.5}
+.sidebar{background:linear-gradient(180deg,#0d1117 0%,#0a0e14 100%);border-right:1px solid var(--border);width:230px}
+.sidebar a{display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--dim);text-decoration:none;font-size:13.5px;border-left:2px solid transparent;transition:all .15s;cursor:pointer}
+.sidebar a:hover{background:var(--bg3);color:var(--text)}
+.sidebar a.active{background:rgba(31,111,235,.1);color:var(--accent2);border-left-color:var(--accent2)}
+.sidebar a svg{width:16px;height:16px;flex-shrink:0}
+.sidebar .section-label{padding:14px 16px 6px;font-size:10.5px;color:#484f58;text-transform:uppercase;letter-spacing:1.2px;font-weight:600}
+.sidebar h2{padding:18px 16px;margin:0;font-size:15px;color:var(--text);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.sidebar h2 svg{width:18px;height:18px;color:var(--accent2)}
+h2{font-size:20px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.card h3{font-size:13px;font-weight:600;margin:0 0 12px 0;color:var(--accent2);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.card h3 svg{width:14px;height:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn svg{width:14px;height:14px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-primary:disabled{background:#30363d;color:var(--dim);cursor:not-allowed;transform:none}
+.btn-success{background:var(--green);color:#fff}
+.btn-success:hover{background:var(--green2)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{background:var(--bg3);border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:linear-gradient(135deg,#0d1117 0%,#161b22 100%);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden}
+.stat::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--purple))}
+.stat-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.stat-label svg{width:12px;height:12px}
+.stat-value{font-size:24px;font-weight:700;color:var(--text)}
+.stat-value.green{color:var(--green2)}
+.stat-value.blue{color:var(--accent2)}
+.stat-value.purple{color:var(--purple)}
+</style>
+</head>
+<body>
+
+<div id="loginPage">
+  <div class="login-box">
+    <h1>🔥 HAMSE CHEATS VIP</h1>
+    <p>Autonomous Panel — Login</p>
+    <div class="form-group"><label>Username</label><input type="text" id="loginUsername" placeholder="username"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="password"></div>
+    <button class="btn" onclick="doLogin()">Login</button>
+  </div>
+</div>
+
+<div id="panelPage" class="hidden">
+  <div class="sidebar">
+    <h2>🔥 HAMSE CHEATS VIP</h2>
+    <div class="section-label">Main</div>
+    <a onclick="showSection('dashboard')" id="nav-dashboard" class="active"> <i data-lucide="layout-dashboard"></i> <span>Dashboard</span></a>
+    <a onclick="showSection('users')" id="nav-users"> <i data-lucide="users"></i> <span>Users</span></a>
+    <a onclick="showSection('licenses')" id="nav-licenses"> <i data-lucide="key"></i> <span>Licenses</span></a>
+    <a onclick="showSection('referrals')" id="nav-referrals"> <i data-lucide="gift"></i> <span>Referrals</span></a>
+    <div class="section-label">System</div>
+    <a onclick="showSection('status')" id="nav-status"> <i data-lucide="zap"></i> <span>System Status</span></a>
+    <a onclick="showSection('telegram')" id="nav-telegram"> <i data-lucide="send"></i> <span>Telegram Bot</span></a>
+    <a onclick="showSection('worker')" id="nav-worker"> <i data-lucide="cloud"></i> <span>Cloudflare Worker</span></a>
+    <a onclick="showSection('apk')" id="nav-apk"> <i data-lucide="package"></i> <span>APK Analyzer</span></a>
+    <a onclick="showSection('loader')" id="nav-loader"> <i data-lucide="wrench"></i> <span>Loader Helper</span></a>
+        <a onclick="showSection('pak')" id="nav-pak"> <i data-lucide="package"></i> <span>PAK Editor</span></a>
+        <a onclick="showSection('loader_mgr')" id="nav-loader_mgr"> <i data-lucide="settings"></i> <span>Loader Manager</span></a>
+    <a onclick="showSection('settings')" id="nav-settings"> <i data-lucide="settings"></i> <span>Settings</span></a>
+    <a onclick="doLogout()" style="color:#f85149">🚪 <span>Logout</span></a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="clock" id="liveClock">--:--:--</div>
+    </div>
+
+    <div id="section-dashboard">
+      <div class="card" style="background:linear-gradient(135deg,#1f6feb,#8b5cf6);color:#fff;margin-bottom:20px;">
+        <div style="font-size:12px;opacity:.8;margin-bottom:6px;">Welcome Back</div>
+        <h2 style="color:#fff;font-size:24px;margin-bottom:8px;">Hello, <span id="welcomeUser" style="color:#fff;">admin</span></h2>
+        <p style="font-size:14px;opacity:.9;margin-bottom:16px;">You are in control. Here is what is happening with your panel.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn" style="width:auto;padding:10px 20px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);" onclick="showSection('licenses')">+ Generate License</button>
+          <button class="btn" style="width:auto;padding:10px 20px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);" onclick="showSection('users')">👥 Manage Users</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label">Total Users</div><div class="value" id="statUsers">-</div></div>
+        <div class="stat-card"><div class="label">Total Licenses</div><div class="value" id="statLicenses">-</div></div>
+        <div class="stat-card"><div class="label">Active Licenses</div><div class="value" id="statActive">-</div></div>
+        <div class="stat-card"><div class="label">Referrals</div><div class="value" id="statReferrals">-</div></div>
+      </div>
+
+      <div class="card">
+        <h3>📊 Analytics Overview</h3>
+        <div style="padding:12px 0;color:#8b949e;font-size:13px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>Users</span><span id="chartUsers">0</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>Licenses</span><span id="chartLicenses">0</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Referrals</span><span id="chartReferrals">0</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="background:linear-gradient(135deg,#1f6feb,#8b5cf6);color:#fff;">
+        <h3 style="color:#fff;margin-bottom:12px;">🔗 Referral Code</h3>
+        <p style="font-size:14px;opacity:.9;margin-bottom:8px;">Share this code with your friends:</p>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="refCodeDisplay" readonly style="flex:1;padding:12px;background:rgba(255,255,255,.15);border:none;border-radius:10px;color:#fff;font-family:monospace;font-size:16px;font-weight:700;">
+          <button onclick="copyRef()" style="background:rgba(255,255,255,.2);border:none;border-radius:10px;color:#fff;padding:12px 16px;cursor:pointer;font-size:14px;">Copy</button>
+        </div>
+        <p style="font-size:12px;opacity:.7;margin-top:8px;">Link: <span id="refLinkDisplay"></span></p>
+      </div>
+
+      <div class="card"><h3>⚡ Quick Actions</h3>
+        <button class="btn" style="width:auto;padding:10px 20px;margin-right:8px" onclick="showSection('licenses')">+ Generate License</button>
+        <button class="btn" style="width:auto;padding:10px 20px;margin-right:8px" onclick="showSection('users')">👥 Manage Users</button>
+        <button class="btn" style="width:auto;padding:10px 20px" onclick="showSection('referrals')">🎁 View Referrals</button>
+      </div>
+    </div>
+
+    <div id="section-users" class="hidden">
+      <div class="card"><h3>Users Management</h3>
+        <div id="usersList">Loading...</div>
+      </div>
+    </div>
+
+    <div id="section-licenses" class="hidden">
+      <div class="card"><h3>Licenses Management</h3>
+        <button class="btn" style="width:auto;padding:10px 20px;margin-bottom:12px" onclick="openLicenseModal()">+ Generate License</button>
+        <div id="licensesList">Loading...</div>
+      </div>
+    </div>
+
+    <div id="section-referrals" class="hidden">
+      <div class="card"><h3>Referrals</h3><div id="referralsList">Loading...</div></div>
+    </div>
+
+    <div id="section-status" class="hidden">
+      <div class="card"><h3>System Status</h3><div id="statusList">Loading...</div></div>
+    </div>
+
+    <div id="section-telegram" class="hidden">
+      <div class="card"><h3>Telegram Bot</h3><p style="color:#8b949e">Coming soon — server support ma jiro.</p></div>
+    </div>
+
+    <div id="section-worker" class="hidden">
+      <div class="card"><h3>Cloudflare Worker</h3>
+        <div class="stats-grid" style="margin-bottom:16px">
+          <div class="stat-card"><div class="label">Status</div><div class="value" id="cw-status" style="font-size:18px">-</div></div>
+          <div class="stat-card"><div class="label">Code Size</div><div class="value" id="cw-code-size" style="font-size:18px">-</div></div>
+          <div class="stat-card"><div class="label">Response</div><div class="value" id="cw-response" style="font-size:18px">-</div></div>
+          <div class="stat-card"><div class="label">URL</div><div class="value" id="cw-url" style="font-size:12px;word-break:break-all">-</div></div>
+        </div>
+        <textarea class="code-editor" id="cw-code" placeholder="Worker code...">export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    const path = url.pathname;
+    const cors = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, User-Agent, Authorization, X-Panel-Token",
+    };
+    if (request.method === "OPTIONS") return new Response(null, { status: 200, headers: cors });
+
+    let userKey = "", serial = "";
+    try {
+      const ct = (request.headers.get("content-type") || "").toLowerCase();
+      if (ct.includes("application/json")) {
+        const j = await request.clone().json();
+        userKey = (j.user_key || j.key || "").toString().trim();
+        serial = (j.serial || "").toString().trim();
+      } else {
+        const body = await request.clone().text();
+        const p = new URLSearchParams(body);
+        userKey = (p.get("user_key") || p.get("key") || "").toString().trim();
+        serial = (p.get("serial") || "").toString().trim();
+      }
+    } catch (e) {}
+
+    let expire = "", valid = false, duration = "";
+    const PANEL_URL = env.PANEL_URL || "https://hamse-panel-production.up.railway.app";
+    const PANEL_TOKEN = env.PANEL_TOKEN || "";
+
+    if (userKey) {
+      try {
+        const headers = { "Content-Type": "application/json" };
+        if (PANEL_TOKEN) headers["X-Panel-Token"] = PANEL_TOKEN;
+        const r = await fetch(PANEL_URL + "/api/verify", {
+          method: "POST", headers,
+          body: JSON.stringify({ key: userKey, serial: serial })
+        });
+        const j = await r.json();
+        if (j && j.valid === true) {
+          expire = j.expire || "";
+          duration = j.duration || "";
+          valid = true;
+        }
+      } catch (e) { valid = false; }
+    }
+
+    if (!valid) {
+      return new Response(JSON.stringify({
+        code: 1,
+        msg: "Uma qalantid inaad heshid Furaha, la xidhiidh @hamsecheatsvip",
+        result: 0, status: 0,
+        message: "Uma qalantid inaad heshid Furaha, la xidhiidh @hamsecheatsvip",
+        reason: "Invalid key",
+        valid: false, expire: "",
+        data: { valid: false, expire: "", message: "Uma qalantid inaad heshid Furaha, la xidhiidh @hamsecheatsvip" },
+        kv: { license: userKey, expire: "", status: "invalid", licenseCount: 0 }
+      }), { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+
+    return new Response(JSON.stringify({
+      code: 0, msg: "success", result: 1, status: 1,
+      message: "", reason: "", valid: true,
+      expire: expire, duration: duration,
+      data: { valid: true, expire: expire, EXP: expire, exdate: expire, expired_date: expire, duration: duration },
+      kv: { license: userKey, expire: expire, status: "active", licenseCount: 1 }
+    }), { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
+  }
+};</textarea>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" style="width:auto;padding:10px 20px" onclick="cwDeploy()">🚀 Deploy</button>
+          <button class="btn" style="width:auto;padding:10px 20px;background:#1f2937" onclick="loadWorkerPage()">🔄 Refresh</button>
+        </div>
+        <div id="cw-result" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <div id="section-apk" class="hidden">
+      <div class="card"><h3>APK Analyzer</h3><p style="color:#8b949e">Coming soon — server support ma jiro.</p></div>
+    </div>
+
+    <div id="section-loader" class="hidden">
+      <div class="card"><h3>Loader Helper</h3><p style="color:#8b949e">Coming soon — server support ma jiro.</p></div>
+    </div>
+
+    <div id="section-pak" class="hidden">
+  <h2>📦 PAK Editor</h2>
+  <p style="color:#8b949e;font-size:13px;margin-bottom:16px;">Inject bypass file into PAK. Original PAK is never modified.</p>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Step 1 — Select PAK File</h3>
+    <input type="file" id="pakFile" accept=".pak,.zip,.obb,.dat" style="display:none" onchange="pakPick('pak')">
+    <button onclick="document.getElementById('pakFile').click()" style="background:#238636;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">📂 ADD FILES</button>
+    <div id="pakInfo" style="margin-top:12px;font-size:13px;color:#8b949e;">No file selected</div>
+  </div>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Step 2 — Select Bypass File</h3>
+    <input type="file" id="bypassFile" accept=".lua,.txt,.py" style="display:none" onchange="pakPick('bypass')">
+    <button onclick="document.getElementById('bypassFile').click()" style="background:#238636;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">📂 SELECT BYPASS FILE</button>
+    <div id="bypassInfo" style="margin-top:12px;font-size:13px;color:#8b949e;">No file selected</div>
+  </div>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Step 3 — Inject</h3>
+    <button id="injectBtn" onclick="pakInject()" disabled style="background:#6e7681;color:#fff;border:none;padding:12px 24px;border-radius:6px;font-size:14px;cursor:not-allowed;">💉 INJECT BYPASS INTO PAK</button>
+    <div id="injectStatus" style="margin-top:12px;font-size:13px;color:#8b949e;">Waiting for files</div>
+  </div>
+
+  <div id="downloadBox" style="display:none;background:#0d1117;border:1px solid #238636;border-radius:8px;padding:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#3fb950;">✅ Completed</h3>
+    <div id="outInfo" style="font-size:13px;color:#8b949e;margin-bottom:12px;"></div>
+    <a id="downloadLink" href="#" style="display:inline-block;background:#1f6feb;color:#fff;text-decoration:none;padding:10px 18px;border-radius:6px;font-size:14px;">⬇️ DOWNLOAD MODIFIED PAK</a>
+  </div>
+</div>
+
+<div id="section-loader_mgr" class="hidden">
+  <h2>⚙️ Loader Manager</h2>
+  <p style="color:#8b949e;font-size:13px;margin-bottom:16px;">Upload loader APK, manage online update. All apps connected to server check here.</p>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Current Loader</h3>
+    <div id="loaderCurrent" style="font-size:13px;color:#8b949e;">Loading…</div>
+  </div>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Upload New Loader</h3>
+    <input type="file" id="loaderApk" accept=".apk" style="display:none" onchange="loaderPick()">
+    <button onclick="document.getElementById('loaderApk').click()" style="background:#238636;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">📂 SELECT LOADER APK</button>
+    <div id="loaderInfo" style="margin-top:12px;font-size:13px;color:#8b949e;">No file selected</div>
+    <button id="loaderUploadBtn" onclick="loaderUpload()" disabled style="margin-top:12px;background:#6e7681;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:not-allowed;">⬆️ UPLOAD LOADER</button>
+    <div id="loaderStatus" style="margin-top:12px;font-size:13px;color:#8b949e;"></div>
+  </div>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Online Update Endpoint</h3>
+    <p style="font-size:12px;color:#8b949e;">Apps check: <code style="background:#161b22;padding:2px 6px;border-radius:4px;">GET /api/loader/check-update</code></p>
+    <p style="font-size:12px;color:#8b949e;">Download: <code style="background:#161b22;padding:2px 6px;border-radius:4px;">GET /api/loader/download</code></p>
+  </div>
+</div>
+
+<div id="section-settings" class="hidden">
+      <div class="card"><h3>Settings</h3>
+        <div class="form-group"><label>Username</label><input type="text" id="setUsername" disabled></div>
+        <div class="form-group"><label>Role</label><input type="text" id="setRole" disabled></div>
+        <div class="form-group"><label>Referral Code</label><input type="text" id="setRefCode" disabled></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="licenseModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:9999">
+  <div class="card" style="max-width:400px;width:90%">
+    <h3>🔑 Generate Licenses</h3>
+    <div class="form-group"><label>Game</label>
+      <select id="licGame" style="width:100%;padding:12px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;color:#e6edf3">
+        <option value="PUBG MOBILE" selected>PUBG MOBILE</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Key Type</label>
+      <select id="licKeyMode" style="width:100%;padding:12px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;color:#e6edf3" onchange="toggleCustomKey()">
+        <option value="auto" selected>Auto Generate</option>
+        <option value="custom">Custom Key</option>
+      </select>
+    </div>
+    <div class="form-group" id="customKeyGroup" style="display:none"><label>Custom Key</label><input type="text" id="licCustomKey" placeholder="MY-CUSTOM-KEY"></div>
+    <div class="form-group"><label>Max Devices (1-1000)</label><input type="number" id="licMaxDevices" value="1" min="1" max="1000"></div>
+    <div class="form-group"><label>Duration</label>
+      <select id="licDuration" style="width:100%;padding:12px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;color:#e6edf3">
+        <option value="30m">30 Minutes</option><option value="1h">1 Hour</option>
+        <option value="2h">2 Hours</option><option value="6h">6 Hours</option>
+        <option value="12h">12 Hours</option><option value="1d">1 Day</option>
+        <option value="7d">7 Days</option><option value="30d" selected>30 Days</option>
+        <option value="90d">90 Days</option><option value="365d">1 Year</option>
+        <option value="lifetime">Lifetime</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Bulk Count</label><input type="number" id="licCount" value="1" min="1" max="100"></div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn" style="background:#1f2937" onclick="closeLicenseModal()">Cancel</button>
+      <button class="btn" onclick="createLicenses()">Create</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastBox"></div>
+
+<script>
+var TOKEN = localStorage.getItem('hamse_token') || '';
+var CURRENT_USER = JSON.parse(localStorage.getItem('hamse_user') || 'null');
+
+function showToast(msg, type) {
+  var box = document.getElementById('toastBox');
+  var t = document.createElement('div');
+  t.className = 'toast ' + (type || 'info');
+  t.textContent = msg;
+  box.appendChild(t);
+  setTimeout(function(){ t.classList.add('show'); }, 10);
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); }, 300); }, 3000);
+}
+
+async function api(path, method, body) {
+  var opts = { method: method || 'GET', headers: { 'Content-Type': 'application/json' } };
+  if (TOKEN) opts.headers['Authorization'] = 'Bearer ' + TOKEN;
+  if (body) opts.body = JSON.stringify(body);
+  var r = await fetch(path, opts);
+  var d = await r.json();
+  if (!r.ok) throw new Error(d.error || d.message || 'Error');
+  return d;
+}
+
+async function doLogin() {
+  var u = document.getElementById('loginUsername').value.trim();
+  var p = document.getElementById('loginPassword').value;
+  if (!u || !p) return showToast('Username iyo password geli', 'error');
+  try {
+    var d = await api('/api/login', 'POST', { username: u, password: p });
+    TOKEN = d.token; CURRENT_USER = d.user;
+    localStorage.setItem('hamse_token', TOKEN);
+    localStorage.setItem('hamse_user', JSON.stringify(CURRENT_USER));
+    showToast('Ku soo dhawoow, ' + CURRENT_USER.username + '!', 'success');
+    enterPanel();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function doLogout() {
+  localStorage.removeItem('hamse_token');
+  localStorage.removeItem('hamse_user');
+  TOKEN = ''; CURRENT_USER = null;
+  location.reload();
+}
+
+function enterPanel() {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('panelPage').classList.remove('hidden');
+  if (CURRENT_USER) {
+    document.getElementById('setUsername').value = CURRENT_USER.username || '';
+    document.getElementById('setRole').value = CURRENT_USER.role || '';
+    document.getElementById('setRefCode').value = CURRENT_USER.referral_code || '-';
+  }
+  loadRefCode();
+  showSection('dashboard');
+  startClock();
+}
+
+var sections = ['dashboard','users','licenses','referrals','status','telegram','worker','apk','loader','pak','loader_mgr','settings'];
+var titles = {dashboard:'Dashboard',users:'Users Management',licenses:'Licenses Management',referrals:'Referrals',status:'System Status',telegram:'Telegram Bot',worker:'Cloudflare Worker',apk:'APK Analyzer',loader:'Loader Helper',settings:'Settings'};
+
+function showSection(name) {
+  sections.forEach(function(s){
+    var el = document.getElementById('section-'+s);
+    if (el) el.classList.toggle('hidden', s !== name);
+    var nav = document.getElementById('nav-'+s);
+    if (nav) nav.classList.toggle('active', s === name);
+  });
+  document.getElementById('pageTitle').textContent = titles[name] || name;
+  if (name === 'dashboard') loadStats();
+  if (name === 'users') loadUsers();
+  if (name === 'licenses') loadLicenses();
+  if (name === 'referrals') loadReferrals();
+  if (name === 'status') loadStatus();
+  if (name === 'worker') loadWorkerPage();
+}
+
+function startClock() {
+  setInterval(function(){
+    var d = new Date();
+    document.getElementById('liveClock').textContent = d.toLocaleTimeString('en-GB');
+  }, 1000);
+}
+
+async function loadStats() {
+  if (CURRENT_USER) {
+    var wu = document.getElementById('welcomeUser');
+    if (wu) wu.textContent = CURRENT_USER.username || 'admin';
+  }
+  try {
+    var s = await api('/api/stats');
+    document.getElementById('statUsers').textContent = s.totalUsers || 0;
+    document.getElementById('statLicenses').textContent = s.totalLicenses || 0;
+    document.getElementById('statActive').textContent = s.activeLicenses || 0;
+    document.getElementById('statReferrals').textContent = s.totalReferrals || 0;
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loadUsers() {
+  try {
+    var d = await api('/api/admin/users');
+    var html = '<table><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th></tr>';
+    (d.users || []).forEach(function(u){
+      html += '<tr><td>#'+u.id+'</td><td>'+u.username+'</td><td>'+u.role+'</td><td>'+u.status+'</td></tr>';
+    });
+    html += '</table>';
+    document.getElementById('usersList').innerHTML = html;
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loadLicenses() {
+  try {
+    var d = await api('/api/licenses');
+    var list = d.licenses || [];
+    var html = '<table><tr><th>Key</th><th>Game</th><th>Devices</th><th>Status</th><th>Expires</th><th></th></tr>';
+    if (list.length === 0) html += '<tr><td colspan="6" style="text-align:center;color:#8b949e">Ma jiro license</td></tr>';
+    list.forEach(function(k){
+      var used = 0;
+      try { used = JSON.parse(k.used_devices || '[]').length; } catch(e) {}
+      var cd = countdown(k.expires_at);
+      html += '<tr>';
+      html += '<td style="font-family:monospace;font-size:11px">'+(k.license_key||'')+'</td>';
+      html += '<td>' + (k.game || 'PUBG MOBILE') + '</td>';
+      html += '<td>' + used + '/' + (k.max_devices || 1) + '</td>';
+      html += '<td>' + (k.status || '-') + '</td>';
+      html += '<td style="font-size:12px">' + cd + '</td>';
+      html += '<td><button onclick="copyKey(\'' + (k.license_key||'') + '\')" style="background:#1f6feb;border:none;border-radius:6px;color:#fff;padding:4px 8px;font-size:11px;cursor:pointer;margin-right:4px">Copy</button>';
+      html += '<button onclick="deleteLicense(' + k.id + ')" style="background:#da3633;border:none;border-radius:6px;color:#fff;padding:4px 8px;font-size:11px;cursor:pointer">🗑</button></td>';
+      html += '</tr>';
+    });
+    html += '</table>';
+    document.getElementById('licensesList').innerHTML = html;
+  } catch(e) { showToast(e.message, 'error'); }
+}
+function countdown(expires_at) {
+  if (!expires_at) return '-';
+  if (expires_at === '2099-12-31 23:59:59') return 'lifetime';
+  var exp = new Date(expires_at.replace(' ', 'T'));
+  var now = new Date();
+  var diff = exp - now;
+  if (diff <= 0) return 'expired';
+  var days = Math.floor(diff / 86400000);
+  var hrs = Math.floor((diff % 86400000) / 3600000);
+  var mins = Math.floor((diff % 3600000) / 60000);
+  var secs = Math.floor((diff % 60000) / 1000);
+  if (days > 0) return days + 'd ' + hrs + 'h ' + mins + 'm';
+  if (hrs > 0) return hrs + 'h ' + mins + 'm ' + secs + 's';
+  return mins + 'm ' + secs + 's';
+}
+function copyRef() {
+  var code = document.getElementById('refCodeDisplay').value;
+  navigator.clipboard.writeText(code);
+  showToast('Referral code la copy-gareeyay: ' + code, 'success');
+}
+function loadRefCode() {
+  if (CURRENT_USER && CURRENT_USER.referral_code) {
+    document.getElementById('refCodeDisplay').value = CURRENT_USER.referral_code;
+    document.getElementById('refLinkDisplay').textContent = location.origin + '?ref=' + CURRENT_USER.referral_code;
+  }
+}
+function editLicense(id, current) {
+  var v = prompt('Max Devices cusub (1-1000):', current);
+  if (!v) return;
+  var n = parseInt(v);
+  if (!n || n < 1 || n > 1000) { showToast('Max devices waa inuu yahay 1-1000', 'error'); return; }
+  fetch('/api/admin/licenses/' + id + '/edit', {
+    method: 'PUT',
+    headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ max_devices: n })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ showToast('Max devices la beddelay: ' + n, 'success'); loadLicenses(); })
+    .catch(function(e){ showToast(e.message, 'error'); });
+}
+function copyKey(k) {
+  navigator.clipboard.writeText(k);
+  showToast('Key la copy-gareeyay: ' + k, 'success');
+}
+
+function copyRef() {
+  var code = document.getElementById('refCodeDisplay').value;
+  navigator.clipboard.writeText(code);
+  showToast('Referral code la copy-gareeyay: ' + code, 'success');
+}
+function loadRefCode() {
+  if (CURRENT_USER && CURRENT_USER.referral_code) {
+    document.getElementById('refCodeDisplay').value = CURRENT_USER.referral_code;
+    document.getElementById('refLinkDisplay').textContent = location.origin + '?ref=' + CURRENT_USER.referral_code;
+  }
+}
+function copyKey(k) {
+  navigator.clipboard.writeText(k);
+  showToast('Key la copy-gareeyay: ' + k, 'success');
+}
+
+async function loadReferrals() {
+  try {
+    var d = await api('/api/admin/referrals');
+    var list = d.referrals || [];
+    var html = '<table><tr><th>ID</th><th>Referrer</th><th>Referred</th></tr>';
+    if (list.length === 0) html += '<tr><td colspan="3" style="text-align:center;color:#8b949e">Ma jiro referral</td></tr>';
+    list.forEach(function(r){
+      html += '<tr><td>'+r.id+'</td><td>'+r.referrer_code+'</td><td>'+r.referred_user+'</td></tr>';
+    });
+    html += '</table>';
+    document.getElementById('referralsList').innerHTML = html;
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loadStatus() {
+  try {
+    var h = await api('/api/health');
+    var w = await api('/api/worker-check');
+    var html = '<p style="margin-bottom:8px">Railway Server: <span class="badge badge-online">Online</span></p>';
+    html += '<p style="margin-bottom:8px">Cloudflare Worker: <span class="badge badge-online">Online</span></p>';
+    document.getElementById('statusList').innerHTML = html;
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loadWorkerPage() {
+  try {
+    var d = await api('/api/worker/status');
+    document.getElementById('cw-status').textContent = d.online ? 'Online' : 'Offline';
+    document.getElementById('cw-code-size').textContent = (d.code_length || 0) + ' bytes';
+    document.getElementById('cw-response').textContent = d.response_time || '-';
+    document.getElementById('cw-url').textContent = d.worker_url || '-';
+    var cd = await api('/api/worker/code');
+    document.getElementById('cw-code').value = cd.code || '// Code lama helin';
+  } catch(e) { showToast('Worker: ' + e.message, 'error'); }
+}
+
+async function cwDeploy() {
+  var codeEl = document.getElementById('cw-code');
+  if (!codeEl) return showToast('Code editor ma jiro', 'error');
+  var code = codeEl.value;
+  if (!code) return showToast('Code ma jiro', 'error');
+  var panelUrl = 'https://hamse-panel-production.up.railway.app';
+  var panelToken = 'hM3pK7vN9qL2xB5sT8wR4yZ6cF1jH0dG';
+  code = code.replace(/env\.PANEL_URL \|\| "[^"]*"/g, '"' + panelUrl + '"');
+  code = code.replace(/env\.PANEL_TOKEN \|\| ""/g, '"' + panelToken + '"');
+  code = code.replace(/env\.PANEL_URL/g, '"' + panelUrl + '"');
+  code = code.replace(/env\.PANEL_TOKEN/g, '"' + panelToken + '"');
+  codeEl.value = code;
+  var rs = document.getElementById('cw-result');
+  if (rs) rs.innerHTML = '<p>Deploy socda...</p>';
+  showToast('Deploy socda...', 'info');
+  try {
+    var t = localStorage.getItem('hamse_token');
+    var r = await fetch('/api/worker/code', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code })
+    });
+    var d = await r.json();
+    if (d.success) {
+      if (rs) rs.innerHTML = '<div style="padding:15px;background:#d4f4dd;border:1px solid #0a7a3a;border-radius:10px;color:#0a7a3a;"><b>Deploy Successful!</b> ' + (d.message || '') + '</div>';
+      showToast('La deploy-gareeyay!', 'success');
+    } else {
+      if (rs) rs.innerHTML = '<div style="padding:15px;background:#fde0e0;border:1px solid #a02020;border-radius:10px;color:#a02020;"><b>Failed!</b> ' + (d.error || '') + '</div>';
+      showToast('Fail: ' + (d.error || ''), 'error');
+    }
+  } catch(e) {
+    if (rs) rs.innerHTML = '<div style="padding:15px;background:#fde0e0;border-radius:10px;">Error: ' + e.message + '</div>';
+    showToast(e.message, 'error');
+  }
+}
+
+function openLicenseModal() { document.getElementById('licenseModal').classList.remove('hidden'); }
+function closeLicenseModal() { document.getElementById('licenseModal').classList.add('hidden'); }
+
+async function createLicenses() {
+  var count = parseInt(document.getElementById('licCount').value);
+  var duration = document.getElementById('licDuration').value;
+  var key_mode = document.getElementById('licKeyMode').value;
+  var custom_key = document.getElementById('licCustomKey').value.trim();
+  var max_devices = parseInt(document.getElementById('licMaxDevices').value);
+  var game = document.getElementById('licGame').value;
+  try {
+    var d = await api('/api/admin/licenses/bulk', 'POST', { count: count, duration: duration, custom_key: custom_key, max_devices: max_devices, game: game, key_mode: key_mode });
+    showToast(d.count + ' licenses la abuuray!', 'success');
+    closeLicenseModal();
+    loadLicenses();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+function toggleCustomKey() {
+  var mode = document.getElementById('licKeyMode').value;
+  document.getElementById('customKeyGroup').style.display = (mode === 'custom') ? 'block' : 'none';
+}
+function deleteLicense(id) {
+  if (!confirm('Ma tirtiraysaa license-kan?')) return;
+  fetch('/api/admin/licenses/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + TOKEN } })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ showToast('License la tirtiray', 'success'); loadLicenses(); })
+    .catch(function(e){ showToast(e.message, 'error'); });
+}
+
+if (TOKEN && CURRENT_USER) { enterPanel(); }
+
+// ===== PAK EDITOR JS =====
+let pakFileSel = null, bypassFileSel = null;
+const PANEL_URL_JS = window.location.origin;
+
+function pakPick(kind) {
+  const inp = kind === 'pak' ? document.getElementById('pakFile') : document.getElementById('bypassFile');
+  const info = kind === 'pak' ? document.getElementById('pakInfo') : document.getElementById('bypassInfo');
+  const f = inp.files[0];
+  if (!f) return;
+  if (kind === 'pak') pakFileSel = f; else bypassFileSel = f;
+  info.innerHTML = '<b style="color:#e6edf3">' + f.name + '</b> — ' + (f.size/1024).toFixed(1) + ' KB';
+  const btn = document.getElementById('injectBtn');
+  if (pakFileSel && bypassFileSel) { btn.disabled = false; btn.style.background = '#1f6feb'; btn.style.cursor = 'pointer'; }
+  document.getElementById('injectStatus').textContent = 'Ready';
+}
+
+async function pakInject() {
+  if (!pakFileSel || !bypassFileSel) return;
+  const st = document.getElementById('injectStatus');
+  st.textContent = 'Uploading…'; st.style.color = '#58a6ff';
+  document.getElementById('downloadBox').style.display = 'none';
+  const fd = new FormData();
+  fd.append('pak', pakFileSel); fd.append('bypass', bypassFileSel);
+  const token = localStorage.getItem('token') || '';
+  try {
+    st.textContent = 'Validating PAK…';
+    const r = await fetch(PANEL_URL_JS + '/api/pak/inject', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+    const j = await r.json();
+    if (!r.ok || j.status !== 'ok') {
+      st.textContent = '❌ Failed: ' + (j.msg || 'error'); st.style.color = '#f85149';
+      if (j.format) st.textContent += ' (format: ' + j.format + ')';
+      return;
+    }
+    st.textContent = '✅ Completed'; st.style.color = '#3fb950';
+    document.getElementById('outInfo').innerHTML = 'Format: <b>' + j.format + '</b> · Target: <b>' + (j.target||'-') + '</b> · Size: <b>' + ((j.out_size||0)/1024).toFixed(1) + ' KB</b><br>SHA-256: <code style="font-size:11px">' + (j.out_sha256||'').slice(0,32) + '…</code>';
+    document.getElementById('downloadLink').href = PANEL_URL_JS + '/api/pak/download/' + j.download_id + '?token=' + encodeURIComponent(token);
+    document.getElementById('downloadBox').style.display = 'block';
+  } catch (e) {
+    st.textContent = '❌ Network error: ' + e.message; st.style.color = '#f85149';
+  }
+}
+
+
+// ===== LOADER MANAGER JS =====
+let loaderFileSel = null;
+
+async function loaderLoadCurrent() {
+  const token = localStorage.getItem('token') || '';
+  try {
+    const r = await fetch(window.location.origin + '/api/loader/current', { headers: { 'Authorization': 'Bearer ' + token } });
+    const j = await r.json();
+    const el = document.getElementById('loaderCurrent');
+    if (j.status === 'ok') el.innerHTML = '<b style="color:#e6edf3">' + j.name + '</b> — ' + (j.size/1024/1024).toFixed(2) + ' MB<br>Uploaded: ' + j.uploaded;
+    else el.textContent = 'No loader uploaded yet';
+  } catch(e) { document.getElementById('loaderCurrent').textContent = 'Error: ' + e.message; }
+}
+
+function loaderPick() {
+  const inp = document.getElementById('loaderApk');
+  const f = inp.files[0]; if (!f) return;
+  loaderFileSel = f;
+  document.getElementById('loaderInfo').innerHTML = '<b style="color:#e6edf3">' + f.name + '</b> — ' + (f.size/1024/1024).toFixed(2) + ' MB';
+  const btn = document.getElementById('loaderUploadBtn');
+  btn.disabled = false; btn.style.background = '#1f6feb'; btn.style.cursor = 'pointer';
+}
+
+async function loaderUpload() {
+  if (!loaderFileSel) return;
+  const st = document.getElementById('loaderStatus');
+  st.textContent = 'Uploading…'; st.style.color = '#58a6ff';
+  const fd = new FormData(); fd.append('apk', loaderFileSel);
+  const token = localStorage.getItem('token') || '';
+  try {
+    const r = await fetch(window.location.origin + '/api/loader/upload', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+    const j = await r.json();
+    if (!r.ok || j.status !== 'ok') { st.textContent = '❌ Failed: ' + (j.msg||'error'); st.style.color = '#f85149'; return; }
+    st.textContent = '✅ Uploaded'; st.style.color = '#3fb950';
+    loaderLoadCurrent();
+  } catch(e) { st.textContent = '❌ Network error: ' + e.message; st.style.color = '#f85149'; }
+}
+
+</script>
+<script>window.addEventListener("load", loaderLoadCurrent);</script>
+<script>if(window.lucide)lucide.createIcons();setInterval(()=>{if(window.lucide)lucide.createIcons()},800);</script>
+</body>
+</html>
