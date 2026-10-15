@@ -527,7 +527,9 @@ async function loadWorkerPage() {
 }
 
 async function cwDeploy() {
-  var code = document.getElementById('cw-code').value;
+  var codeEl = document.getElementById('cw-code');
+  if (!codeEl) return showToast('Code editor ma jiro', 'error');
+  var code = codeEl.value;
   if (!code) return showToast('Code ma jiro', 'error');
   var panelUrl = 'https://hamse-panel-production.up.railway.app';
   var panelToken = 'hM3pK7vN9qL2xB5sT8wR4yZ6cF1jH0dG';
@@ -535,12 +537,10 @@ async function cwDeploy() {
   code = code.replace(/env\.PANEL_TOKEN \|\| ""/g, '"' + panelToken + '"');
   code = code.replace(/env\.PANEL_URL/g, '"' + panelUrl + '"');
   code = code.replace(/env\.PANEL_TOKEN/g, '"' + panelToken + '"');
-  document.getElementById('cw-code').value = code;
-  var b = document.getElementById('cw-save-btn');
+  codeEl.value = code;
   var rs = document.getElementById('cw-result');
-  if (!b) return showToast('Button ma jiro', 'error');
-  b.disabled = true; b.textContent = 'Deploying...';
   if (rs) rs.innerHTML = '<p>Deploy socda...</p>';
+  showToast('Deploy socda...', 'info');
   try {
     var t = localStorage.getItem('hamse_token');
     var r = await fetch('/api/worker/code', {
@@ -552,15 +552,14 @@ async function cwDeploy() {
     if (d.success) {
       if (rs) rs.innerHTML = '<div style="padding:15px;background:#d4f4dd;border:1px solid #0a7a3a;border-radius:10px;color:#0a7a3a;"><b>Deploy Successful!</b> ' + (d.message || '') + '</div>';
       showToast('La deploy-gareeyay!', 'success');
-      setTimeout(loadWorkerPage, 1500);
     } else {
       if (rs) rs.innerHTML = '<div style="padding:15px;background:#fde0e0;border:1px solid #a02020;border-radius:10px;color:#a02020;"><b>Failed!</b> ' + (d.error || '') + '</div>';
-      showToast('Fail', 'error');
+      showToast('Fail: ' + (d.error || ''), 'error');
     }
   } catch(e) {
     if (rs) rs.innerHTML = '<div style="padding:15px;background:#fde0e0;border-radius:10px;">Error: ' + e.message + '</div>';
+    showToast(e.message, 'error');
   }
-  b.disabled = false; b.textContent = 'Deploy';
 }
 
 function openLicenseModal() { document.getElementById('licenseModal').classList.remove('hidden'); }
