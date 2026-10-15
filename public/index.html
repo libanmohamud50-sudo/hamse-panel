@@ -78,6 +78,7 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
     <a onclick="showSection('apk')" id="nav-apk">📦 <span>APK Analyzer</span></a>
     <a onclick="showSection('loader')" id="nav-loader">🛠️ <span>Loader Helper</span></a>
         <a onclick="showSection('pak')" id="nav-pak">📦 <span>PAK Editor</span></a>
+        <a onclick="showSection('loader_mgr')" id="nav-loader_mgr">⚙️ <span>Loader Manager</span></a>
     <a onclick="showSection('settings')" id="nav-settings">⚙️ <span>Settings</span></a>
     <a onclick="doLogout()" style="color:#f85149">🚪 <span>Logout</span></a>
   </div>
@@ -281,6 +282,31 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
   </div>
 </div>
 
+<div id="section-loader_mgr" class="hidden">
+  <h2>⚙️ Loader Manager</h2>
+  <p style="color:#8b949e;font-size:13px;margin-bottom:16px;">Upload loader APK, manage online update. All apps connected to server check here.</p>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Current Loader</h3>
+    <div id="loaderCurrent" style="font-size:13px;color:#8b949e;">Loading…</div>
+  </div>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Upload New Loader</h3>
+    <input type="file" id="loaderApk" accept=".apk" style="display:none" onchange="loaderPick()">
+    <button onclick="document.getElementById('loaderApk').click()" style="background:#238636;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">📂 SELECT LOADER APK</button>
+    <div id="loaderInfo" style="margin-top:12px;font-size:13px;color:#8b949e;">No file selected</div>
+    <button id="loaderUploadBtn" onclick="loaderUpload()" disabled style="margin-top:12px;background:#6e7681;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:not-allowed;">⬆️ UPLOAD LOADER</button>
+    <div id="loaderStatus" style="margin-top:12px;font-size:13px;color:#8b949e;"></div>
+  </div>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Online Update Endpoint</h3>
+    <p style="font-size:12px;color:#8b949e;">Apps check: <code style="background:#161b22;padding:2px 6px;border-radius:4px;">GET /api/loader/check-update</code></p>
+    <p style="font-size:12px;color:#8b949e;">Download: <code style="background:#161b22;padding:2px 6px;border-radius:4px;">GET /api/loader/download</code></p>
+  </div>
+</div>
+
 <div id="section-settings" class="hidden">
       <div class="card"><h3>Settings</h3>
         <div class="form-group"><label>Username</label><input type="text" id="setUsername" disabled></div>
@@ -385,7 +411,7 @@ function enterPanel() {
   startClock();
 }
 
-var sections = ['dashboard','users','licenses','referrals','status','telegram','worker','apk','loader','pak','settings'];
+var sections = ['dashboard','users','licenses','referrals','status','telegram','worker','apk','loader','pak','loader_mgr','settings'];
 var titles = {dashboard:'Dashboard',users:'Users Management',licenses:'Licenses Management',referrals:'Referrals',status:'System Status',telegram:'Telegram Bot',worker:'Cloudflare Worker',apk:'APK Analyzer',loader:'Loader Helper',settings:'Settings'};
 
 function showSection(name) {
@@ -667,6 +693,46 @@ async function pakInject() {
   }
 }
 
+
+// ===== LOADER MANAGER JS =====
+let loaderFileSel = null;
+
+async function loaderLoadCurrent() {
+  const token = localStorage.getItem('token') || '';
+  try {
+    const r = await fetch(window.location.origin + '/api/loader/current', { headers: { 'Authorization': 'Bearer ' + token } });
+    const j = await r.json();
+    const el = document.getElementById('loaderCurrent');
+    if (j.status === 'ok') el.innerHTML = '<b style="color:#e6edf3">' + j.name + '</b> — ' + (j.size/1024/1024).toFixed(2) + ' MB<br>Uploaded: ' + j.uploaded;
+    else el.textContent = 'No loader uploaded yet';
+  } catch(e) { document.getElementById('loaderCurrent').textContent = 'Error: ' + e.message; }
+}
+
+function loaderPick() {
+  const inp = document.getElementById('loaderApk');
+  const f = inp.files[0]; if (!f) return;
+  loaderFileSel = f;
+  document.getElementById('loaderInfo').innerHTML = '<b style="color:#e6edf3">' + f.name + '</b> — ' + (f.size/1024/1024).toFixed(2) + ' MB';
+  const btn = document.getElementById('loaderUploadBtn');
+  btn.disabled = false; btn.style.background = '#1f6feb'; btn.style.cursor = 'pointer';
+}
+
+async function loaderUpload() {
+  if (!loaderFileSel) return;
+  const st = document.getElementById('loaderStatus');
+  st.textContent = 'Uploading…'; st.style.color = '#58a6ff';
+  const fd = new FormData(); fd.append('apk', loaderFileSel);
+  const token = localStorage.getItem('token') || '';
+  try {
+    const r = await fetch(window.location.origin + '/api/loader/upload', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+    const j = await r.json();
+    if (!r.ok || j.status !== 'ok') { st.textContent = '❌ Failed: ' + (j.msg||'error'); st.style.color = '#f85149'; return; }
+    st.textContent = '✅ Uploaded'; st.style.color = '#3fb950';
+    loaderLoadCurrent();
+  } catch(e) { st.textContent = '❌ Network error: ' + e.message; st.style.color = '#f85149'; }
+}
+
 </script>
+<script>window.addEventListener("load", loaderLoadCurrent);</script>
 </body>
 </html>

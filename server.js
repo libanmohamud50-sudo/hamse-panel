@@ -406,6 +406,46 @@ app.get('/api/pak/download/:id', authMiddleware, adminMiddleware, (req, res) => 
   res.download(file, 'modified_' + id);
 });
 
+
+// ===== LOADER MANAGER ROUTES =====
+const LOADER_DIR = path.join(__dirname, 'loader_files');
+if (!fs.existsSync(LOADER_DIR)) fs.mkdirSync(LOADER_DIR, { recursive: true });
+
+const loaderUpload = multer({ dest: LOADER_DIR, limits: { fileSize: 200 * 1024 * 1024 } });
+
+app.post('/api/loader/upload', authMiddleware, adminMiddleware, loaderUpload.fields([
+  { name: 'apk', maxCount: 1 }
+]), (req, res) => {
+  if (!req.files || !req.files.apk) return res.status(400).json({ status: 'error', msg: 'apk required' });
+  const f = req.files.apk[0];
+  const target = path.join(LOADER_DIR, 'Hamse_cheats_vip_loader_' + Date.now() + '.apk');
+  fs.renameSync(f.path, target);
+  const meta = { name: path.basename(target), size: fs.statSync(target).size, uploaded: new Date().toISOString() };
+  fs.writeFileSync(path.join(LOADER_DIR, 'loader_meta.json'), JSON.stringify(meta, null, 2));
+  res.json({ status: 'ok', ...meta });
+});
+
+app.get('/api/loader/current', authMiddleware, adminMiddleware, (req, res) => {
+  const metaPath = path.join(LOADER_DIR, 'loader_meta.json');
+  if (!fs.existsSync(metaPath)) return res.json({ status: 'none', msg: 'no loader uploaded' });
+  const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+  res.json({ status: 'ok', ...meta });
+});
+
+app.get('/api/loader/download', authMiddleware, adminMiddleware, (req, res) => {
+  const metaPath = path.join(LOADER_DIR, 'loader_meta.json');
+  if (!fs.existsSync(metaPath)) return res.status(404).json({ status: 'error', msg: 'no loader' });
+  const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+  res.download(path.join(LOADER_DIR, meta.name), meta.name);
+});
+
+app.get('/api/loader/check-update', (req, res) => {
+  const metaPath = path.join(LOADER_DIR, 'loader_meta.json');
+  if (!fs.existsSync(metaPath)) return res.json({ status: 'none' });
+  const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+  res.json({ status: 'ok', version: meta.uploaded, size: meta.size, download_url: '/api/loader/download' });
+});
+
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 initDB().then(() => {
