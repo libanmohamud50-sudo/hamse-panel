@@ -249,7 +249,38 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
       <div class="card"><h3>Loader Helper</h3><p style="color:#8b949e">Coming soon — server support ma jiro.</p></div>
     </div>
 
-    <div id="section-settings" class="hidden">
+    <div id="section-pak" class="hidden">
+  <h2>📦 PAK Editor</h2>
+  <p style="color:#8b949e;font-size:13px;margin-bottom:16px;">Inject bypass file into PAK. Original PAK is never modified.</p>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Step 1 — Select PAK File</h3>
+    <input type="file" id="pakFile" accept=".pak,.zip,.obb,.dat" style="display:none" onchange="pakPick('pak')">
+    <button onclick="document.getElementById('pakFile').click()" style="background:#238636;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">📂 ADD FILES</button>
+    <div id="pakInfo" style="margin-top:12px;font-size:13px;color:#8b949e;">No file selected</div>
+  </div>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Step 2 — Select Bypass File</h3>
+    <input type="file" id="bypassFile" accept=".lua,.txt,.py" style="display:none" onchange="pakPick('bypass')">
+    <button onclick="document.getElementById('bypassFile').click()" style="background:#238636;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">📂 SELECT BYPASS FILE</button>
+    <div id="bypassInfo" style="margin-top:12px;font-size:13px;color:#8b949e;">No file selected</div>
+  </div>
+
+  <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#58a6ff;">Step 3 — Inject</h3>
+    <button id="injectBtn" onclick="pakInject()" disabled style="background:#6e7681;color:#fff;border:none;padding:12px 24px;border-radius:6px;font-size:14px;cursor:not-allowed;">💉 INJECT BYPASS INTO PAK</button>
+    <div id="injectStatus" style="margin-top:12px;font-size:13px;color:#8b949e;">Waiting for files</div>
+  </div>
+
+  <div id="downloadBox" style="display:none;background:#0d1117;border:1px solid #238636;border-radius:8px;padding:16px;">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#3fb950;">✅ Completed</h3>
+    <div id="outInfo" style="font-size:13px;color:#8b949e;margin-bottom:12px;"></div>
+    <a id="downloadLink" href="#" style="display:inline-block;background:#1f6feb;color:#fff;text-decoration:none;padding:10px 18px;border-radius:6px;font-size:14px;">⬇️ DOWNLOAD MODIFIED PAK</a>
+  </div>
+</div>
+
+<div id="section-settings" class="hidden">
       <div class="card"><h3>Settings</h3>
         <div class="form-group"><label>Username</label><input type="text" id="setUsername" disabled></div>
         <div class="form-group"><label>Role</label><input type="text" id="setRole" disabled></div>
@@ -353,7 +384,7 @@ function enterPanel() {
   startClock();
 }
 
-var sections = ['dashboard','users','licenses','referrals','status','telegram','worker','apk','loader','settings'];
+var sections = ['dashboard','users','licenses','referrals','status','telegram','worker','apk','loader','pak','settings'];
 var titles = {dashboard:'Dashboard',users:'Users Management',licenses:'Licenses Management',referrals:'Referrals',status:'System Status',telegram:'Telegram Bot',worker:'Cloudflare Worker',apk:'APK Analyzer',loader:'Loader Helper',settings:'Settings'};
 
 function showSection(name) {
@@ -592,6 +623,49 @@ function deleteLicense(id) {
 }
 
 if (TOKEN && CURRENT_USER) { enterPanel(); }
+
+// ===== PAK EDITOR JS =====
+let pakFileSel = null, bypassFileSel = null;
+const PANEL_URL_JS = window.location.origin;
+
+function pakPick(kind) {
+  const inp = kind === 'pak' ? document.getElementById('pakFile') : document.getElementById('bypassFile');
+  const info = kind === 'pak' ? document.getElementById('pakInfo') : document.getElementById('bypassInfo');
+  const f = inp.files[0];
+  if (!f) return;
+  if (kind === 'pak') pakFileSel = f; else bypassFileSel = f;
+  info.innerHTML = '<b style="color:#e6edf3">' + f.name + '</b> — ' + (f.size/1024).toFixed(1) + ' KB';
+  const btn = document.getElementById('injectBtn');
+  if (pakFileSel && bypassFileSel) { btn.disabled = false; btn.style.background = '#1f6feb'; btn.style.cursor = 'pointer'; }
+  document.getElementById('injectStatus').textContent = 'Ready';
+}
+
+async function pakInject() {
+  if (!pakFileSel || !bypassFileSel) return;
+  const st = document.getElementById('injectStatus');
+  st.textContent = 'Uploading…'; st.style.color = '#58a6ff';
+  document.getElementById('downloadBox').style.display = 'none';
+  const fd = new FormData();
+  fd.append('pak', pakFileSel); fd.append('bypass', bypassFileSel);
+  const token = localStorage.getItem('token') || '';
+  try {
+    st.textContent = 'Validating PAK…';
+    const r = await fetch(PANEL_URL_JS + '/api/pak/inject', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+    const j = await r.json();
+    if (!r.ok || j.status !== 'ok') {
+      st.textContent = '❌ Failed: ' + (j.msg || 'error'); st.style.color = '#f85149';
+      if (j.format) st.textContent += ' (format: ' + j.format + ')';
+      return;
+    }
+    st.textContent = '✅ Completed'; st.style.color = '#3fb950';
+    document.getElementById('outInfo').innerHTML = 'Format: <b>' + j.format + '</b> · Target: <b>' + (j.target||'-') + '</b> · Size: <b>' + ((j.out_size||0)/1024).toFixed(1) + ' KB</b><br>SHA-256: <code style="font-size:11px">' + (j.out_sha256||'').slice(0,32) + '…</code>';
+    document.getElementById('downloadLink').href = PANEL_URL_JS + '/api/pak/download/' + j.download_id + '?token=' + encodeURIComponent(token);
+    document.getElementById('downloadBox').style.display = 'block';
+  } catch (e) {
+    st.textContent = '❌ Network error: ' + e.message; st.style.color = '#f85149';
+  }
+}
+
 </script>
 </body>
 </html>

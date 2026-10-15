@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
@@ -362,6 +361,48 @@ app.get("/api/telegram/status", authMiddleware, adminMiddleware, async (req, res
   } catch(e) {
     res.json({ success: true, online: false, error: e.message });
   }
+});
+
+
+// ===== PAK EDITOR ROUTES =====
+const multer = require('multer');
+const { execFile } = require('child_process');
+const os = require('os');
+
+const pakUpload = multer({ dest: os.tmpdir() + '/pak_uploads/', limits: { fileSize: 100 * 1024 * 1024 } });
+if (!fs.existsSync(os.tmpdir() + '/pak_uploads/')) fs.mkdirSync(os.tmpdir() + '/pak_uploads/', { recursive: true });
+
+app.post('/api/pak/inject', authMiddleware, adminMiddleware, pakUpload.fields([
+  { name: 'pak', maxCount: 1 }, { name: 'bypass', maxCount: 1 }
+]), (req, res) => {
+  try {
+    if (!req.files || !req.files.pak || !req.files.bypass) {
+      return res.status(400).json({ status: 'error', msg: 'pak and bypass files required' });
+    }
+    const pakPath = req.files.pak[0].path;
+    const bypassPath = req.files.bypass[0].path;
+    const outPath = os.tmpdir() + '/pak_out_' + Date.now() + '.pak';
+    const script = path.join(__dirname, 'pak_editor', 'inject.py');
+    execFile('python3', [script, pakPath, bypassPath, outPath], { timeout: 120000 }, (err, stdout, stderr) => {
+      try { fs.unlinkSync(pakPath); } catch(e){}
+      try { fs.unlinkSync(bypassPath); } catch(e){}
+      if (err) return res.status(500).json({ status: 'error', msg: err.message, stderr: stderr });
+      let result;
+      try { result = JSON.parse(stdout.trim()); } catch(e) { return res.status(500).json({ status: 'error', msg: 'invalid output', raw: stdout }); }
+      if (result.status !== 'ok') return res.status(400).json(result);
+      const id = path.basename(outPath);
+      res.json({ ...result, download_id: id });
+    });
+  } catch (e) {
+    res.status(500).json({ status: 'error', msg: e.message });
+  }
+});
+
+app.get('/api/pak/download/:id', authMiddleware, adminMiddleware, (req, res) => {
+  const id = path.basename(req.params.id);
+  const file = os.tmpdir() + '/' + id;
+  if (!fs.existsSync(file)) return res.status(404).json({ status: 'error', msg: 'not found' });
+  res.download(file, 'modified_' + id);
 });
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
