@@ -2,7 +2,7 @@
 <html lang="so">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=1280,initial-scale=0.3,maximum-scale=5.0,user-scalable=yes">
 <title>HAMSE CHEATS VIP PANEL</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -93,6 +93,19 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
   .sidebar{position:sticky!important;top:0!important;height:100vh!important;transform:none!important;width:240px!important;min-width:240px!important}
   .sidebar.collapsed{width:72px!important;min-width:72px!important}
   .main{flex:1!important;width:auto!important;padding:24px!important}
+}
+
+
+/* Desktop auto layout */
+@media (min-width: 769px) {
+  .sidebar { width: 220px !important; min-width: 220px !important; max-width: 220px !important; }
+  .main { margin-left: 220px !important; }
+  .sidebar a { padding: 12px 18px !important; font-size: 14px !important; }
+  .sidebar .section-label { font-size: 11px !important; }
+}
+@media (max-width: 768px) {
+  .sidebar { width: 200px !important; min-width: 200px !important; max-width: 200px !important; }
+  .main { margin-left: 200px !important; }
 }
 
 </style>
