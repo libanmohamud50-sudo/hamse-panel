@@ -306,7 +306,7 @@ app.post('/api/verify', async (req, res) => {
 });
 app.post("/api/telegram/send", authMiddleware, adminMiddleware, async (req, res) => {
   const BOT_TOKEN = "7579506309:AAGe6jM6Z2K7yA6DqCWWq48pd0o9SKzQlZE";
-  const ADMIN_CHAT_ID = "6898834443";
+  const ADMIN_CHAT_ID = "6320069127";
   const text = req.body.text || "Test message";
   try {
     const r = await fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
