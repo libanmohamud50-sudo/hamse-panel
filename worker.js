@@ -25,8 +25,8 @@ export default {
     } catch (e) {}
 
     let expire = "", valid = false, duration = "";
-    const PANEL_URL = env.PANEL_URL || "https://hamse-panel-production.up.railway.app";
-    const PANEL_TOKEN = env.PANEL_TOKEN || "";
+    const PANEL_URL = "https://hamse-panel-production.up.railway.app";
+    const PANEL_TOKEN = "hM3pK7vN9qL2xB5sT8wR4yZ6cF1jH0dG";
 
     if (userKey) {
       try {
