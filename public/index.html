@@ -50,6 +50,42 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
 .code-editor{width:100%;min-height:400px;padding:16px;background:#0a1f44;border:2px solid #1f2937;border-radius:10px;color:#d4e4ff;font-family:'Courier New',monospace;font-size:13px;line-height:1.5;resize:vertical}
 @media(max-width:768px){.sidebar{width:60px}.sidebar h2,.sidebar a span,.sidebar .section-label{display:none}.sidebar a{justify-content:center;padding:12px}.main{margin-left:60px}}
 </style>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{--bg:#0a0e14;--bg2:#0d1117;--bg3:#161b22;--border:#21262d;--text:#e6edf3;--dim:#7d8590;--accent:#1f6feb;--accent2:#388bfd;--green:#238636;--green2:#2ea043;--red:#f85149;--orange:#d29922;--purple:#8957e5}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;line-height:1.5}
+.sidebar{background:linear-gradient(180deg,#0d1117 0%,#0a0e14 100%);border-right:1px solid var(--border);width:230px}
+.sidebar a{display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--dim);text-decoration:none;font-size:13.5px;border-left:2px solid transparent;transition:all .15s;cursor:pointer}
+.sidebar a:hover{background:var(--bg3);color:var(--text)}
+.sidebar a.active{background:rgba(31,111,235,.1);color:var(--accent2);border-left-color:var(--accent2)}
+.sidebar a svg{width:16px;height:16px;flex-shrink:0}
+.sidebar .section-label{padding:14px 16px 6px;font-size:10.5px;color:#484f58;text-transform:uppercase;letter-spacing:1.2px;font-weight:600}
+.sidebar h2{padding:18px 16px;margin:0;font-size:15px;color:var(--text);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.sidebar h2 svg{width:18px;height:18px;color:var(--accent2)}
+h2{font-size:20px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.card h3{font-size:13px;font-weight:600;margin:0 0 12px 0;color:var(--accent2);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.card h3 svg{width:14px;height:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn svg{width:14px;height:14px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-primary:disabled{background:#30363d;color:var(--dim);cursor:not-allowed;transform:none}
+.btn-success{background:var(--green);color:#fff}
+.btn-success:hover{background:var(--green2)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{background:var(--bg3);border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:linear-gradient(135deg,#0d1117 0%,#161b22 100%);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden}
+.stat::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--purple))}
+.stat-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.stat-label svg{width:12px;height:12px}
+.stat-value{font-size:24px;font-weight:700;color:var(--text)}
+.stat-value.green{color:var(--green2)}
+.stat-value.blue{color:var(--accent2)}
+.stat-value.purple{color:var(--purple)}
+</style>
 </head>
 <body>
 
@@ -67,19 +103,19 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
   <div class="sidebar">
     <h2>🔥 HAMSE CHEATS VIP</h2>
     <div class="section-label">Main</div>
-    <a onclick="showSection('dashboard')" id="nav-dashboard" class="active">📊 <span>Dashboard</span></a>
-    <a onclick="showSection('users')" id="nav-users">👥 <span>Users</span></a>
-    <a onclick="showSection('licenses')" id="nav-licenses">🔑 <span>Licenses</span></a>
-    <a onclick="showSection('referrals')" id="nav-referrals">🎁 <span>Referrals</span></a>
+    <a onclick="showSection('dashboard')" id="nav-dashboard" class="active"> <i data-lucide="layout-dashboard"></i> <span>Dashboard</span></a>
+    <a onclick="showSection('users')" id="nav-users"> <i data-lucide="users"></i> <span>Users</span></a>
+    <a onclick="showSection('licenses')" id="nav-licenses"> <i data-lucide="key"></i> <span>Licenses</span></a>
+    <a onclick="showSection('referrals')" id="nav-referrals"> <i data-lucide="gift"></i> <span>Referrals</span></a>
     <div class="section-label">System</div>
-    <a onclick="showSection('status')" id="nav-status">⚡ <span>System Status</span></a>
-    <a onclick="showSection('telegram')" id="nav-telegram">✈️ <span>Telegram Bot</span></a>
-    <a onclick="showSection('worker')" id="nav-worker">☁️ <span>Cloudflare Worker</span></a>
-    <a onclick="showSection('apk')" id="nav-apk">📦 <span>APK Analyzer</span></a>
-    <a onclick="showSection('loader')" id="nav-loader">🛠️ <span>Loader Helper</span></a>
-        <a onclick="showSection('pak')" id="nav-pak">📦 <span>PAK Editor</span></a>
-        <a onclick="showSection('loader_mgr')" id="nav-loader_mgr">⚙️ <span>Loader Manager</span></a>
-    <a onclick="showSection('settings')" id="nav-settings">⚙️ <span>Settings</span></a>
+    <a onclick="showSection('status')" id="nav-status"> <i data-lucide="zap"></i> <span>System Status</span></a>
+    <a onclick="showSection('telegram')" id="nav-telegram"> <i data-lucide="send"></i> <span>Telegram Bot</span></a>
+    <a onclick="showSection('worker')" id="nav-worker"> <i data-lucide="cloud"></i> <span>Cloudflare Worker</span></a>
+    <a onclick="showSection('apk')" id="nav-apk"> <i data-lucide="package"></i> <span>APK Analyzer</span></a>
+    <a onclick="showSection('loader')" id="nav-loader"> <i data-lucide="wrench"></i> <span>Loader Helper</span></a>
+        <a onclick="showSection('pak')" id="nav-pak"> <i data-lucide="package"></i> <span>PAK Editor</span></a>
+        <a onclick="showSection('loader_mgr')" id="nav-loader_mgr"> <i data-lucide="settings"></i> <span>Loader Manager</span></a>
+    <a onclick="showSection('settings')" id="nav-settings"> <i data-lucide="settings"></i> <span>Settings</span></a>
     <a onclick="doLogout()" style="color:#f85149">🚪 <span>Logout</span></a>
   </div>
 
@@ -734,5 +770,6 @@ async function loaderUpload() {
 
 </script>
 <script>window.addEventListener("load", loaderLoadCurrent);</script>
+<script>if(window.lucide)lucide.createIcons();setInterval(()=>{if(window.lucide)lucide.createIcons()},800);</script>
 </body>
 </html>
