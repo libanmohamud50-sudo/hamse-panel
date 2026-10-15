@@ -24,28 +24,20 @@ let db;
 const DB_FILE = path.join(__dirname, 'hamse_vip.db');
 
 async function initDB() {
-  loadDB();
-  if (db && db.exec) { try { db.exec("SELECT 1"); return; } catch(e) {} }
-
   const SQL = await initSqlJs();
   if (fs.existsSync(DB_FILE)) {
-    db = new SQL.Database(fs.readFileSync(DB_FILE));
-  } else {
-  if (fs.existsSync(DB_FILE)) {
     try {
-      var buf = fs.readFileSync(DB_FILE);
+      const buf = fs.readFileSync(DB_FILE);
       db = new SQL.Database(buf);
       console.log('DB loaded: ' + buf.length + ' bytes');
-      var test = db.exec("SELECT COUNT(*) FROM licenses");
+      const test = db.exec("SELECT COUNT(*) FROM licenses");
       console.log('Licenses: ' + (test[0] ? test[0].values[0][0] : 0));
       return;
     } catch(e) { console.log('loadDB error: ' + e.message); }
   }
-    db = new SQL.Database();
-  }
+  db = new SQL.Database();
   db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL, fullname TEXT, role TEXT DEFAULT 'user', license_key TEXT, referral_code TEXT UNIQUE, referred_by TEXT, status TEXT DEFAULT 'active', created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
   db.run("CREATE TABLE IF NOT EXISTS licenses (id INTEGER PRIMARY KEY AUTOINCREMENT, license_key TEXT UNIQUE NOT NULL, user_id INTEGER, device_id TEXT, serial TEXT, max_devices INTEGER DEFAULT 1, used_devices TEXT DEFAULT '[]', duration TEXT, expires_at DATETIME, game TEXT, status TEXT DEFAULT 'unused', used_at DATETIME)");
-
   try { db.run("ALTER TABLE licenses ADD COLUMN serial TEXT"); } catch (e) {}
   try { db.run("ALTER TABLE licenses ADD COLUMN max_devices INTEGER DEFAULT 1"); } catch (e) {}
   try { db.run("ALTER TABLE licenses ADD COLUMN used_devices TEXT DEFAULT '[]'"); } catch (e) {}
@@ -60,6 +52,7 @@ async function initDB() {
   saveDB();
   console.log('Database initialized');
 }
+
 
 function loadDB() {
   try {
