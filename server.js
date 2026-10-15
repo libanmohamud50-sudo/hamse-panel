@@ -32,7 +32,7 @@ async function initDB() {
       console.log('DB loaded: ' + buf.length + ' bytes');
       const test = db.exec("SELECT COUNT(*) FROM licenses");
       console.log('Licenses: ' + (test[0] ? test[0].values[0][0] : 0));
-      return;
+      // continue to ensure admin exists
     } catch(e) { console.log('loadDB error: ' + e.message); }
   }
   db = new SQL.Database();
