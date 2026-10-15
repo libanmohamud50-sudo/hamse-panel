@@ -31,7 +31,7 @@ async function initDB() {
     db = new SQL.Database();
   }
   db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL, fullname TEXT, role TEXT DEFAULT 'user', license_key TEXT, referral_code TEXT UNIQUE, referred_by TEXT, status TEXT DEFAULT 'active', created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
-  db.run("CREATE TABLE IF NOT EXISTS licenses (id INTEGER PRIMARY KEY AUTOINCREMENT, license_key TEXT UNIQUE NOT NULL, user_id INTEGER, device_id TEXT, serial TEXT, max_devices INTEGER DEFAULT 1, used_devices TEXT DEFAULT '[]', duration TEXT, expires_at DATETIME, status TEXT DEFAULT 'unused', used_at DATETIME)");
+  db.run("CREATE TABLE IF NOT EXISTS licenses (id INTEGER PRIMARY KEY AUTOINCREMENT, license_key TEXT UNIQUE NOT NULL, user_id INTEGER, device_id TEXT, serial TEXT, max_devices INTEGER DEFAULT 1, used_devices TEXT DEFAULT '[]', duration TEXT, expires_at DATETIME, game TEXT, status TEXT DEFAULT 'unused', used_at DATETIME)");
 
   try { db.run("ALTER TABLE licenses ADD COLUMN serial TEXT"); } catch (e) {}
   try { db.run("ALTER TABLE licenses ADD COLUMN max_devices INTEGER DEFAULT 1"); } catch (e) {}
@@ -152,51 +152,45 @@ app.delete('/api/admin/users/:id', authMiddleware, adminMiddleware, (req, res) =
 app.post("/api/admin/licenses/bulk", authMiddleware, adminMiddleware, (req, res) => {
   const count = req.body.count || 1;
   const duration = req.body.duration || '30d';
-  const custom_key = req.body.custom_key || '';
-  const max_devices = req.body.max_devices || 1;
+  const custom_key = (req.body.custom_key || '').trim();
+  const max_devices = parseInt(req.body.max_devices) || 1;
   const game = req.body.game || 'PUBG MOBILE';
+  const keyMode = req.body.key_mode || (custom_key ? 'custom' : 'auto');
   const created = [];
+  var now = new Date();
+  var ms = 0;
+  if (duration === '30m') ms = 30 * 60 * 1000;
+  else if (duration === '1h') ms = 60 * 60 * 1000;
+  else if (duration === '2h') ms = 2 * 60 * 60 * 1000;
+  else if (duration === '6h') ms = 6 * 60 * 60 * 1000;
+  else if (duration === '12h') ms = 12 * 60 * 60 * 1000;
+  else if (duration === '1d') ms = 24 * 60 * 60 * 1000;
+  else if (duration === '7d') ms = 7 * 24 * 60 * 60 * 1000;
+  else if (duration === '30d') ms = 30 * 24 * 60 * 60 * 1000;
+  else if (duration === '90d') ms = 90 * 24 * 60 * 60 * 1000;
+  else if (duration === '365d') ms = 365 * 24 * 60 * 60 * 1000;
+  else ms = 30 * 24 * 60 * 60 * 1000;
+  var durationLabel = duration === 'lifetime' ? 'lifetime' : (duration === '30m' ? '30mins' : duration === '1h' ? '1hour' : duration === '2h' ? '2hours' : duration === '6h' ? '6hours' : duration === '12h' ? '12hours' : duration === '1d' ? '1day' : duration === '7d' ? '7days' : duration === '30d' ? '30days' : duration === '90d' ? '90days' : duration === '365d' ? '1year' : '30days');
   for (let i = 0; i < count; i++) {
     let key;
-    let durationLabel = duration;
-    if (duration === '30m') durationLabel = '30mins';
-    else if (duration === '1h') durationLabel = '1hour';
-    else if (duration === '2h') durationLabel = '2hours';
-    else if (duration === '6h') durationLabel = '6hours';
-    else if (duration === '12h') durationLabel = '12hours';
-    else if (duration === '1d') durationLabel = '1day';
-    else if (duration === '7d') durationLabel = '7days';
-    else if (duration === '30d') durationLabel = '30days';
-    else if (duration === '90d') durationLabel = '90days';
-    else if (duration === '365d') durationLabel = '1year';
-    else if (duration === 'lifetime') durationLabel = 'lifetime';
-    if (custom_key && count === 1) {
-      key = durationLabel + '-' + custom_key.toUpperCase();
+    if (keyMode === 'custom' && custom_key) {
+      key = custom_key.toUpperCase();
     } else {
       key = durationLabel + '-HAMSE-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     }
-    var now = new Date();
-    var expiresAt = null;
+    var expiresAt;
     if (duration === 'lifetime') {
       expiresAt = '2099-12-31 23:59:59';
     } else {
-      var ms = 0;
-      if (duration === '30m') ms = 30 * 60 * 1000;
-      else if (duration === '1h') ms = 60 * 60 * 1000;
-      else if (duration === '2h') ms = 2 * 60 * 60 * 1000;
-      else if (duration === '6h') ms = 6 * 60 * 60 * 1000;
-      else if (duration === '12h') ms = 12 * 60 * 60 * 1000;
-      else if (duration === '1d') ms = 24 * 60 * 60 * 1000;
-      else if (duration === '7d') ms = 7 * 24 * 60 * 60 * 1000;
-      else if (duration === '30d') ms = 30 * 24 * 60 * 60 * 1000;
-      else if (duration === '90d') ms = 90 * 24 * 60 * 60 * 1000;
-      else if (duration === '365d') ms = 365 * 24 * 60 * 60 * 1000;
-      else ms = 30 * 24 * 60 * 60 * 1000;
       var exp = new Date(now.getTime() + ms);
       expiresAt = exp.toISOString().replace('T', ' ').substring(0, 19);
     }
-    db.run("INSERT INTO licenses (license_key, duration, max_devices, status, expires_at) VALUES (?, ?, ?, 'unused', ?)", [key, duration, max_devices, expiresAt]);
-    created.push({ key: key, game: game, max_devices: max_devices, expires_at: expiresAt });
+    try {
+      db.run("INSERT INTO licenses (license_key, duration, max_devices, status, expires_at, game) VALUES (?, ?, ?, 'unused', ?, ?)", [key, duration, max_devices, expiresAt, game]);
+      created.push({ key: key, game: game, max_devices: max_devices, expires_at: expiresAt });
+    } catch(e) {
+      created.push({ error: e.message, key: key });
+    }
   }
   saveDB();
   res.json({ success: true, count: created.length, licenses: created });

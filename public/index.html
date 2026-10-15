@@ -236,23 +236,24 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
         <option value="PUBG MOBILE" selected>PUBG MOBILE</option>
       </select>
     </div>
-    <div class="form-group"><label>Max Devices (1-500)</label><input type="number" id="licMaxDevices" value="1" min="1" max="500"></div>
+    <div class="form-group"><label>Key Type</label>
+      <select id="licKeyMode" style="width:100%;padding:12px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;color:#e6edf3" onchange="toggleCustomKey()">
+        <option value="auto" selected>Auto Generate</option>
+        <option value="custom">Custom Key</option>
+      </select>
+    </div>
+    <div class="form-group" id="customKeyGroup" style="display:none"><label>Custom Key</label><input type="text" id="licCustomKey" placeholder="MY-CUSTOM-KEY"></div>
+    <div class="form-group"><label>Max Devices (1-1000)</label><input type="number" id="licMaxDevices" value="1" min="1" max="1000"></div>
     <div class="form-group"><label>Duration</label>
       <select id="licDuration" style="width:100%;padding:12px;background:#0a0e1a;border:1px solid #1f2937;border-radius:10px;color:#e6edf3">
-        <option value="30m">30 Minutes</option>
-        <option value="1h">1 Hour</option>
-        <option value="2h">2 Hours</option>
-        <option value="6h">6 Hours</option>
-        <option value="12h">12 Hours</option>
-        <option value="1d">1 Day</option>
-        <option value="7d">7 Days</option>
-        <option value="30d" selected>30 Days</option>
-        <option value="90d">90 Days</option>
-        <option value="365d">1 Year</option>
+        <option value="30m">30 Minutes</option><option value="1h">1 Hour</option>
+        <option value="2h">2 Hours</option><option value="6h">6 Hours</option>
+        <option value="12h">12 Hours</option><option value="1d">1 Day</option>
+        <option value="7d">7 Days</option><option value="30d" selected>30 Days</option>
+        <option value="90d">90 Days</option><option value="365d">1 Year</option>
         <option value="lifetime">Lifetime</option>
       </select>
     </div>
-    <div class="form-group"><label>Custom Key (optional)</label><input type="text" id="licCustomKey" placeholder="HAMSE-CUSTOM-KEY"></div>
     <div class="form-group"><label>Bulk Count</label><input type="number" id="licCount" value="1" min="1" max="100"></div>
     <div style="display:flex;gap:10px;margin-top:20px">
       <button class="btn" style="background:#1f2937" onclick="closeLicenseModal()">Cancel</button>
@@ -372,22 +373,44 @@ async function loadLicenses() {
   try {
     var d = await api('/api/licenses');
     var list = d.licenses || [];
-    var html = '<table><tr><th>Key</th><th>Devices</th><th>Status</th><th>Expires</th><th></th></tr>';
-    if (list.length === 0) html += '<tr><td colspan="5" style="text-align:center;color:#8b949e">Ma jiro license</td></tr>';
+    var html = '<table><tr><th>Key</th><th>Game</th><th>Devices</th><th>Status</th><th>Expires</th><th></th></tr>';
+    if (list.length === 0) html += '<tr><td colspan="6" style="text-align:center;color:#8b949e">Ma jiro license</td></tr>';
     list.forEach(function(k){
       var used = 0;
       try { used = JSON.parse(k.used_devices || '[]').length; } catch(e) {}
+      var cd = countdown(k.expires_at);
       html += '<tr>';
-      html += '<td style="font-family:monospace;font-size:12px">'+(k.license_key||'')+'</td>';
+      html += '<td style="font-family:monospace;font-size:11px">'+(k.license_key||'')+'</td>';
+      html += '<td>' + (k.game || 'PUBG MOBILE') + '</td>';
       html += '<td>' + used + '/' + (k.max_devices || 1) + '</td>';
       html += '<td>' + (k.status || '-') + '</td>';
-      html += '<td>' + (k.expires_at || '-') + '</td>';
-      html += '<td><button onclick="copyKey(\'' + (k.license_key||'') + '\')" style="background:#1f6feb;border:none;border-radius:6px;color:#fff;padding:4px 10px;font-size:12px;cursor:pointer">Copy</button></td>';
+      html += '<td style="font-size:12px">' + cd + '</td>';
+      html += '<td><button onclick="copyKey(\'' + (k.license_key||'') + '\')" style="background:#1f6feb;border:none;border-radius:6px;color:#fff;padding:4px 8px;font-size:11px;cursor:pointer;margin-right:4px">Copy</button>';
+      html += '<button onclick="deleteLicense(' + k.id + ')" style="background:#da3633;border:none;border-radius:6px;color:#fff;padding:4px 8px;font-size:11px;cursor:pointer">🗑</button></td>';
       html += '</tr>';
     });
     html += '</table>';
     document.getElementById('licensesList').innerHTML = html;
   } catch(e) { showToast(e.message, 'error'); }
+}
+function countdown(expires_at) {
+  if (!expires_at) return '-';
+  if (expires_at === '2099-12-31 23:59:59') return 'lifetime';
+  var exp = new Date(expires_at.replace(' ', 'T'));
+  var now = new Date();
+  var diff = exp - now;
+  if (diff <= 0) return 'expired';
+  var days = Math.floor(diff / 86400000);
+  var hrs = Math.floor((diff % 86400000) / 3600000);
+  var mins = Math.floor((diff % 3600000) / 60000);
+  var secs = Math.floor((diff % 60000) / 1000);
+  if (days > 0) return days + 'd ' + hrs + 'h ' + mins + 'm';
+  if (hrs > 0) return hrs + 'h ' + mins + 'm ' + secs + 's';
+  return mins + 'm ' + secs + 's';
+}
+function copyKey(k) {
+  navigator.clipboard.writeText(k);
+  showToast('Key la copy-gareeyay: ' + k, 'success');
 }
 
 function copyKey(k) {
@@ -452,15 +475,27 @@ function closeLicenseModal() { document.getElementById('licenseModal').classList
 async function createLicenses() {
   var count = parseInt(document.getElementById('licCount').value);
   var duration = document.getElementById('licDuration').value;
+  var key_mode = document.getElementById('licKeyMode').value;
   var custom_key = document.getElementById('licCustomKey').value.trim();
   var max_devices = parseInt(document.getElementById('licMaxDevices').value);
   var game = document.getElementById('licGame').value;
   try {
-    var d = await api('/api/admin/licenses/bulk', 'POST', { count: count, duration: duration, custom_key: custom_key, max_devices: max_devices, game: game });
+    var d = await api('/api/admin/licenses/bulk', 'POST', { count: count, duration: duration, custom_key: custom_key, max_devices: max_devices, game: game, key_mode: key_mode });
     showToast(d.count + ' licenses la abuuray!', 'success');
     closeLicenseModal();
     loadLicenses();
   } catch(e) { showToast(e.message, 'error'); }
+}
+function toggleCustomKey() {
+  var mode = document.getElementById('licKeyMode').value;
+  document.getElementById('customKeyGroup').style.display = (mode === 'custom') ? 'block' : 'none';
+}
+function deleteLicense(id) {
+  if (!confirm('Ma tirtiraysaa license-kan?')) return;
+  fetch('/api/admin/licenses/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + TOKEN } })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ showToast('License la tirtiray', 'success'); loadLicenses(); })
+    .catch(function(e){ showToast(e.message, 'error'); });
 }
 
 if (TOKEN && CURRENT_USER) { enterPanel(); }
