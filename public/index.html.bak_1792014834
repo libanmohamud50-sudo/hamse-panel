@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAMSE CHEATS VIP PANEL</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+body { background: #f0f4f8; color: #1a2b4a; min-height: 100vh; }
+.hidden { display: none !important; }
+
+/* LOGIN */
+#loginPage { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #0a1f44 0%, #1a3a6b 100%); padding: 20px; }
+.login-box { background: #fff; padding: 40px 30px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 400px; }
+.login-box h1 { text-align: center; color: #0a1f44; margin-bottom: 8px; font-size: 24px; }
+.login-box p.sub { text-align: center; color: #6b7c93; margin-bottom: 24px; font-size: 13px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; color: #1a2b4a; margin-bottom: 6px; font-weight: 600; }
+.form-group input { width: 100%; padding: 12px 14px; border: 2px solid #d8e0ec; border-radius: 10px; font-size: 14px; outline: none; transition: 0.2s; }
+.form-group input:focus { border-color: #1a3a6b; }
+.btn { width: 100%; padding: 13px; background: linear-gradient(135deg, #0a1f44, #1a3a6b); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(10,31,68,0.3); }
+.btn-outline { background: #fff; color: #0a1f44; border: 2px solid #0a1f44; }
+.tabs { display: flex; gap: 8px; margin-bottom: 20px; background: #f0f4f8; padding: 5px; border-radius: 10px; }
+.tabs button { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; cursor: pointer; font-weight: 600; color: #6b7c93; font-size: 14px; }
+.tabs button.active { background: #fff; color: #0a1f44; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+/* PANEL */
+#panelPage { display: flex; min-height: 100vh; }
+.sidebar { width: 240px; background: #0a1f44; color: #fff; padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; }
+.sidebar h2 { padding: 0 20px 20px; font-size: 16px; border-bottom: 1px solid #1a3a6b; margin-bottom: 15px; }
+.sidebar a { display: block; padding: 13px 20px; color: #b8c5d8; text-decoration: none; cursor: pointer; font-size: 14px; transition: 0.2s; border-left: 3px solid transparent; }
+.sidebar a:hover { background: #1a3a6b; color: #fff; }
+.sidebar a.active { background: #1a3a6b; color: #fff; border-left-color: #4a9eff; }
+.main { margin-left: 240px; flex: 1; padding: 24px; }
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: #fff; padding: 16px 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+.topbar h1 { font-size: 20px; color: #0a1f44; }
+.topbar .clock { color: #6b7c93; font-size: 14px; font-weight: 600; }
+.card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 16px; }
+.card h3 { font-size: 15px; color: #6b7c93; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.card .big { font-size: 32px; color: #0a1f44; font-weight: 700; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+table th, table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5eaf1; }
+table th { background: #f0f4f8; color: #0a1f44; font-weight: 600; font-size: 13px; text-transform: uppercase; }
+.badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.badge-active { background: #d4f4dd; color: #0a7a3a; }
+.badge-banned { background: #fde0e0; color: #a02020; }
+.badge-admin { background: #d4e4ff; color: #0a3a9a; }
+.badge-user { background: #e5eaf1; color: #4a5568; }
+.badge-unused { background: #fff4d4; color: #9a7a00; }
+.badge-used { background: #e5eaf1; color: #4a5568; }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; margin-right: 4px; }
+.btn-danger { background: #a02020; color: #fff; }
+.btn-primary { background: #0a1f44; color: #fff; }
+.btn-success { background: #0a7a3a; color: #fff; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(10,31,68,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal { background: #fff; border-radius: 16px; padding: 28px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+.modal h3 { color: #0a1f44; margin-bottom: 20px; font-size: 18px; }
+
+/* TOAST */
+#toastBox { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+.toast { padding: 14px 20px; border-radius: 10px; color: #fff; font-weight: 600; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); animation: slideIn 0.3s ease; min-width: 240px; }
+.toast.success { background: #0a7a3a; }
+.toast.error { background: #a02020; }
+.toast.info { background: #1a3a6b; }
+@keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+@media (max-width: 768px) {
+  .sidebar { width: 200px; }
+  .main { margin-left: 200px; padding: 16px; }
+  .grid { grid-template-columns: 1fr; }
+}
+
+.code-editor { width: 100%; min-height: 400px; font-family: 'Courier New', monospace; font-size: 13px; padding: 16px; border: 2px solid #d8e0ec; border-radius: 10px; background: #0a1f44; color: #d4e4ff; line-height: 1.5; resize: vertical; }
+.file-list { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.file-list button { padding: 8px 16px; border: 2px solid #d8e0ec; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+.file-list button.active { background: #0a1f44; color: #fff; border-color: #0a1f44; }
+.file-list button.missing { opacity: 0.4; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+.editor-wrap { position: relative; border: 2px solid #d8e0ec; border-radius: 10px; background: #0a1f44; overflow: hidden; }
+.editor-wrap:focus-within { border-color: #4a9eff; }
+.line-numbers { position: absolute; left: 0; top: 0; bottom: 0; width: 50px; background: #061530; color: #4a6a9a; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5; padding: 16px 8px; text-align: right; overflow: hidden; user-select: none; }
+.code-input { width: 100%; min-height: 400px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5; padding: 16px 16px 16px 60px; border: none; background: transparent; color: #d4e4ff; resize: vertical; outline: none; white-space: pre; overflow-wrap: normal; overflow-x: auto; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.worker-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.badge-online { background: #d4f4dd; color: #0a7a3a; }
+.badge-offline { background: #fde0e0; color: #a02020; }
+</style>
+</head>
+<body>
+
+<!-- ========== LOGIN PAGE ========== -->
+<div id="loginPage">
+  <div class="login-box">
+    <h1>🔥 HAMSE CHEATS VIP</h1>
+    <p class="sub">Premium Panel - Railway Edition</p>
+
+    <div class="tabs">
+      <button id="tabLogin" class="active" onclick="switchTab('login')">Login</button>
+      <button id="tabRegister" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="loginUsername" placeholder="Geli username-kaaga">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Geli password-kaaga">
+      </div>
+      <button class="btn" onclick="doLogin()">Login</button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" class="hidden">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="regFullname" placeholder="Magacaaga oo dhan">
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="regUsername" placeholder="Username cusub">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="regPassword" placeholder="Password xoog leh">
+      </div>
+      <div class="form-group">
+        <label>Referral Code *</label>
+        <input type="text" id="regReferral" placeholder="Geli referral code">
+      </div>
+      <button class="btn" onclick="doRegister()">Register</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PANEL PAGE ========== -->
+<div id="panelPage" class="hidden">
+  <div class="sidebar">
+    <h2>🔥 HAMSE VIP</h2>
+    <a onclick="showSection('worker')" id="nav-worker">Cloudflare Worker</a>
+    <a onclick="doLogout()" style="margin-top:20px;color:#ff8888;">🚪 Logout</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="clock" id="liveClock">--:--:--</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="section-worker" class="hidden">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;">Cloudflare Worker</h3>
+      <button class="btn-sm btn-primary" onclick="loadWorkerPage()">Refresh</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+      <div style="background:#f0f4f8;padding:16px;border-radius:10px;text-align:center;">
+        <div style="font-size:11px;color:#6b7c93;margin-bottom:6px;">WORKER STATUS</div>
+        <div id="cw-status" style="font-size:16px;font-weight:700;color:#0a1f44;">-</div>
+      </div>
+      <div style="background:#f0f4f8;padding:16px;border-radius:10px;text-align:center;">
+        <div style="font-size:11px;color:#6b7c93;margin-bottom:6px;">CODE SIZE</div>
+        <div id="cw-code-size" style="font-size:16px;font-weight:700;color:#0a1f44;">-</div>
+      </div>
+      <div style="background:#f0f4f8;padding:16px;border-radius:10px;text-align:center;">
+        <div style="font-size:11px;color:#6b7c93;margin-bottom:6px;">RESPONSE TIME</div>
+        <div id="cw-response" style="font-size:16px;font-weight:700;color:#0a1f44;">-</div>
+      </div>
+      <div style="background:#f0f4f8;padding:16px;border-radius:10px;text-align:center;">
+        <div style="font-size:11px;color:#6b7c93;margin-bottom:6px;">WORKER URL</div>
+        <div id="cw-url" style="font-size:11px;font-weight:700;color:#0a1f44;word-break:break-all;">-</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <h3 style="margin:0;">Worker Code</h3>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-sm btn-primary" onclick="cwSelectAll()">Select All</button>
+        <button class="btn-sm btn-outline" onclick="cwCut()">Cut</button>
+        <button class="btn-sm btn-outline" onclick="cwCopy()">Copy</button>
+        <button class="btn-sm btn-outline" onclick="cwPaste()">Paste</button>
+        <button class="btn-sm btn-outline" onclick="cwUndo()">Undo</button>
+        <button class="btn-sm btn-warn" onclick="cwRemoveAll()">Remove All</button>
+        <button class="btn-sm btn-success" onclick="cwDeploy()" id="cw-save-btn">Deploy</button>
+      </div>
+    </div>
+    <div class="editor-wrap">
+      <div class="line-numbers" id="cwLineNumbers">1</div>
+      <textarea id="cw-code" class="code-input" spellcheck="false" oninput="updateLineNumbers('cw-code','cwLineNumbers')" onscroll="syncScroll('cw-code','cwLineNumbers')"></textarea>
+    </div>
+    <div id="cw-result" style="margin-top:12px;"></div>
+  </div>
+</div>
+
+  </div>
+</div>
+
+<!-- LICENSE MODAL -->
+<div id="licenseModal" class="modal-overlay hidden">
+  <div class="modal">
+    <h3>🔑 Abuur Licenses</h3>
+    <div class="form-group">
+      <label>Tirada (Count)</label>
+      <input type="number" id="licCount" value="5" min="1" max="100">
+    </div>
+    <div class="form-group">
+      <label>Muddada (Duration)</label>
+      <select id="licDuration" style="width:100%;padding:12px;border:2px solid #d8e0ec;border-radius:10px;font-size:14px;">
+        <option value="1d">1 Maalin</option>
+        <option value="7d">7 Maalmood</option>
+        <option value="30d" selected>30 Maalmood</option>
+        <option value="90d">90 Maalmood</option>
+        <option value="365d">Sannad</option>
+        <option value="lifetime">Lifetime</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="btn btn-outline" onclick="closeLicenseModal()">Jooji</button>
+      <button class="btn" onclick="createLicenses()">Abuur</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST BOX -->
+<div id="toastBox"></div>
+
+<script>
+const API = window.location.origin;
+let TOKEN = localStorage.getItem('hamse_token') || '';
+let CURRENT_USER = JSON.parse(localStorage.getItem('hamse_user') || 'null');
+
+// ===== TOAST =====
+function showToast(msg, type='info') {
+  const box = document.getElementById('toastBox');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  box.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ===== TABS =====
+function switchTab(tab) {
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+  document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+}
+
+// ===== API HELPER =====
+async function api(endpoint, method='GET', body=null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (TOKEN) opts.headers['Authorization'] = 'Bearer ' + TOKEN;
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + endpoint, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Khalad dhacay');
+  return data;
+}
+
+// ===== LOGIN =====
+async function doLogin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!username || !password) return showToast('Username iyo password geli', 'error');
+  try {
+    const data = await api('/api/login', 'POST', { username, password });
+    TOKEN = data.token;
+    CURRENT_USER = data.user;
+    localStorage.setItem('hamse_token', TOKEN);
+    localStorage.setItem('hamse_user', JSON.stringify(CURRENT_USER));
+    showToast('Ku soo dhawoow, ' + CURRENT_USER.fullname + '!', 'success');
+    enterPanel();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ===== REGISTER =====
+async function doRegister() {
+  const fullname = document.getElementById('regFullname').value.trim();
+  const username = document.getElementById('regUsername').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const referral_code = document.getElementById('regReferral').value.trim();
+  if (!username || !password || !referral_code) return showToast('Dhammaan goobaha buuxi', 'error');
+  try {
+    await api('/api/register', 'POST', { username, password, fullname, referral_code });
+    showToast('Isdiiwaangelinta guuleystay! Hadda login samee.', 'success');
+    switchTab('login');
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ===== LOGOUT =====
+function doLogout() {
+  localStorage.removeItem('hamse_token');
+  localStorage.removeItem('hamse_user');
+  TOKEN = '';
+  location.reload();
+}
+
+// ===== ENTER PANEL =====
+function enterPanel() {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('panelPage').classList.remove('hidden');
+  document.getElementById('setUsername').textContent = CURRENT_USER.username;
+  document.getElementById('setRole').textContent = CURRENT_USER.role;
+  document.getElementById('setRefCode').textContent = CURRENT_USER.referral_code || '-';
+  showSection('dashboard');
+  startClock();
+}
+
+// ===== SECTIONS =====
+function showSection(name) {
+  ['dashboard','users','licenses','referrals','status','settings'].forEach(s => {
+    document.getElementById('section-' + s).classList.toggle('hidden', s !== name);
+    document.getElementById('nav-' + s).classList.toggle('active', s === name);
+  });
+  const titles = { dashboard:'Dashboard', users:'Users Management', licenses:'Licenses Management', referrals:'Referrals', status:'System Status', settings:'Settings' };
+  document.getElementById('pageTitle').textContent = titles[name];
+
+  if (name === 'dashboard') loadStats();
+  if (name === 'users') loadUsers();
+  if (name === 'licenses') loadLicenses();
+  if (name === 'referrals') loadReferrals();
+  if (name === 'status') loadStatus();
+}
+
+// ===== CLOCK =====
+function startClock() {
+  setInterval(() => {
+    const d = new Date();
+    document.getElementById('liveClock').textContent = d.toLocaleTimeString('en-GB');
+  }, 1000);
+}
+
+// ===== STATS =====
+async function loadStats() {
+  try {
+    const s = await api('/api/stats');
+    document.getElementById('statUsers').textContent = s.totalUsers;
+    document.getElementById('statLicenses').textContent = s.totalLicenses;
+    document.getElementById('statActive').textContent = s.activeLicenses;
+    document.getElementById('statReferrals').textContent = s.totalReferrals;
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ===== USERS =====
+async function loadUsers() {
+  try {
+    const data = await api('/api/admin/users');
+    const tb = document.getElementById('usersTable');
+    tb.innerHTML = data.users.map(u => `
+      <tr>
+        <td>${u.id}</td>
+        <td><b>${u.username}</b></td>
+        <td>${u.fullname || '-'}</td>
+        <td><span class="badge badge-${u.role}">${u.role}</span></td>
+        <td><span class="badge badge-${u.status}">${u.status}</span></td>
+        <td>
+          <button class="btn-sm btn-primary" onclick="toggleRole(${u.id},'${u.role}')">${u.role === 'admin' ? 'User' : 'Admin'}</button>
+          <button class="btn-sm btn-danger" onclick="deleteUser(${u.id})">Tirtir</button>
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="6" style="text-align:center;color:#6b7c93;">Ma jiro user</td></tr>';
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function toggleRole(id, currentRole) {
+  const newRole = currentRole === 'admin' ? 'user' : 'admin';
+  try {
+    await api('/api/admin/users/' + id, 'PUT', { role: newRole });
+    showToast('Role la beddelay: ' + newRole, 'success');
+    loadUsers();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function deleteUser(id) {
+  if (!confirm('Ma hubtaa inaad tirtirto user-kan?')) return;
+  try {
+    await api('/api/admin/users/' + id, 'DELETE');
+    showToast('User la tirtiray', 'success');
+    loadUsers();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ===== LICENSES =====
+async function loadLicenses() {
+  try {
+    const data = await api('/api/licenses');
+    const tb = document.getElementById('licensesTable');
+    tb.innerHTML = data.licenses.map(l => `
+      <tr>
+        <td>${l.id}</td>
+        <td><code>${l.license_key}</code></td>
+        <td>${l.duration}</td>
+        <td><span class="badge badge-${l.status}">${l.status}</span></td>
+        <td><button class="btn-sm btn-danger" onclick="deleteLicense(${l.id})">Tirtir</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="text-align:center;color:#6b7c93;">Ma jiro license</td></tr>';
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+function openLicenseModal() { document.getElementById('licenseModal').classList.remove('hidden'); }
+function closeLicenseModal() { document.getElementById('licenseModal').classList.add('hidden'); }
+
+async function createLicenses() {
+  const count = parseInt(document.getElementById('licCount').value);
+  const duration = document.getElementById('licDuration').value;
+  try {
+    const data = await api('/api/admin/licenses/bulk', 'POST', { count, duration });
+    showToast(data.count + ' licenses la abuuray!', 'success');
+    closeLicenseModal();
+    loadLicenses();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function deleteLicense(id) {
+  if (!confirm('Ma hubtaa?')) return;
+  try {
+    await api('/api/admin/licenses/' + id, 'DELETE');
+    showToast('License la tirtiray', 'success');
+    loadLicenses();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ===== REFERRALS =====
+async function loadReferrals() {
+  try {
+    const data = await api('/api/admin/referrals');
+    const tb = document.getElementById('referralsTable');
+    tb.innerHTML = data.referrals.map(r => `
+      <tr><td>${r.id}</td><td><b>${r.referrer_code}</b></td><td>${r.referred_user}</td><td>${r.created_at || '-'}</td></tr>
+    `).join('') || '<tr><td colspan="4" style="text-align:center;color:#6b7c93;">Ma jiro referral</td></tr>';
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ===== STATUS =====
+async function loadStatus() {
+  try {
+    await api('/api/health');
+    document.getElementById('srvStatus').textContent = 'Online';
+  } catch (e) { document.getElementById('srvStatus').textContent = 'Offline'; }
+  try {
+    await api('/api/worker-check');
+    document.getElementById('workerStatus').textContent = 'Online';
+  } catch (e) { document.getElementById('workerStatus').textContent = 'Offline'; }
+}
+
+// ===== EXPORT =====
+function exportData() {
+  const data = { user: CURRENT_USER, exported: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'hamse-vip-export.json';
+  a.click();
+  showToast('Data la dhoofiyay', 'success');
+}
+
+// ===== AUTO LOGIN =====
+if (TOKEN && CURRENT_USER) {
+  enterPanel();
+}
+</script>
+
+<script>
+// ===== WORKER EDITOR + SERVER EDIT =====
+
+
+function toggleLineNumbers(taId, lnId) {
+  var ln = document.getElementById(lnId);
+  if (ln) ln.style.display = ln.style.display === 'none' ? 'block' : 'none';
+}
+var CURRENT_FILE = '';
+async function loadServerFiles() {
+  try {
+    var data = await api('/api/admin/server/files');
+    var fl = document.getElementById('fileList');
+    if (!fl) return;
+    fl.innerHTML = data.files.map(function(f) {
+      var cls = f.missing ? 'missing' : '';
+      var label = f.name + (f.missing ? ' (ma jiro)' : '');
+      return '<button onclick="loadFile(\'' + f.name + '\')" class="' + cls + '">' + label + '</button>';
+    }).join('');
+  } catch (e) { showToast(e.message, 'error'); }
+  loadWorkerCode();
+  loadEnv();
+}
+async function loadFile(name) {
+  try {
+    document.querySelectorAll('#fileList button').forEach(function(b) { b.classList.toggle('active', b.textContent.indexOf(name) === 0); });
+    var data = await api('/api/admin/server/file?name=' + encodeURIComponent(name));
+    document.getElementById('currentFile').value = data.name;
+    document.getElementById('codeEditor').value = data.content;
+    CURRENT_FILE = name;
+    updateLineNumbers('codeEditor', 'lineNumbers');
+    showToast('Fayl la furay: ' + name, 'success');
+  } catch (e) { showToast(e.message, 'error'); }
+}
+function selectAllCode() { var ta = document.getElementById('codeEditor'); ta.focus(); ta.select(); showToast('Qoraalka la doortay', 'info'); }
+function removeAllCode() { if (!confirm('Tirtir qoraalka oo dhan?')) return; document.getElementById('codeEditor').value = ''; updateLineNumbers('codeEditor', 'lineNumbers'); showToast('La tirtiray', 'info'); }
+function copyCode() { var ta = document.getElementById('codeEditor'); ta.select(); document.execCommand('copy'); showToast('Copy la sameeyay', 'success'); }
+async function pasteCode() {
+  try { var t = await navigator.clipboard.readText(); document.getElementById('codeEditor').value = t; updateLineNumbers('codeEditor', 'lineNumbers'); showToast('Paste la sameeyay', 'success'); }
+  catch (e) { showToast('Paste ma shaqeyn', 'error'); }
+}
+async function saveFile() {
+  var name = document.getElementById('currentFile').value;
+  var content = document.getElementById('codeEditor').value;
+  if (!name) return showToast('Dooro fayl marka hore', 'error');
+  try { await api('/api/admin/server/file', 'POST', { name: name, content: content }); showToast('Fayl la keydiyay', 'success'); }
+  catch (e) { showToast(e.message, 'error'); }
+}
+async function loadWorkerCode() {
+  try {
+    var data = await api('/api/admin/worker/code');
+    var we = document.getElementById('workerEditor');
+    if (we) { we.value = data.code; updateLineNumbers('workerEditor', 'workerLineNumbers'); }
+    var ws = document.getElementById('workerStatus');
+    if (ws) { ws.textContent = 'Loaded'; ws.className = 'badge badge-online'; }
+  } catch (e) {
+    var ws2 = document.getElementById('workerStatus');
+    if (ws2) { ws2.textContent = 'Error'; ws2.className = 'badge badge-offline'; }
+  }
+}
+function selectAllWorker() { var ta = document.getElementById('workerEditor'); ta.focus(); ta.select(); showToast('Worker code la doortay', 'info'); }
+function removeAllWorker() { if (!confirm('Tirtir worker code oo dhan?')) return; document.getElementById('workerEditor').value = ''; updateLineNumbers('workerEditor', 'workerLineNumbers'); showToast('La tirtiray', 'info'); }
+function copyWorker() { var ta = document.getElementById('workerEditor'); ta.select(); document.execCommand('copy'); showToast('Worker copy la sameeyay', 'success'); }
+async function pasteWorker() {
+  try { var t = await navigator.clipboard.readText(); document.getElementById('workerEditor').value = t; updateLineNumbers('workerEditor', 'workerLineNumbers'); showToast('Paste la sameeyay', 'success'); }
+  catch (e) { showToast('Paste ma shaqeyn', 'error'); }
+}
+function reloadWorker() { loadWorkerCode(); showToast('Dib loo soo dejiyay', 'info'); }
+async function saveWorkerCode() {
+  var code = document.getElementById('workerEditor').value;
+  try { await api('/api/admin/worker/code', 'POST', { code: code }); showToast('Worker code la keydiyay', 'success'); }
+  catch (e) { showToast(e.message, 'error'); }
+}
+async function deployWorker() {
+  if (!confirm('Deploy Worker-ka Cloudflare?')) return;
+  try {
+    showToast('Deploy socda...', 'info');
+    await saveWorkerCode();
+    var data = await api('/api/admin/server/deploy', 'POST');
+    var r = data.result;
+    var msg = '';
+    if (r.worker && r.worker.ok) msg += 'Worker OK. ';
+    else if (r.worker) msg += 'Worker: ' + (r.worker.error || 'fail') + '. ';
+    if (r.railway && r.railway.ok) msg += 'Railway OK. ';
+    showToast(msg || 'Deploy dhammaad', 'success');
+    loadDeployLog();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+async function testWorker() {
+  try {
+    var url = document.getElementById('envWorkerUrl').value.trim();
+    if (!url) return showToast('Geli Worker URL', 'error');
+    var r = await fetch(url + '/api/health');
+    var j = await r.json();
+    showToast('Worker: ' + JSON.stringify(j).substring(0, 80), 'success');
+  } catch (e) { showToast('Worker test fail', 'error'); }
+}
+async function loadEnv() {
+  try {
+    var data = await api('/api/admin/env');
+    var map = { panel_token: 'envPanelToken', worker_url: 'envWorkerUrl', cf_account_id: 'envCfAccount', cf_api_token: 'envCfToken', cf_worker_name: 'envCfWorkerName', railway_webhook: 'envRailwayWebhook' };
+    for (var k in map) { if (data.env[k]) { var el = document.getElementById(map[k]); if (el) el.value = data.env[k]; } }
+  } catch (e) {}
+}
+async function saveAllEnv() {
+  var fields = [['panel_token','envPanelToken'],['worker_url','envWorkerUrl'],['cf_account_id','envCfAccount'],['cf_api_token','envCfToken'],['cf_worker_name','envCfWorkerName'],['railway_webhook','envRailwayWebhook']];
+  try {
+    for (var i = 0; i < fields.length; i++) {
+      var val = document.getElementById(fields[i][1]).value.trim();
+      if (val) await api('/api/admin/env', 'POST', { key: fields[i][0], value: val });
+    }
+    showToast('Env la keydiyay', 'success');
+  } catch (e) { showToast(e.message, 'error'); }
+}
+async function deployAll() {
+  if (!confirm('Deploy bilaabo?')) return;
+  try {
+    var data = await api('/api/admin/server/deploy', 'POST');
+    showToast('Deploy dhammaad', 'success');
+    loadDeployLog();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+async function loadDeployLog() {
+  try {
+    var data = await api('/api/admin/server/deploy-log');
+    var box = document.getElementById('deployLogCard');
+    var content = document.getElementById('deployLogContent');
+    if (!box || !content) return;
+    box.style.display = 'block';
+    content.innerHTML = data.logs.map(function(l) { return '<div style="padding:6px;border-bottom:1px solid #e5eaf1;"><b>[' + l.created_at + ']</b> ' + l.action + ' ' + l.status + '<div style="color:#6b7c93;font-size:11px;">' + (l.message || '') + '</div></div>'; }).join('') || 'Ma jiro log';
+  } catch (e) {}
+}
+(function() {
+  var orig = window.showSection;
+  window.showSection = function(name) {
+    if (orig) orig(name);
+    if (name === 'server') loadServerFiles();
+  };
+})();
+</script>
+
+<script>
+
+
+var CURRENT_FILE = '';
+async function loadServerFiles() {
+  try {
+    var data = await api('/api/admin/server/files');
+    var fl = document.getElementById('fileList');
+    if (fl) fl.innerHTML = data.files.map(function(f) {
+      var cls = f.missing ? 'missing' : '';
+      var label = f.name + (f.missing ? ' (ma jiro)' : '');
+      return '<button onclick="loadFile(\'' + f.name + '\')" class="' + cls + '">' + label + '</button>';
+    }).join('');
+  } catch (e) { showToast(e.message, 'error'); }
+  loadWorkerCode();
+  loadEnv();
+}
+async function loadFile(name) {
+  try {
+    var data = await api('/api/admin/server/file?name=' + encodeURIComponent(name));
+    document.getElementById('currentFile').value = data.name;
+    document.getElementById('codeEditor').value = data.content;
+    CURRENT_FILE = name;
+    updateLineNumbers('codeEditor', 'lineNumbers');
+    showToast('Fayl la furay: ' + name, 'success');
+  } catch (e) { showToast(e.message, 'error'); }
+}
+function selectAllCode() { var ta = document.getElementById('codeEditor'); ta.focus(); ta.select(); showToast('La doortay', 'info'); }
+function removeAllCode() { if (!confirm('Tirtir?')) return; document.getElementById('codeEditor').value = ''; updateLineNumbers('codeEditor', 'lineNumbers'); showToast('La tirtiray', 'info'); }
+function copyCode() { document.getElementById('codeEditor').select(); document.execCommand('copy'); showToast('Copy', 'success'); }
+async function pasteCode() { try { var t = await navigator.clipboard.readText(); document.getElementById('codeEditor').value = t; updateLineNumbers('codeEditor', 'lineNumbers'); showToast('Paste', 'success'); } catch (e) { showToast('Paste fail', 'error'); } }
+async function saveFile() {
+  var name = document.getElementById('currentFile').value;
+  var content = document.getElementById('codeEditor').value;
+  if (!name) return showToast('Dooro fayl', 'error');
+  try { await api('/api/admin/server/file', 'POST', { name: name, content: content }); showToast('La keydiyay', 'success'); }
+  catch (e) { showToast(e.message, 'error'); }
+}
+async function loadWorkerCode() {
+  try {
+    var data = await api('/api/admin/worker/code');
+    var we = document.getElementById('workerEditor');
+    if (we) { we.value = data.code; updateLineNumbers('workerEditor', 'workerLineNumbers'); }
+    var ws = document.getElementById('wsStatus');
+    if (ws) ws.textContent = 'Online';
+    var sz = document.getElementById('wsSize');
+    if (sz) sz.textContent = (data.code ? data.code.length : 0) + ' bytes';
+    var u = document.getElementById('wsUrl');
+    if (u) u.textContent = (document.getElementById('envWorkerUrl') ? document.getElementById('envWorkerUrl').value : '') || '-';
+  } catch (e) { showToast('Worker load: ' + e.message, 'error'); }
+}
+function selectAllWorker() { var ta = document.getElementById('workerEditor'); ta.focus(); ta.select(); showToast('La doortay', 'info'); }
+function removeAllWorker() { if (!confirm('Tirtir?')) return; document.getElementById('workerEditor').value = ''; updateLineNumbers('workerEditor', 'workerLineNumbers'); showToast('La tirtiray', 'info'); }
+function reloadWorker() { loadWorkerCode(); showToast('Dib loo soo dejiyay', 'info'); }
+async function saveWorkerCode() {
+  var code = document.getElementById('workerEditor').value;
+  try { await api('/api/admin/worker/code', 'POST', { code: code }); showToast('Worker code la keydiyay', 'success'); }
+  catch (e) { showToast(e.message, 'error'); }
+}
+async function deployWorker() {
+  if (!confirm('Deploy Worker Cloudflare?')) return;
+  try {
+    showToast('Deploy socda...', 'info');
+    await saveWorkerCode();
+    var data = await api('/api/admin/server/deploy', 'POST');
+    var r = data.result;
+    var msg = '';
+    if (r.worker && r.worker.ok) msg += 'Worker OK. ';
+    else if (r.worker) msg += 'Worker: ' + (r.worker.error || 'fail');
+    if (r.railway && r.railway.ok) msg += 'Railway OK. ';
+    showToast(msg || 'Deploy dhammaad', 'success');
+    loadDeployLog();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+async function loadEnv() {
+  try {
+    var data = await api('/api/admin/env');
+    var map = { panel_token: 'envPanelToken', worker_url: 'envWorkerUrl', cf_account_id: 'envCfAccount', cf_api_token: 'envCfToken', cf_worker_name: 'envCfWorkerName', railway_webhook: 'envRailwayWebhook' };
+    for (var k in map) { if (data.env[k]) { var el = document.getElementById(map[k]); if (el) el.value = data.env[k]; } }
+    var u = document.getElementById('wsUrl');
+    if (u && data.env.worker_url) u.textContent = data.env.worker_url;
+  } catch (e) {}
+}
+async function saveAllEnv() {
+  var fields = [['panel_token','envPanelToken'],['worker_url','envWorkerUrl'],['cf_account_id','envCfAccount'],['cf_api_token','envCfToken'],['cf_worker_name','envCfWorkerName'],['railway_webhook','envRailwayWebhook']];
+  try {
+    for (var i = 0; i < fields.length; i++) {
+      var val = document.getElementById(fields[i][1]).value.trim();
+      if (val) await api('/api/admin/env', 'POST', { key: fields[i][0], value: val });
+    }
+    showToast('Env la keydiyay', 'success');
+  } catch (e) { showToast(e.message, 'error'); }
+}
+async function loadDeployLog() {
+  try {
+    var data = await api('/api/admin/server/deploy-log');
+    var box = document.getElementById('deployLogCard');
+    var content = document.getElementById('deployLogContent');
+    if (!box || !content) return;
+    box.style.display = 'block';
+    content.innerHTML = data.logs.map(function(l) { return '<div style="padding:6px;border-bottom:1px solid #e5eaf1;"><b>[' + l.created_at + ']</b> ' + l.action + ' ' + l.status + '</div>'; }).join('') || 'Ma jiro log';
+  } catch (e) {}
+}
+(function() {
+  var orig = window.showSection;
+  window.showSection = function(name) {
+    if (orig) orig(name);
+    if (name === 'server') loadServerFiles();
+  };
+})();
+</script>
+<script>
+
+
+
+});var d=await r.json();var sE=document.getElementById('cw-status'),zE=document.getElementById('cw-code-size'),rE=document.getElementById('cw-response'),uE=document.getElementById('cw-url');if(d.success&&d.online){sE.innerHTML='Online';zE.textContent=(d.code_length||0)+' bytes';rE.textContent=(d.response_time||'N/A');uE.textContent=(d.worker_url||'N/A');}else{sE.innerHTML='Offline';}var cr=await fetch('/api/worker/code',{headers:{'Authorization':'Bearer '+t}});var cd=await cr.json();var c=document.getElementById('cw-code');if(cd.success&&c){c.value=cd.code||'';updateLineNumbers('cw-code','cwLineNumbers');}else if(c){c.value='// '+(cd.error||'Code lama helin');updateLineNumbers('cw-code','cwLineNumbers');}}catch(e){showToast('Worker: '+e.message,'error');}}
+b.disabled=true;b.textContent='Deploying...';rs.innerHTML='<p>Deploy socda...</p>';try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/code',{method:'POST',headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({code:c})});var d=await r.json();if(d.success){rs.innerHTML='<div style="padding:15px;background:#d4f4dd;border:1px solid #0a7a3a;border-radius:10px;color:#0a7a3a;"><b>Deploy Successful!</b> '+(d.message||'')+'</div>';showToast('La deploy-gareeyay!','success');setTimeout(loadWorkerPage,1500);}else{rs.innerHTML='<div style="padding:15px;background:#fde0e0;border:1px solid #a02020;border-radius:10px;color:#a02020;"><b>Failed!</b> '+(d.error||'')+'</div>';showToast('Fail','error');}}catch(e){rs.innerHTML='<div style="padding:15px;background:#fde0e0;border-radius:10px;">Error: '+e.message+'</div>';}b.disabled=false;b.textContent='Deploy';}
+(function(){var o=window.showSection;window.showSection=function(n){if(o)o(n);if(n==='server'&&typeof loadServerFiles==='function')loadServerFiles();};})();
+</script>
+
+
+
+
+
+async 
+async 
+(function(){var o=window.showSection;window.showSection=function(n){if(o)o(n);if(n==='worker'&&typeof loadWorkerPage==='function')loadWorkerPage();};})();
+
+<script>
+
+
+
+
+
+async 
+
+
+async 
+async 
+(function(){var o=window.showSection;window.showSection=function(n){if(o)o(n);if(n==='worker'&&typeof loadWorkerPage==='function')loadWorkerPage();};})();
+</script>
+<script>
+
+
+
+
+
+async 
+
+
+async 
+async 
+(function(){var o=window.showSection;window.showSection=function(n){if(o)o(n);if(n==='worker'&&typeof loadWorkerPage==='function')loadWorkerPage();};})();
+</script>
+<script>
+
+
+
+
+
+
+
+
+
+async 
+async 
+loadWorkerPage();
+</script>
+<script>
+function updateLineNumbers(taId,lnId){var ta=document.getElementById(taId);var ln=document.getElementById(lnId);if(!ta||!ln)return;var n=ta.value.split(String.fromCharCode(10)).length;var s='';for(var i=1;i<=n;i++)s+=i+String.fromCharCode(10);ln.textContent=s;}
+function syncScroll(taId,lnId){var ta=document.getElementById(taId);var ln=document.getElementById(lnId);if(ta&&ln)ln.scrollTop=ta.scrollTop;}
+function cwSelectAll(){var t=document.getElementById('cw-code');if(!t)return;t.focus();t.select();}
+function cwCut(){var t=document.getElementById('cw-code');if(!t)return;t.focus();document.execCommand('cut');}
+function cwCopy(){var t=document.getElementById('cw-code');if(!t)return;t.focus();t.select();document.execCommand('copy');}
+function cwPaste(){var t=document.getElementById('cw-code');if(!t)return;t.focus();document.execCommand('paste');}
+function cwUndo(){document.execCommand('undo');}
+function cwRedo(){document.execCommand('redo');}
+function cwRemoveAll(){if(!confirm('Tirtir code-ka oo dhan?'))return;var t=document.getElementById('cw-code');if(!t)return;t.value='';updateLineNumbers('cw-code','cwLineNumbers');}
+async function loadWorkerPage(){try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/status',{headers:{'Authorization':'Bearer '+t}});var d=await r.json();var sE=document.getElementById('cw-status'),zE=document.getElementById('cw-code-size'),rE=document.getElementById('cw-response'),uE=document.getElementById('cw-url');if(!sE)return;if(d.success&&d.online){sE.innerHTML='Online';sE.style.color='#0a7a3a';zE.textContent=(d.code_length||0)+' bytes';rE.textContent=(d.response_time||'N/A');uE.textContent=(d.worker_url||'N/A');}else{sE.innerHTML='Offline';sE.style.color='#a02020';}var cr=await fetch('/api/worker/code',{headers:{'Authorization':'Bearer '+t}});var cd=await cr.json();var ce=document.getElementById('cw-code');if(cd.success&&ce){ce.value=cd.code||'';updateLineNumbers('cw-code','cwLineNumbers');}else if(ce){ce.value='// '+(cd.error||'Code lama helin');updateLineNumbers('cw-code','cwLineNumbers');}}catch(e){console.log('Worker error: '+e.message);}}
+async function cwDeploy(){var b=document.getElementById('cw-save-btn');var code=document.getElementById('cw-code').value;var rs=document.getElementById('cw-result');if(!code){alert('Code ma jiro');return;}b.disabled=true;b.textContent='Deploying...';rs.innerHTML='<p>Deploy socda...</p>';try{var t=localStorage.getItem('hamse_token');var r=await fetch('/api/worker/code',{method:'POST',headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({code:code})});var d=await r.json();if(d.success){rs.innerHTML='<div style="padding:15px;background:#d4f4dd;border:1px solid #0a7a3a;border-radius:10px;color:#0a7a3a;"><b>Deploy Successful!</b> '+(d.message||'')+'</div>';setTimeout(loadWorkerPage,1500);}else{rs.innerHTML='<div style="padding:15px;background:#fde0e0;border:1px solid #a02020;border-radius:10px;color:#a02020;"><b>Failed!</b> '+(d.error||'')+'</div>';}}catch(e){rs.innerHTML='<div style="padding:15px;background:#fde0e0;border-radius:10px;">Error: '+e.message+'</div>';}b.disabled=false;b.textContent='Deploy';}
+window.addEventListener('load',function(){if(typeof loadWorkerPage==='function')loadWorkerPage();});
+</script>
+</body>
+</html>
