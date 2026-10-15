@@ -94,7 +94,17 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
         <div class="stat-card"><div class="label">Active Licenses</div><div class="value" id="statActive">-</div></div>
         <div class="stat-card"><div class="label">Referrals</div><div class="value" id="statReferrals">-</div></div>
       </div>
-      <div class="card"><h3>Quick Actions</h3>
+      <div class="card" style="background:linear-gradient(135deg,#1f6feb,#8b5cf6);color:#fff;">
+  <h3 style="color:#fff;margin-bottom:12px;">🔗 Referral Code</h3>
+  <p style="font-size:14px;opacity:.9;margin-bottom:8px;">Share this code with your friends:</p>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <input type="text" id="refCodeDisplay" readonly style="flex:1;padding:12px;background:rgba(255,255,255,.15);border:none;border-radius:10px;color:#fff;font-family:monospace;font-size:16px;font-weight:700;">
+    <button onclick="copyRef()" style="background:rgba(255,255,255,.2);border:none;border-radius:10px;color:#fff;padding:12px 16px;cursor:pointer;font-size:14px;">Copy</button>
+  </div>
+  <p style="font-size:12px;opacity:.7;margin-top:8px;">Link: <span id="refLinkDisplay"></span></p>
+</div>
+
+<div class="card"><h3>Quick Actions</h3>
         <button class="btn" style="width:auto;padding:10px 20px;margin-right:8px" onclick="showSection('licenses')">+ Generate License</button>
         <button class="btn" style="width:auto;padding:10px 20px" onclick="showSection('users')">👥 Manage Users</button>
       </div>
@@ -317,6 +327,7 @@ function enterPanel() {
     document.getElementById('setRole').value = CURRENT_USER.role || '';
     document.getElementById('setRefCode').value = CURRENT_USER.referral_code || '-';
   }
+  loadRefCode();
   showSection('dashboard');
   startClock();
 }
@@ -408,11 +419,33 @@ function countdown(expires_at) {
   if (hrs > 0) return hrs + 'h ' + mins + 'm ' + secs + 's';
   return mins + 'm ' + secs + 's';
 }
+function copyRef() {
+  var code = document.getElementById('refCodeDisplay').value;
+  navigator.clipboard.writeText(code);
+  showToast('Referral code la copy-gareeyay: ' + code, 'success');
+}
+function loadRefCode() {
+  if (CURRENT_USER && CURRENT_USER.referral_code) {
+    document.getElementById('refCodeDisplay').value = CURRENT_USER.referral_code;
+    document.getElementById('refLinkDisplay').textContent = location.origin + '?ref=' + CURRENT_USER.referral_code;
+  }
+}
 function copyKey(k) {
   navigator.clipboard.writeText(k);
   showToast('Key la copy-gareeyay: ' + k, 'success');
 }
 
+function copyRef() {
+  var code = document.getElementById('refCodeDisplay').value;
+  navigator.clipboard.writeText(code);
+  showToast('Referral code la copy-gareeyay: ' + code, 'success');
+}
+function loadRefCode() {
+  if (CURRENT_USER && CURRENT_USER.referral_code) {
+    document.getElementById('refCodeDisplay').value = CURRENT_USER.referral_code;
+    document.getElementById('refLinkDisplay').textContent = location.origin + '?ref=' + CURRENT_USER.referral_code;
+  }
+}
 function copyKey(k) {
   navigator.clipboard.writeText(k);
   showToast('Key la copy-gareeyay: ' + k, 'success');
