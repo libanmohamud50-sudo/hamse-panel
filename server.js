@@ -199,6 +199,18 @@ app.get('/api/licenses', authMiddleware, (req, res) => {
   res.json({ licenses: queryAll('SELECT * FROM licenses ORDER BY id DESC') });
 });
 
+app.put('/api/admin/licenses/:id/edit', authMiddleware, adminMiddleware, (req, res) => {
+  const max_devices = parseInt(req.body.max_devices);
+  if (!max_devices || max_devices < 1) return res.status(400).json({ success: false, error: 'max_devices waa inuu ka weyn yahay 0' });
+  try {
+    db.run('UPDATE licenses SET max_devices = ? WHERE id = ?', [max_devices, req.params.id]);
+    saveDB();
+    res.json({ success: true, message: 'Max devices la beddelay' });
+  } catch(e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 app.delete('/api/admin/licenses/:id', authMiddleware, adminMiddleware, (req, res) => {
   db.run('DELETE FROM licenses WHERE id = ?', [req.params.id]);
   saveDB();

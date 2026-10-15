@@ -430,6 +430,20 @@ function loadRefCode() {
     document.getElementById('refLinkDisplay').textContent = location.origin + '?ref=' + CURRENT_USER.referral_code;
   }
 }
+function editLicense(id, current) {
+  var v = prompt('Max Devices cusub (1-1000):', current);
+  if (!v) return;
+  var n = parseInt(v);
+  if (!n || n < 1 || n > 1000) { showToast('Max devices waa inuu yahay 1-1000', 'error'); return; }
+  fetch('/api/admin/licenses/' + id + '/edit', {
+    method: 'PUT',
+    headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ max_devices: n })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ showToast('Max devices la beddelay: ' + n, 'success'); loadLicenses(); })
+    .catch(function(e){ showToast(e.message, 'error'); });
+}
 function copyKey(k) {
   navigator.clipboard.writeText(k);
   showToast('Key la copy-gareeyay: ' + k, 'success');
