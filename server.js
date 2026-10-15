@@ -304,6 +304,36 @@ app.post('/api/verify', async (req, res) => {
     res.json({ valid: true, expire: lic.expires_at || '2099-12-31 23:59:59', status: 'active', duration: lic.duration });
   } catch (err) { res.status(500).json({ valid: false, error: err.message }); }
 });
+app.post("/api/telegram/send", authMiddleware, adminMiddleware, async (req, res) => {
+  const BOT_TOKEN = "7579506309:AAGe6jM6Z2K7yA6DqCWWq48pd0o9SKzQlZE";
+  const ADMIN_CHAT_ID = "6898834443";
+  const text = req.body.text || "Test message";
+  try {
+    const r = await fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: text })
+    });
+    const j = await r.json();
+    if (j.ok) res.json({ success: true, message: "Telegram message la diray" });
+    else res.status(400).json({ success: false, error: j.description });
+  } catch(e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.get("/api/telegram/status", authMiddleware, adminMiddleware, async (req, res) => {
+  const BOT_TOKEN = "7579506309:AAGe6jM6Z2K7yA6DqCWWq48pd0o9SKzQlZE";
+  try {
+    const r = await fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/getMe");
+    const j = await r.json();
+    if (j.ok) res.json({ success: true, online: true, bot: j.result });
+    else res.json({ success: true, online: false, error: j.description });
+  } catch(e) {
+    res.json({ success: true, online: false, error: e.message });
+  }
+});
+
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 initDB().then(() => {
