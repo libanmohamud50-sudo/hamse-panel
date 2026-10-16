@@ -565,6 +565,10 @@ app.get('/api/pak', (req, res) => {
 });
 
 
+  const latest = files.sort().pop();
+  const fp = path.join(PAK_DIR_OUT, latest);
+  res.download(fp, latest);
+});
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
