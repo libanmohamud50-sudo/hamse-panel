@@ -31,7 +31,11 @@ const DB_FILE = process.env.RAILWAY_VOLUME_MOUNT_PATH
 const DB_SEED = path.join(__dirname, 'hamse_vip.db');
 
 async function initDB() {
-  const SQL = await initSqlJs();
+  const SQL = await Promise.race([
+    initSqlJs({ locateFile: f => path.join(__dirname, 'node_modules', 'sql.js', 'dist', f) }),
+    new Promise((_, rej) => setTimeout(() => rej(new Error('sql.js init timeout 10s')), 10000))
+  ]);
+  console.log('initSqlJs resolved');
   if (fs.existsSync(DB_FILE)) {
     try {
       const buf = fs.readFileSync(DB_FILE);
@@ -488,6 +492,148 @@ app.get('/api/pak/download/:name', (req, res) => {
   if (!fs.existsSync(file)) return res.status(404).json({ status: 'error', msg: 'not found' });
   res.download(file, name);
 });
+
+
+/* ===================== ADD APPS / LOADER MANAGER ===================== */
+const APPS_DIR = path.join(__dirname, "apps_store");
+if (!fs.existsSync(APPS_DIR)) fs.mkdirSync(APPS_DIR, { recursive: true });
+
+// ensure tables
+try {
+  db.run(`CREATE TABLE IF NOT EXISTS apps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    package_name TEXT,
+    version TEXT,
+    size INTEGER DEFAULT 0,
+    filename TEXT NOT NULL,
+    display_name TEXT,
+    branding TEXT,
+    icon_path TEXT,
+    logo_path TEXT,
+    config_json TEXT DEFAULT '{}',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+  db.run(`CREATE TABLE IF NOT EXISTS app_assets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    app_id INTEGER NOT NULL,
+    kind TEXT NOT NULL,
+    filename TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+  if (typeof saveDB === "function") saveDB();
+} catch (e) { console.log("apps tables: " + e.message); }
+
+const appsStorage = multer.diskStorage({
+  destination: function (req, file, cb) { cb(null, APPS_DIR); },
+  filename: function (req, file, cb) {
+    const safe = (file.originalname || "app.apk").replace(/[^A-Za-z0-9._-]/g, "_");
+    cb(null, Date.now() + "_" + safe);
+  }
+});
+const appsUpload = multer({
+  storage: appsStorage,
+  limits: { fileSize: 300 * 1024 * 1024 },
+  fileFilter: function (req, file, cb) {
+    if (!/\.(apk|zip|png|jpg|jpeg|webp)$/i.test(file.originalname)) return cb(new Error("bad file type"));
+    cb(null, true);
+  }
+});
+
+app.post("/api/apps/upload", authMiddleware, adminMiddleware, appsUpload.single("apk"), function (req, res) {
+  try {
+    if (!req.file) return res.status(400).json({ status: "error", msg: "apk required" });
+    const original = req.file.originalname || "app.apk";
+    const base = original.replace(/\.apk$/i, "");
+    const info = { name: base, package_name: null, version: null, size: req.file.size };
+    db.run("INSERT INTO apps (name, package_name, version, size, filename) VALUES (?,?,?,?,?)",
+      [info.name, info.package_name, info.version, info.size, req.file.filename]);
+    if (typeof saveDB === "function") saveDB();
+    const row = db.exec("SELECT * FROM apps ORDER BY id DESC LIMIT 1");
+    res.json({ status: "ok", app: row[0] ? row[0].values[0] : null });
+  } catch (e) { res.status(500).json({ status: "error", msg: e.message }); }
+});
+
+app.get("/api/apps/list", authMiddleware, adminMiddleware, function (req, res) {
+  try {
+    const r = db.exec("SELECT id,name,package_name,version,size,filename,display_name,branding,icon_path,logo_path,config_json,created_at FROM apps ORDER BY id DESC");
+    res.json({ status: "ok", apps: r[0] ? r[0].values.map(function (v) {
+      return { id:v[0], name:v[1], package_name:v[2], version:v[3], size:v[4], filename:v[5],
+               display_name:v[6], branding:v[7], icon_path:v[8], logo_path:v[9],
+               config: (function(){ try { return JSON.parse(v[10]||"{}"); } catch(e){ return {}; } })(), created_at:v[11] };
+    }) : [] });
+  } catch (e) { res.status(500).json({ status: "error", msg: e.message }); }
+});
+
+app.get("/api/apps/:id", authMiddleware, adminMiddleware, function (req, res) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const r = db.exec("SELECT * FROM apps WHERE id = " + id);
+    if (!r[0] || !r[0].values.length) return res.status(404).json({ status: "error", msg: "not found" });
+    const v = r[0].values[0];
+    res.json({ status: "ok", app: { id:v[0], name:v[1], package_name:v[2], version:v[3], size:v[4], filename:v[5],
+      display_name:v[6], branding:v[7], icon_path:v[8], logo_path:v[9],
+      config: (function(){ try { return JSON.parse(v[10]||"{}"); } catch(e){ return {}; } })(), created_at:v[11] } });
+  } catch (e) { res.status(500).json({ status: "error", msg: e.message }); }
+});
+
+app.put("/api/apps/:id/config", authMiddleware, adminMiddleware, function (req, res) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const b = req.body || {};
+    const cfg = JSON.stringify(b.config || {});
+    db.run("UPDATE apps SET display_name = ?, branding = ?, config_json = ? WHERE id = ?",
+      [b.display_name || null, b.branding || null, cfg, id]);
+    if (typeof saveDB === "function") saveDB();
+    res.json({ status: "ok" });
+  } catch (e) { res.status(500).json({ status: "error", msg: e.message }); }
+});
+
+app.post("/api/apps/:id/asset", authMiddleware, adminMiddleware, appsUpload.single("asset"), function (req, res) {
+  try {
+    if (!req.file) return res.status(400).json({ status: "error", msg: "asset required" });
+    const id = parseInt(req.params.id, 10);
+    const kind = (req.body && req.body.kind) ? String(req.body.kind) : "asset";
+    db.run("INSERT INTO app_assets (app_id, kind, filename) VALUES (?,?,?)", [id, kind, req.file.filename]);
+    if (kind === "icon") db.run("UPDATE apps SET icon_path = ? WHERE id = ?", [req.file.filename, id]);
+    if (kind === "logo") db.run("UPDATE apps SET logo_path = ? WHERE id = ?", [req.file.filename, id]);
+    if (typeof saveDB === "function") saveDB();
+    res.json({ status: "ok", filename: req.file.filename, kind: kind });
+  } catch (e) { res.status(500).json({ status: "error", msg: e.message }); }
+});
+
+app.delete("/api/apps/:id", authMiddleware, adminMiddleware, function (req, res) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const r = db.exec("SELECT filename, icon_path, logo_path FROM apps WHERE id = " + id);
+    if (r[0] && r[0].values.length) {
+      const v = r[0].values[0];
+      [v[0], v[1], v[2]].forEach(function (fn) {
+        if (fn) { try { fs.unlinkSync(path.join(APPS_DIR, fn)); } catch (e) {} }
+      });
+    }
+    const assets = db.exec("SELECT filename FROM app_assets WHERE app_id = " + id);
+    if (assets[0]) assets[0].values.forEach(function (row) {
+      try { fs.unlinkSync(path.join(APPS_DIR, row[0])); } catch (e) {}
+    });
+    db.run("DELETE FROM app_assets WHERE app_id = " + id);
+    db.run("DELETE FROM apps WHERE id = " + id);
+    if (typeof saveDB === "function") saveDB();
+    res.json({ status: "ok" });
+  } catch (e) { res.status(500).json({ status: "error", msg: e.message }); }
+});
+
+app.get("/api/apps/:id/download", function (req, res) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const r = db.exec("SELECT filename, name FROM apps WHERE id = " + id);
+    if (!r[0] || !r[0].values.length) return res.status(404).send("not found");
+    const file = path.join(APPS_DIR, r[0].values[0][0]);
+    if (!fs.existsSync(file)) return res.status(404).send("file missing");
+    res.download(file, r[0].values[0][1] + ".apk");
+  } catch (e) { res.status(500).send(e.message); }
+});
+
 
 app.get('/api/pak/list', authMiddleware, adminMiddleware, (req, res) => {
   const files = fs.readdirSync(PAK_DIR_OUT).filter(f => f.endsWith('.pak'));
