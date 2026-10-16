@@ -21,7 +21,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 let db;
-const DB_FILE = path.join(__dirname, 'hamse_vip.db');
+const DB_FILE = process.env.RAILWAY_VOLUME_MOUNT_PATH
+  ? path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, 'hamse_vip.db')
+  : path.join(__dirname, 'hamse_vip.db');
+const DB_SEED = path.join(__dirname, 'hamse_vip.db');
 
 async function initDB() {
   const SQL = await initSqlJs();
