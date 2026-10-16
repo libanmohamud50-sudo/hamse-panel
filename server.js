@@ -446,6 +446,31 @@ app.get('/api/loader/check-update', (req, res) => {
   res.json({ status: 'ok', version: meta.uploaded, size: meta.size, download_url: '/api/loader/download' });
 });
 
+
+// ===== PAK UPDATE ROUTES =====
+const PAK_DIR_OUT = path.join(__dirname, 'pak_editor', 'output');
+if (!fs.existsSync(PAK_DIR_OUT)) fs.mkdirSync(PAK_DIR_OUT, { recursive: true });
+
+app.get('/api/pak/check-update', (req, res) => {
+  const files = fs.readdirSync(PAK_DIR_OUT).filter(f => f.endsWith('.pak'));
+  if (!files.length) return res.json({ status: 'none' });
+  const latest = files.sort().pop();
+  const stat = fs.statSync(path.join(PAK_DIR_OUT, latest));
+  res.json({ status: 'ok', name: latest, size: stat.size, mtime: stat.mtime, download_url: '/api/pak/download/' + latest });
+});
+
+app.get('/api/pak/download/:name', (req, res) => {
+  const name = path.basename(req.params.name);
+  const file = path.join(PAK_DIR_OUT, name);
+  if (!fs.existsSync(file)) return res.status(404).json({ status: 'error', msg: 'not found' });
+  res.download(file, name);
+});
+
+app.get('/api/pak/list', authMiddleware, adminMiddleware, (req, res) => {
+  const files = fs.readdirSync(PAK_DIR_OUT).filter(f => f.endsWith('.pak'));
+  res.json({ status: 'ok', files: files.map(f => ({ name: f, size: fs.statSync(path.join(PAK_DIR_OUT, f)).size })) });
+});
+
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 initDB().then(() => {
