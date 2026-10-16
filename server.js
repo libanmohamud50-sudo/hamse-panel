@@ -540,6 +540,25 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000);
 
+
+app.get('/api/pak', (req, res) => {
+  const files = fs.readdirSync(PAK_DIR_OUT).filter(f => f.endsWith('.pak'));
+  if (!files.length) return res.json({ status: 'none' });
+  const latest = files.sort().pop();
+  const fp = path.join(PAK_DIR_OUT, latest);
+  const stat = fs.statSync(fp);
+  const crypto = require('crypto');
+  const sha256 = crypto.createHash('sha256').update(fs.readFileSync(fp)).digest('hex');
+  res.json({
+    status: 'ok',
+    name: latest,
+    version: '4.6.0.21572',
+    size: stat.size,
+    sha256: sha256,
+    download_url: '/api/pak/download/' + latest
+  });
+});
+
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 initDB().then(() => {
