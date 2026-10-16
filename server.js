@@ -574,5 +574,5 @@ initDB().then(() => {
     console.log('Admin: ' + ADMIN_USERNAME);
   });
 }).catch(err => console.error('DB init error:', err));
-
 });
+
