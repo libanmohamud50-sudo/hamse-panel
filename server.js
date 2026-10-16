@@ -402,7 +402,7 @@ app.post('/api/pak/inject', authMiddleware, adminMiddleware, pakUpload.fields([
   }
 });
 
-app.get('/api/pak/download/:id', authMiddleware, adminMiddleware, (req, res) => {
+app.get('/api/pak/download-temp/:id', authMiddleware, adminMiddleware, (req, res) => {
   const id = path.basename(req.params.id);
   const file = os.tmpdir() + '/' + id;
   if (!fs.existsSync(file)) return res.status(404).json({ status: 'error', msg: 'not found' });
