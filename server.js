@@ -460,7 +460,6 @@ app.get('/api/pak/check-update', (req, res) => {
   const latest = files.sort().pop();
   const fp = path.join(PAK_DIR_OUT, latest);
   const stat = fs.statSync(fp);
-  const crypto = require('crypto');
   const buf = fs.readFileSync(fp);
   const sha256 = crypto.createHash('sha256').update(buf).digest('hex');
   const versionMatch = latest.match(/_(\d+\.\d+\.\d+\.\d+)\.pak$/);
@@ -550,7 +549,6 @@ app.get('/api/pak', (req, res) => {
   const latest = files.sort().pop();
   const fp = path.join(PAK_DIR_OUT, latest);
   const stat = fs.statSync(fp);
-  const crypto = require('crypto');
   const sha256 = crypto.createHash('sha256').update(fs.readFileSync(fp)).digest('hex');
   res.json({
     status: 'ok',
