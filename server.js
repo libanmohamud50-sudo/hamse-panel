@@ -559,6 +559,15 @@ app.get('/api/pak', (req, res) => {
   });
 });
 
+
+app.get('/api/pak/download/pak*', (req, res) => {
+  const files = fs.readdirSync(PAK_DIR_OUT).filter(f => f.endsWith('.pak'));
+  if (!files.length) return res.status(404).json({ status: 'error', msg: 'no pak' });
+  const latest = files.sort().pop();
+  const fp = path.join(PAK_DIR_OUT, latest);
+  res.download(fp, latest);
+});
+
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 initDB().then(() => {
