@@ -2,11 +2,22 @@
   "status": "ok",
   "name": "game_patch_4.6.0.21572.pak",
   "version": "4.6.0.21572",
-  "size": 4259785,
-  "sha256": "3ae6a62dd663781e585a8b90fa149d28f9f8f1636d3fac9eb0c6ee136449d04c",
+  "size": 4362713,
+  "sha256": "342b5bf21e2ec68a04f3627c6b267f34b14ec1c37d82fe677beb535b14f06075",
   "download_url": "/api/pak/download/game_patch_4.6.0.21572.pak",
   "watermark": "@HAMSECHEATS",
   "telegram": "https://t.me/HAMSECHEATS",
   "worker": "https://a.hamse.workers.dev",
-  "built_at": "2026-10-16 15:37:55"
+  "features": [
+    "ESP",
+    "Aimbot",
+    "Silent Aim",
+    "Magic Bullet",
+    "Skins",
+    "No Recoil",
+    "iPad View",
+    "UC Unlimited",
+    "Online Bypass"
+  ],
+  "built_at": "2026-10-16 15:59:20"
 }
