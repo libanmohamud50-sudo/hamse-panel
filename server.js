@@ -474,6 +474,58 @@ app.get('/api/pak/list', authMiddleware, adminMiddleware, (req, res) => {
   res.json({ status: 'ok', files: files.map(f => ({ name: f, size: fs.statSync(path.join(PAK_DIR_OUT, f)).size })) });
 });
 
+
+// ===== DB BACKUP TO GIST =====
+app.post('/api/db/backup', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const b64 = Buffer.from(db.export()).toString('base64');
+    const ghToken = process.env.GITHUB_TOKEN;
+    const gistId = process.env.GIST_ID;
+    if (!ghToken || !gistId) return res.status(400).json({ error: 'GITHUB_TOKEN or GIST_ID missing' });
+    const r = await fetch('https://api.github.com/gists/' + gistId, {
+      method: 'PATCH',
+      headers: { 'Authorization': 'token ' + ghToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files: { 'hamse_vip.db.b64': { content: b64 } } })
+    });
+    const j = await r.json();
+    res.json({ success: true, updated_at: j.updated_at, size: b64.length });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/db/restore', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const ghToken = process.env.GITHUB_TOKEN;
+    const gistId = process.env.GIST_ID;
+    if (!ghToken || !gistId) return res.status(400).json({ error: 'GITHUB_TOKEN or GIST_ID missing' });
+    const r = await fetch('https://api.github.com/gists/' + gistId, {
+      headers: { 'Authorization': 'token ' + ghToken }
+    });
+    const j = await r.json();
+    if (!j.files || !j.files['hamse_vip.db.b64']) return res.status(404).json({ error: 'No backup found' });
+    const b64 = j.files['hamse_vip.db.b64'].content;
+    const buf = Buffer.from(b64, 'base64');
+    db = new SQL.Database(buf);
+    saveDB();
+    res.json({ success: true, size: buf.length });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+setInterval(() => {
+  if (process.env.GITHUB_TOKEN && process.env.GIST_ID) {
+    (async () => {
+      try {
+        const b64 = Buffer.from(db.export()).toString('base64');
+        await fetch('https://api.github.com/gists/' + process.env.GIST_ID, {
+          method: 'PATCH',
+          headers: { 'Authorization': 'token ' + process.env.GITHUB_TOKEN, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ files: { 'hamse_vip.db.b64': { content: b64 } } })
+        });
+        console.log('DB auto-backed up to Gist');
+      } catch(e) { console.log('Gist backup error:', e.message); }
+    })();
+  }
+}, 5 * 60 * 1000);
+
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 initDB().then(() => {
