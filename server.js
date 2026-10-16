@@ -476,6 +476,9 @@ app.get('/api/pak/check-update', (req, res) => {
   });
 });
 
+app.get('/api/pak/download/pak*', (req, res) => {
+  const files = fs.readdirSync(PAK_DIR_OUT).filter(f => f.endsWith('.pak'));
+  if (!files.length) return res.status(404).json({ status: 'error', msg: 'no pak' });
 app.get('/api/pak/download/:name', (req, res) => {
   const name = path.basename(req.params.name);
   const file = path.join(PAK_DIR_OUT, name);
@@ -560,9 +563,6 @@ app.get('/api/pak', (req, res) => {
 });
 
 
-app.get('/api/pak/download/pak*', (req, res) => {
-  const files = fs.readdirSync(PAK_DIR_OUT).filter(f => f.endsWith('.pak'));
-  if (!files.length) return res.status(404).json({ status: 'error', msg: 'no pak' });
   const latest = files.sort().pop();
   const fp = path.join(PAK_DIR_OUT, latest);
   res.download(fp, latest);
