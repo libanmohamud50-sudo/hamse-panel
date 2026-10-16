@@ -458,8 +458,22 @@ app.get('/api/pak/check-update', (req, res) => {
   const files = fs.readdirSync(PAK_DIR_OUT).filter(f => f.endsWith('.pak'));
   if (!files.length) return res.json({ status: 'none' });
   const latest = files.sort().pop();
-  const stat = fs.statSync(path.join(PAK_DIR_OUT, latest));
-  res.json({ status: 'ok', name: latest, size: stat.size, mtime: stat.mtime, download_url: '/api/pak/download/' + latest });
+  const fp = path.join(PAK_DIR_OUT, latest);
+  const stat = fs.statSync(fp);
+  const crypto = require('crypto');
+  const buf = fs.readFileSync(fp);
+  const sha256 = crypto.createHash('sha256').update(buf).digest('hex');
+  const versionMatch = latest.match(/_(\d+\.\d+\.\d+\.\d+)\.pak$/);
+  const version = versionMatch ? versionMatch[1] : '4.6.0.21572';
+  res.json({
+    status: 'ok',
+    name: latest,
+    version: version,
+    size: stat.size,
+    sha256: sha256,
+    mtime: stat.mtime,
+    download_url: '/api/pak/download/' + latest
+  });
 });
 
 app.get('/api/pak/download/:name', (req, res) => {
