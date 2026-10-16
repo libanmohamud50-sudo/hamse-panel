@@ -10,6 +10,10 @@ const crypto = require('crypto');
 const initSqlJs = require('sql.js');
 
 const app = express();
+
+// ==== FORCE TEST ROUTE ====
+app.get('/api/ping', (req, res) => res.json({ ok: true, ts: Date.now() }));
+
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'HAMSE_VIP_SECRET_2026';
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'hamsecheatsvip';
