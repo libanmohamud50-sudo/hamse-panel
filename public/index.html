@@ -152,6 +152,49 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
   }
 }
 
+async function loadGithubReleases() {
+  var el = document.getElementById('githubReleasesList');
+  if (!el) return;
+  el.innerHTML = 'Loading...';
+  try {
+    var r = await fetch('/api/github/releases', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    var d = await r.json();
+    if (!d.success) { el.innerHTML = '<p style="color:#f85149">Error: ' + (d.error || 'Unknown') + '</p>'; return; }
+    var html = '';
+    if (!d.releases || d.releases.length === 0) {
+      html = '<p style="color:#8b949e">Ma jiro release.</p>';
+    } else {
+      d.releases.forEach(function(rel) {
+        html += '<div style="background:var(--bg3);border-radius:10px;padding:16px;margin-bottom:12px;">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
+        html += '<div><b style="font-size:16px;">' + rel.tag + '</b>';
+        html += '<span style="font-size:12px;color:#8b949e;margin-left:10px;">' + (rel.published ? new Date(rel.published).toLocaleDateString() : '') + '</span></div>';
+        html += '<a href="' + rel.html_url + '" target="_blank" style="color:#58a6ff;font-size:12px;">View on GitHub →</a>';
+        html += '</div>';
+        html += '<table style="width:100%;font-size:13px;">';
+        html += '<tr style="color:#8b949e;text-align:left;"><th style="padding:6px;">Asset</th><th style="padding:6px;">Size</th><th style="padding:6px;">Downloads</th><th style="padding:6px;">Updated</th></tr>';
+        rel.assets.forEach(function(a) {
+          var sizeMB = (a.size / 1024 / 1024).toFixed(2) + ' MB';
+          var updated = a.updated_at ? new Date(a.updated_at).toLocaleDateString() : '-';
+          html += '<tr style="border-top:1px solid #30363d;">';
+          html += '<td style="padding:8px 6px;"><a href="' + a.browser_download_url + '" target="_blank" style="color:#58a6ff;text-decoration:none;">' + a.name + '</a></td>';
+          html += '<td style="padding:8px 6px;">' + sizeMB + '</td>';
+          html += '<td style="padding:8px 6px;">' + a.download_count + '</td>';
+          html += '<td style="padding:8px 6px;">' + updated + '</td>';
+          html += '</tr>';
+        });
+        html += '</table>';
+        html += '</div>';
+      });
+    }
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<p style="color:#f85149">Error: ' + e.message + '</p>';
+  }
+}
+
 </script>
 <style>
 :root{--bg:#0a0e14;--bg2:#0f1319;--bg3:#161b22;--card:#111720;--border:#1f2530;--text:#e6edf3;--dim:#7d8590;--accent:#3b82f6;--accent2:#60a5fa;--green:#10b981;--red:#ef4444;--orange:#f59e0b;--purple:#8b5cf6;--pink:#ec4899}
@@ -298,6 +341,7 @@ label{display:block;font-size:12px;color:var(--dim);margin-bottom:6px;font-weigh
         <a onclick="showSection('add-apps')" id="nav-add-apps"> <i data-lucide="plus-square"></i> <span>Add Apps</span></a>
         <a onclick="showSection('loader_mgr')" id="nav-loader_mgr"> <i data-lucide="settings"></i> <span>Loader Manager</span></a>
     <a onclick="showSection('github')" id="nav-github"> <i data-lucide="github"></i> <span>GitHub Releases</span></a>
+      <a onclick="showSection('github')" id="nav-github"> <i data-lucide="github"></i> <span>GitHub Releases</span></a>
       <a onclick="showSection('settings')" id="nav-settings"> <i data-lucide="settings"></i> <span>Settings</span></a>
     <a onclick="doLogout()" style="color:#f85149">🚪 <span>Logout</span></a>
   </div>
@@ -611,6 +655,16 @@ label{display:block;font-size:12px;color:var(--dim);margin-bottom:6px;font-weigh
       </div>
     </div>
 
+    <div id="section-github" class="hidden">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>GitHub Releases (uchihaaymane/files)</h3>
+          <button class="btn" style="width:auto;padding:8px 16px;" onclick="loadGithubReleases()">🔄 Refresh</button>
+        </div>
+        <div id="githubReleasesList">Loading...</div>
+      </div>
+    </div>
+
     <div id="section-settings" class="hidden">
       <div class="card"><h3>Settings</h3>
         <div class="form-group"><label>Username</label><input type="text" id="setUsername" disabled></div>
@@ -716,7 +770,7 @@ function enterPanel() {
 }
 
 var sections = ['dashboard','users','licenses','referrals','status','telegram','worker','apk','loader','pak','loader_mgr','settings'];
-var titles = {dashboard:'Dashboard',users:'Users Management',licenses:'Licenses Management',referrals:'Referrals',status:'System Status',telegram:'Telegram Bot',worker:'Cloudflare Worker',github:'GitHub Releases',apk:'APK Analyzer',loader:'Loader Helper',settings:'Settings'};
+var titles = {dashboard:'Dashboard',users:'Users Management',licenses:'Licenses Management',referrals:'Referrals',status:'System Status',telegram:'Telegram Bot',worker:'Cloudflare Worker',github:'GitHub Releases',github:'GitHub Releases',apk:'APK Analyzer',loader:'Loader Helper',settings:'Settings'};
 
 function showSection(name) {
   sections.forEach(function(s){
@@ -732,6 +786,7 @@ function showSection(name) {
   if (name === 'referrals') loadReferrals();
   if (name === 'status') loadStatus();
   if (name === 'worker') loadWorkerPage();
+  if (name === 'github') loadGithubReleases();
   if (name === 'github') loadGithubReleases();
 }
 
