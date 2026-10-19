@@ -712,6 +712,32 @@ app.get('/api/pak', (req, res) => {
 
 
 
+app.get("/api/github/releases", authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const r = await fetch("https://api.github.com/repos/uchihaaymane/files/releases", {
+      headers: { "User-Agent": "HamsePanel" }
+    });
+    const data = await r.json();
+    if (!Array.isArray(data)) return res.json({ success: false, error: "Invalid response" });
+    const releases = data.map(rel => ({
+      tag: rel.tag_name,
+      name: rel.name,
+      published: rel.published_at,
+      html_url: rel.html_url,
+      assets: rel.assets.map(a => ({
+        name: a.name,
+        size: a.size,
+        download_count: a.download_count,
+        updated_at: a.updated_at,
+        browser_download_url: a.browser_download_url
+      }))
+    }));
+    res.json({ success: true, releases: releases });
+  } catch(e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 initDB().then(() => {
