@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HAMSE CHEATS VIP</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#8a7a6a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#fff}
+body{display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 20%,#b9a58f,#5d4f42)}
+.phone{position:relative;width:390px;height:844px;max-height:96vh;aspect-ratio:390/844;border-radius:54px;border:10px solid #1b1b1d;box-shadow:0 0 0 2px #444,0 30px 80px rgba(0,0,0,.55);overflow:hidden;background:#000}
+.wall{position:absolute;inset:0;background:linear-gradient(180deg,#7d6a59 0%,#9b8a77 35%,#7fb4d8 62%,#3f8f6a 82%,#e6d8c3 100%)}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:112px;height:32px;background:#000;border-radius:20px;z-index:50}
+.status{position:absolute;top:14px;left:0;right:0;padding:0 30px;display:flex;justify-content:space-between;font-size:15px;font-weight:600;z-index:40;pointer-events:none}
+.bat{display:inline-block;width:24px;height:12px;border:1.5px solid #fff;border-radius:4px;position:relative;margin-left:6px;vertical-align:-1px}
+.bat:after{content:"";position:absolute;left:1.5px;top:1.5px;bottom:1.5px;width:75%;background:#fff;border-radius:2px}
+.screen{position:absolute;inset:0;transition:opacity .35s,transform .35s}
+.hide{opacity:0;pointer-events:none;transform:scale(1.04)}
+#lock{z-index:30;text-align:center;padding-top:80px}
+#date{font-size:19px;font-weight:500;opacity:.95}
+#clock{font-size:92px;font-weight:600;line-height:1.05;letter-spacing:-2px}
+.hint{position:absolute;bottom:60px;left:0;right:0;font-size:14px;opacity:.85;animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.circle{position:absolute;bottom:50px;width:50px;height:50px;border-radius:50%;background:rgba(40,40,40,.45);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;font-size:20px}
+#pass{z-index:35;background:rgba(20,20,25,.55);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);text-align:center;padding-top:110px}
+#pass h3{font-size:19px;font-weight:500;margin-bottom:22px}
+.dots{display:flex;gap:18px;justify-content:center;margin-bottom:46px}
+.dot{width:13px;height:13px;border-radius:50%;border:1.5px solid #fff}
+.dot.on{background:#fff}
+.shake{animation:sh .4s}
+@keyframes sh{20%,60%{transform:translateX(-12px)}40%,80%{transform:translateX(12px)}}
+.pad{display:grid;grid-template-columns:repeat(3,76px);gap:16px 22px;justify-content:center}
+.k{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.16);font-size:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none}
+.k:active{background:rgba(255,255,255,.4)}
+.k small{font-size:9px;letter-spacing:2px;margin-top:-2px;opacity:.8}
+.k.e{background:none}
+.cancel{position:absolute;bottom:46px;right:36px;font-size:16px;cursor:pointer}
+#home{z-index:10;background:#0a0e1a}
+#home iframe{position:absolute;top:50px;left:0;width:100%;height:calc(100% - 50px);border:0;background:#0a0e1a}
+#bar{position:absolute;bottom:0;left:0;right:0;height:22px;z-index:60;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:7px}
+#bar i{display:block;width:130px;height:5px;border-radius:3px;background:#fff;opacity:.9}
+@media(max-width:500px){body{background:#000}.phone{width:100vw;height:100vh;max-height:none;aspect-ratio:auto;border:0;border-radius:0;box-shadow:none}}
+</style></head><body>
+<div class="phone" id="phone">
+<div class="wall"></div>
+<div class="island"></div>
+<div class="status"><span id="sTime">12:00</span><span>5G<span class="bat"></span></span></div>
+
+<div id="home" class="screen hide"><iframe id="app" src="" title="panel"></iframe></div>
+
+<div id="lock" class="screen" onclick="openPass()">
+<div id="date">Monday, May 20</div><div id="clock">12:00</div>
+<div class="circle" style="left:40px">&#128294;</div><div class="circle" style="right:40px">&#128247;</div>
+<div class="hint">Tap to unlock</div>
+</div>
+
+<div id="pass" class="screen hide">
+<h3>Enter Passcode</h3>
+<div class="dots" id="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+<div class="pad" id="pad"></div>
+<div class="cancel" onclick="closePass()">Cancel</div>
+</div>
+
+<div id="bar" onclick="lockPhone()"><i></i></div>
+</div>
+<script>
+var PASSCODE = '2026';
+var entered = '';
+var loaded = false;
+var letters = {2:'ABC',3:'DEF',4:'GHI',5:'JKL',6:'MNO',7:'PQRS',8:'TUV',9:'WXYZ'};
+function tick(){
+  var d = new Date();
+  var h = d.getHours(), m = ('0'+d.getMinutes()).slice(-2);
+  var t = (h%12||12)+':'+m;
+  document.getElementById('clock').textContent = t;
+  document.getElementById('sTime').textContent = t;
+  document.getElementById('date').textContent = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+}
+tick(); setInterval(tick, 10000);
+function buildPad(){
+  var p = document.getElementById('pad'), keys = [1,2,3,4,5,6,7,8,9,'',0,'&#9003;'];
+  keys.forEach(function(k){
+    var el = document.createElement('div');
+    el.className = 'k' + (k==='' ? ' e' : '');
+    el.innerHTML = k + (letters[k] ? '<small>'+letters[k]+'</small>' : '');
+    if (k !== '') el.onclick = function(){ press(k); };
+    p.appendChild(el);
+  });
+}
+buildPad();
+function paint(){
+  var ds = document.querySelectorAll('.dot');
+  for (var i=0;i<ds.length;i++) ds[i].className = 'dot' + (i<entered.length ? ' on' : '');
+}
+function press(k){
+  if (k === '&#9003;') { entered = entered.slice(0,-1); paint(); return; }
+  if (entered.length >= 4) return;
+  entered += k; paint();
+  if (entered.length === 4) setTimeout(check, 150);
+}
+function check(){
+  if (entered === PASSCODE) { unlock(); }
+  else {
+    var d = document.getElementById('dots');
+    d.classList.add('shake');
+    setTimeout(function(){ d.classList.remove('shake'); entered=''; paint(); }, 420);
+  }
+}
+function openPass(){ entered=''; paint(); document.getElementById('pass').classList.remove('hide'); }
+function closePass(){ document.getElementById('pass').classList.add('hide'); }
+function unlock(){
+  if (!loaded) { document.getElementById('app').src = 'index.html'; loaded = true; }
+  document.getElementById('home').classList.remove('hide');
+  document.getElementById('lock').classList.add('hide');
+  document.getElementById('pass').classList.add('hide');
+}
+function lockPhone(){
+  document.getElementById('home').classList.add('hide');
+  document.getElementById('lock').classList.remove('hide');
+  entered=''; paint();
+}
+</script></body></html>
