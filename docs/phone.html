@@ -4,22 +4,21 @@
 <title>HAMSE CHEATS VIP</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:#8a7a6a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#fff}
+html,body{height:100%;background:#000;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#fff;overflow:hidden}
 body{display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 20%,#b9a58f,#5d4f42)}
-.phone{position:relative;width:390px;height:844px;max-height:96vh;aspect-ratio:390/844;border-radius:54px;border:10px solid #1b1b1d;box-shadow:0 0 0 2px #444,0 30px 80px rgba(0,0,0,.55);overflow:hidden;background:#000}
-.wall{position:absolute;inset:0;background:linear-gradient(180deg,#7d6a59 0%,#9b8a77 35%,#7fb4d8 62%,#3f8f6a 82%,#e6d8c3 100%)}
-.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:112px;height:32px;background:#000;border-radius:20px;z-index:50}
-.status{position:absolute;top:14px;left:0;right:0;padding:0 30px;display:flex;justify-content:space-between;font-size:15px;font-weight:600;z-index:40;pointer-events:none}
+.phone{position:relative;width:390px;height:844px;max-height:96vh;border-radius:54px;border:10px solid #1b1b1d;box-shadow:0 0 0 2px #444,0 30px 80px rgba(0,0,0,.55);overflow:hidden;background:#000}
+.wall{position:absolute;inset:0;background:linear-gradient(180deg,#7d6a59 0%,#9b8a77 30%,#7fb4d8 60%,#3f8f6a 82%,#e6d8c3 100%)}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:112px;height:32px;background:#000;border-radius:20px;z-index:70}
+.status{position:absolute;top:14px;left:0;right:0;padding:0 30px;display:flex;justify-content:space-between;font-size:15px;font-weight:600;z-index:65;pointer-events:none}
 .bat{display:inline-block;width:24px;height:12px;border:1.5px solid #fff;border-radius:4px;position:relative;margin-left:6px;vertical-align:-1px}
 .bat:after{content:"";position:absolute;left:1.5px;top:1.5px;bottom:1.5px;width:75%;background:#fff;border-radius:2px}
-.screen{position:absolute;inset:0;transition:opacity .35s,transform .35s}
+.screen{position:absolute;inset:0;transition:opacity .3s,transform .3s}
 .hide{opacity:0;pointer-events:none;transform:scale(1.04)}
 #lock{z-index:30;text-align:center;padding-top:80px}
-#date{font-size:19px;font-weight:500;opacity:.95}
+#date{font-size:19px;font-weight:500}
 #clock{font-size:92px;font-weight:600;line-height:1.05;letter-spacing:-2px}
-.hint{position:absolute;bottom:60px;left:0;right:0;font-size:14px;opacity:.85;animation:pulse 2s infinite}
-@keyframes pulse{50%{opacity:.35}}
-.circle{position:absolute;bottom:50px;width:50px;height:50px;border-radius:50%;background:rgba(40,40,40,.45);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;font-size:20px}
+.hint{position:absolute;bottom:60px;left:0;right:0;font-size:14px;opacity:.85}
+.circle{position:absolute;bottom:50px;width:50px;height:50px;border-radius:50%;background:rgba(40,40,40,.45);display:flex;align-items:center;justify-content:center;font-size:20px}
 #pass{z-index:35;background:rgba(20,20,25,.55);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);text-align:center;padding-top:110px}
 #pass h3{font-size:19px;font-weight:500;margin-bottom:22px}
 .dots{display:flex;gap:18px;justify-content:center;margin-bottom:46px}
@@ -31,25 +30,37 @@ body{display:flex;align-items:center;justify-content:center;background:radial-gr
 .k{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.16);font-size:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none}
 .k:active{background:rgba(255,255,255,.4)}
 .k small{font-size:9px;letter-spacing:2px;margin-top:-2px;opacity:.8}
-.k.e{background:none}
+.k.e{background:none;cursor:default}
 .cancel{position:absolute;bottom:46px;right:36px;font-size:16px;cursor:pointer}
-#home{z-index:10;background:#0a0e1a}
-#home iframe{position:absolute;top:50px;left:0;width:100%;height:calc(100% - 50px);border:0;background:#0a0e1a}
-#bar{position:absolute;bottom:0;left:0;right:0;height:22px;z-index:60;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:7px}
-#bar i{display:block;width:130px;height:5px;border-radius:3px;background:#fff;opacity:.9}
-@media(max-width:500px){body{background:#000}.phone{width:100vw;height:100vh;max-height:none;aspect-ratio:auto;border:0;border-radius:0;box-shadow:none}}
+#home{z-index:10;padding:80px 20px 0}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 6px}
+.ic{display:flex;flex-direction:column;align-items:center;font-size:11px;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.ic b{width:60px;height:60px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:6px;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+.ic:active b{transform:scale(.9);filter:brightness(.8)}
+.dock{position:absolute;bottom:34px;left:12px;right:12px;height:84px;border-radius:30px;background:rgba(255,255,255,.25);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;justify-content:space-around;align-items:center}
+#appv{z-index:20;background:#0a0e1a;opacity:0;transform:scale(.8);border-radius:44px;pointer-events:none;transition:all .3s}
+#appv.open{opacity:1;transform:none;border-radius:0;pointer-events:auto}
+#appv iframe{position:absolute;top:48px;left:0;width:100%;height:calc(100% - 70px);border:0;background:#0a0e1a}
+#bar{position:absolute;bottom:0;left:0;right:0;height:30px;z-index:60;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px}
+#bar i{display:block;width:130px;height:5px;border-radius:3px;background:#fff;opacity:.9;box-shadow:0 0 4px rgba(0,0,0,.4)}
+@media(max-width:500px){.phone{width:100vw;height:100vh;max-height:none;border:0;border-radius:0;box-shadow:none}.island{display:none}}
 </style></head><body>
-<div class="phone" id="phone">
+<div class="phone">
 <div class="wall"></div>
 <div class="island"></div>
 <div class="status"><span id="sTime">12:00</span><span>5G<span class="bat"></span></span></div>
 
-<div id="home" class="screen hide"><iframe id="app" src="" title="panel"></iframe></div>
+<div id="home" class="screen hide">
+<div class="grid" id="grid"></div>
+<div class="dock" id="dock"></div>
+</div>
 
-<div id="lock" class="screen" onclick="openPass()">
-<div id="date">Monday, May 20</div><div id="clock">12:00</div>
+<div id="appv" class="screen"><iframe id="app" src="" title="app"></iframe></div>
+
+<div id="lock" class="screen">
+<div id="date"></div><div id="clock"></div>
 <div class="circle" style="left:40px">&#128294;</div><div class="circle" style="right:40px">&#128247;</div>
-<div class="hint">Tap to unlock</div>
+<div class="hint">Tap or swipe up to unlock</div>
 </div>
 
 <div id="pass" class="screen hide">
@@ -59,62 +70,112 @@ body{display:flex;align-items:center;justify-content:center;background:radial-gr
 <div class="cancel" onclick="closePass()">Cancel</div>
 </div>
 
-<div id="bar" onclick="lockPhone()"><i></i></div>
+<div id="bar"><i></i></div>
 </div>
 <script>
-var PASSCODE = '2026';
-var entered = '';
-var loaded = false;
-var letters = {2:'ABC',3:'DEF',4:'GHI',5:'JKL',6:'MNO',7:'PQRS',8:'TUV',9:'WXYZ'};
+var PASSCODE='2026', entered='', loaded=false, current='';
+var APPS=[
+ {n:'Panel',i:'&#128293;',c:'#ef4444',s:'dashboard'},
+ {n:'Users',i:'&#128101;',c:'#3b82f6',s:'users'},
+ {n:'Licenses',i:'&#128273;',c:'#f59e0b',s:'licenses'},
+ {n:'Referrals',i:'&#127873;',c:'#ec4899',s:'referrals'},
+ {n:'Status',i:'&#9889;',c:'#10b981',s:'status'},
+ {n:'Telegram',i:'&#9992;&#65039;',c:'#0ea5e9',s:'telegram'},
+ {n:'Worker',i:'&#9729;&#65039;',c:'#f97316',s:'worker'},
+ {n:'GitHub',i:'&#128025;',c:'#374151',s:'github'},
+ {n:'APK',i:'&#128230;',c:'#8b5cf6',s:'apk'},
+ {n:'Loader',i:'&#128295;',c:'#14b8a6',s:'loader'},
+ {n:'PAK',i:'&#127922;',c:'#6366f1',s:'pak'},
+ {n:'Add Apps',i:'&#10133;',c:'#22c55e',s:'add-apps'}
+];
+var DOCK=[
+ {n:'Settings',i:'&#9881;&#65039;',c:'#6b7280',s:'settings'},
+ {n:'Licenses',i:'&#128273;',c:'#f59e0b',s:'licenses'},
+ {n:'Panel',i:'&#128293;',c:'#ef4444',s:'dashboard'},
+ {n:'Lock',i:'&#128274;',c:'#111827',s:'__lock'}
+];
+function mk(a,dock){
+ var d=document.createElement('div');d.className='ic';
+ d.innerHTML='<b style="background:'+a.c+'">'+a.i+'</b>'+(dock?'':a.n);
+ d.onclick=function(){ a.s==='__lock'?lockPhone():openApp(a.s); };
+ return d;
+}
+APPS.forEach(function(a){document.getElementById('grid').appendChild(mk(a,false));});
+DOCK.forEach(function(a){document.getElementById('dock').appendChild(mk(a,true));});
 function tick(){
-  var d = new Date();
-  var h = d.getHours(), m = ('0'+d.getMinutes()).slice(-2);
-  var t = (h%12||12)+':'+m;
-  document.getElementById('clock').textContent = t;
-  document.getElementById('sTime').textContent = t;
-  document.getElementById('date').textContent = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+ var d=new Date(),h=d.getHours(),m=('0'+d.getMinutes()).slice(-2),t=(h%12||12)+':'+m;
+ document.getElementById('clock').textContent=t;
+ document.getElementById('sTime').textContent=t;
+ document.getElementById('date').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 }
-tick(); setInterval(tick, 10000);
-function buildPad(){
-  var p = document.getElementById('pad'), keys = [1,2,3,4,5,6,7,8,9,'',0,'&#9003;'];
-  keys.forEach(function(k){
-    var el = document.createElement('div');
-    el.className = 'k' + (k==='' ? ' e' : '');
-    el.innerHTML = k + (letters[k] ? '<small>'+letters[k]+'</small>' : '');
-    if (k !== '') el.onclick = function(){ press(k); };
-    p.appendChild(el);
-  });
-}
-buildPad();
-function paint(){
-  var ds = document.querySelectorAll('.dot');
-  for (var i=0;i<ds.length;i++) ds[i].className = 'dot' + (i<entered.length ? ' on' : '');
-}
+tick();setInterval(tick,10000);
+var letters={2:'ABC',3:'DEF',4:'GHI',5:'JKL',6:'MNO',7:'PQRS',8:'TUV',9:'WXYZ'};
+[1,2,3,4,5,6,7,8,9,'',0,'&#9003;'].forEach(function(k){
+ var el=document.createElement('div');el.className='k'+(k===''?' e':'');
+ el.innerHTML=k+(letters[k]?'<small>'+letters[k]+'</small>':'');
+ if(k!=='')el.onclick=function(){press(k);};
+ document.getElementById('pad').appendChild(el);
+});
+function paint(){var ds=document.querySelectorAll('.dot');for(var i=0;i<ds.length;i++)ds[i].className='dot'+(i<entered.length?' on':'');}
 function press(k){
-  if (k === '&#9003;') { entered = entered.slice(0,-1); paint(); return; }
-  if (entered.length >= 4) return;
-  entered += k; paint();
-  if (entered.length === 4) setTimeout(check, 150);
+ if(k==='&#9003;'){entered=entered.slice(0,-1);paint();return;}
+ if(entered.length>=4)return;
+ entered+=k;paint();
+ if(entered.length===4)setTimeout(check,150);
 }
 function check(){
-  if (entered === PASSCODE) { unlock(); }
-  else {
-    var d = document.getElementById('dots');
-    d.classList.add('shake');
-    setTimeout(function(){ d.classList.remove('shake'); entered=''; paint(); }, 420);
-  }
+ if(entered===PASSCODE){unlock();}
+ else{var d=document.getElementById('dots');d.classList.add('shake');setTimeout(function(){d.classList.remove('shake');entered='';paint();},420);}
 }
-function openPass(){ entered=''; paint(); document.getElementById('pass').classList.remove('hide'); }
-function closePass(){ document.getElementById('pass').classList.add('hide'); }
+function openPass(){entered='';paint();document.getElementById('pass').classList.remove('hide');}
+function closePass(){document.getElementById('pass').classList.add('hide');}
 function unlock(){
-  if (!loaded) { document.getElementById('app').src = 'index.html'; loaded = true; }
-  document.getElementById('home').classList.remove('hide');
-  document.getElementById('lock').classList.add('hide');
-  document.getElementById('pass').classList.add('hide');
+ document.getElementById('lock').classList.add('hide');
+ document.getElementById('pass').classList.add('hide');
+ document.getElementById('home').classList.remove('hide');
 }
+function showSec(s){
+ try{
+  var w=document.getElementById('app').contentWindow;
+  var ok=false;
+  try{ok=!!w.eval('TOKEN');}catch(e){}
+  if(ok&&w.showSection)w.showSection(s);
+ }catch(e){}
+}
+function openApp(s){
+ var f=document.getElementById('app');
+ if(!loaded){
+  loaded=true;
+  f.onload=function(){setTimeout(function(){if(current)showSec(current);},400);};
+  f.src='index.html';
+ }
+ current=s;
+ document.getElementById('appv').classList.add('open');
+ showSec(s);
+}
+function goHome(){document.getElementById('appv').classList.remove('open');}
 function lockPhone(){
-  document.getElementById('home').classList.add('hide');
-  document.getElementById('lock').classList.remove('hide');
-  entered=''; paint();
+ goHome();
+ document.getElementById('home').classList.add('hide');
+ document.getElementById('lock').classList.remove('hide');
+ entered='';paint();
 }
+document.getElementById('bar').onclick=function(){goHome();};
+var y0=null;
+function ts(e){y0=e.touches[0].clientY;}
+function te(e){
+ if(y0===null)return;
+ var dy=e.changedTouches[0].clientY-y0;y0=null;
+ if(dy<-40)goHome();
+}
+document.getElementById('bar').addEventListener('touchstart',ts);
+document.getElementById('bar').addEventListener('touchend',te);
+var lk=document.getElementById('lock');
+lk.onclick=openPass;
+lk.addEventListener('touchstart',ts);
+lk.addEventListener('touchend',function(e){
+ if(y0===null)return;
+ var dy=e.changedTouches[0].clientY-y0;y0=null;
+ if(dy<-60)openPass();
+});
 </script></body></html>
