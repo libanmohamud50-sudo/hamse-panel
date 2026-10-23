@@ -109,7 +109,7 @@ body{display:flex;align-items:center;justify-content:center;background:#e9e9ee}
 <div id="bar"><i></i></div>
 </div></div>
 <script>
-var PASSCODE='2026', entered='', loaded=false, current='';
+var PASSCODE='0960', entered='', loaded=false, current='';
 var APPS=[{n:'License Key Management',i:'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3L20 3"/><path d="M16 7l3 3"/><path d="M13.5 9.5l2.5 2.5"/></svg>',c:'linear-gradient(135deg,#7c3aed,#2563eb)',s:'licenses'}];
 var DOCK=[];
 function mk(a,dock){
@@ -220,13 +220,13 @@ window.showToast=function(m,t){
 function showLogin(){
   try{localStorage.removeItem('hamse_token');}catch(e){}
   window.TOKEN='';
-  g('licensesList').innerHTML='<div class="lv-login">'+
+  g('licensesList').innerHTML='<form id="lvF" class="lv-login" autocomplete="on">'+
     '<div style="font-size:15px;color:#8e8e93;margin-bottom:12px">Sign in to manage keys</div>'+
-    '<input id="lvU" placeholder="Username" autocapitalize="off" autocomplete="username">'+
-    '<input id="lvP" type="password" placeholder="Password" autocomplete="current-password">'+
-    '<button id="lvGo">Sign in</button>'+
-    '<div id="lvErr" style="color:#ff453a;font-size:13px;margin-top:10px"></div></div>';
-  g('lvGo').onclick=doLogin;
+    '<input id="lvU" name="username" placeholder="Username" autocapitalize="off" autocomplete="username">'+
+    '<input id="lvP" name="password" type="password" placeholder="Password" autocomplete="current-password">'+
+    '<button id="lvGo" type="submit">Sign in</button>'+
+    '<div id="lvErr" style="color:#ff453a;font-size:13px;margin-top:10px"></div></form>';
+  g('lvF').onsubmit=function(ev){ev.preventDefault();doLogin();return false;};
 }
 function doLogin(){
   var u=g('lvU').value.trim(),p=g('lvP').value;
@@ -253,6 +253,54 @@ window.openApp=function(s){
   g('appv').classList.add('open');
   if(tk){window.loadLicenses();}else{showLogin();}
 };
+})();
+</script>
+<script>
+(function(){
+function g(i){return document.getElementById(i);}
+var home=g('home'),grid=g('grid');
+var ic=grid&&grid.firstElementChild;
+if(!home||!ic)return;
+var KEY='hamse_icpos',suppress=false,drag=null;
+home.appendChild(ic);
+var st=ic.style;
+st.position='absolute';st.width='84px';st.margin='0';st.zIndex='3';st.touchAction='none';
+st.userSelect='none';st.webkitUserSelect='none';st.whiteSpace='normal';st.textAlign='center';st.lineHeight='1.15';st.cursor='grab';
+var sv=null;
+try{sv=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){}
+st.left=((sv?sv.px:0.06)*100)+'%';
+st.top=((sv?sv.py:0.17)*100)+'%';
+ic.addEventListener('pointerdown',function(e){
+  var r=ic.getBoundingClientRect();
+  drag={sx:e.clientX,sy:e.clientY,ox:e.clientX-r.left,oy:e.clientY-r.top,on:false};
+  try{ic.setPointerCapture(e.pointerId);}catch(x){}
+});
+ic.addEventListener('pointermove',function(e){
+  if(!drag)return;
+  if(!drag.on){
+    if(Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy)<10)return;
+    drag.on=true;st.transform='scale(1.12)';st.opacity='.9';
+  }
+  var hr=home.getBoundingClientRect();
+  var W=hr.width,H=hr.height,w=ic.offsetWidth,hh=ic.offsetHeight;
+  var x=Math.max(6,Math.min(W-w-6,e.clientX-hr.left-drag.ox));
+  var y=Math.max(50,Math.min(H-hh-20,e.clientY-hr.top-drag.oy));
+  st.left=(x/W*100)+'%';st.top=(y/H*100)+'%';
+  drag.fx=x/W;drag.fy=y/H;
+  e.preventDefault();
+});
+function end(){
+  if(!drag)return;
+  if(drag.on){
+    st.transform='';st.opacity='';
+    try{localStorage.setItem(KEY,JSON.stringify({px:drag.fx,py:drag.fy}));}catch(x){}
+    suppress=true;setTimeout(function(){suppress=false;},60);
+  }
+  drag=null;
+}
+ic.addEventListener('pointerup',end);
+ic.addEventListener('pointercancel',end);
+ic.addEventListener('click',function(e){if(suppress){e.stopImmediatePropagation();e.preventDefault();}},true);
 })();
 </script>
 </body></html>
