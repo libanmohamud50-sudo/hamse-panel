@@ -65,6 +65,9 @@
   var st = document.createElement('style');
   st.textContent = css;
   document.head.appendChild(st);
+  var st2 = document.createElement('style');
+  st2.textContent = '.lx-seg{display:grid;grid-template-columns:1fr 1fr;background:#2c2c2e;border-radius:12px;padding:3px;gap:3px}.lx-seg button{border:0;background:transparent;color:#aeaeb2;border-radius:10px;padding:10px 0;font-size:15px;font-weight:600}.lx-seg button.on{background:#0a84ff;color:#fff}';
+  document.head.appendChild(st2);
 
   function usedCount(k) {
     try { return JSON.parse(k.used_devices || '[]').length; } catch (e) { return 0; }
@@ -123,7 +126,7 @@
 
   function load() {
     return call('GET', '/api/licenses').then(function (d) {
-      cache = d.licenses || [];
+      cache = d.licenses || d.keys || d.data || (Array.isArray(d) ? d : []);
       render();
     }).catch(function (e) { toast(e.message, 'error'); });
   }
@@ -152,18 +155,20 @@
   }
 
   function genSheet() {
+    var mode = 'auto';
     var opts = DURATIONS.map(function (d) {
       return '<option value="' + d[0] + '"' + (d[0] === '30d' ? ' selected' : '') + '>' + d[1] + '</option>';
     }).join('');
     sheet(
       '<h3>Generate License</h3>' +
       '<label class="lx-l">Duration</label><select class="lx-in" id="lxDur">' + opts + '</select>' +
-      '<div class="lx-sw"><span>Auto-generate key</span><input type="checkbox" id="lxAuto" checked></div>' +
-      '<div id="lxCustomWrap" style="display:none"><label class="lx-l">Custom key (duration prefix added automatically)</label>' +
-      '<input class="lx-in" id="lxCustom" placeholder="HAMSE-MYKEY"></div>' +
+      '<label class="lx-l">Key name</label>' +
+      '<div class="lx-seg"><button type="button" class="on" id="lxSegA">Auto</button><button type="button" id="lxSegC">Custom</button></div>' +
+      '<div id="lxCustomWrap" style="display:none"><label class="lx-l">Your key name (letters, numbers, - and _)</label>' +
+      '<input class="lx-in" id="lxCustom" placeholder="e.g. HAMSE-VIP-001" autocomplete="off" autocapitalize="characters"></div>' +
       '<div class="lx-two"><div><label class="lx-l">Max devices (1-1000)</label>' +
       '<input class="lx-in" id="lxMax" type="number" min="1" max="1000" value="1"></div>' +
-      '<div><label class="lx-l">Quantity (auto only)</label>' +
+      '<div><label class="lx-l">Quantity (Auto only)</label>' +
       '<input class="lx-in" id="lxCnt" type="number" min="1" max="50" value="1"></div></div>' +
       '<label class="lx-l">Game</label><input class="lx-in" id="lxGame" value="PUBG MOBILE">' +
       '<div class="lx-l" id="lxPrev" style="color:#0a84ff"></div>' +
@@ -171,12 +176,19 @@
 
     function prev() {
       var d = q('lxDur').value;
-      q('lxPrev').textContent = 'Example: ' + (q('lxAuto').checked ? autoKey(d) : keyWithPrefix(d, q('lxCustom').value || 'KEY'));
+      q('lxPrev').textContent = (mode === 'auto' ? 'Example: ' + autoKey(d) : 'Final key: ' + keyWithPrefix(d, q('lxCustom').value.trim() || 'YOURNAME'));
     }
-    q('lxAuto').onchange = function () {
-      q('lxCustomWrap').style.display = this.checked ? 'none' : 'block';
+    function setMode(m) {
+      mode = m;
+      q('lxSegA').className = m === 'auto' ? 'on' : '';
+      q('lxSegC').className = m === 'custom' ? 'on' : '';
+      q('lxCustomWrap').style.display = m === 'custom' ? 'block' : 'none';
+      q('lxCnt').disabled = (m === 'custom');
+      if (m === 'custom') { q('lxCnt').value = 1; q('lxCustom').focus(); }
       prev();
-    };
+    }
+    q('lxSegA').onclick = function () { setMode('auto'); };
+    q('lxSegC').onclick = function () { setMode('custom'); };
     q('lxDur').onchange = prev;
     q('lxCustom').oninput = prev;
     prev();
@@ -185,29 +197,44 @@
       var dur = q('lxDur').value;
       var max = parseInt(q('lxMax').value, 10);
       if (!(max >= 1 && max <= 1000)) return toast('Max devices must be 1-1000', 'error');
-      var game = q('lxGame').value || 'PUBG MOBILE';
-      var auto = q('lxAuto').checked;
+      var game = (q('lxGame').value || 'PUBG MOBILE').trim();
       var jobs = [];
-      if (auto) {
+      if (mode === 'auto') {
         var n = Math.min(Math.max(parseInt(q('lxCnt').value, 10) || 1, 1), 50);
         for (var i = 0; i < n; i++) jobs.push(autoKey(dur));
       } else {
         var c = (q('lxCustom').value || '').trim();
-        if (!c) return toast('Enter a custom key', 'error');
+        if (!c) return toast('Type your key name', 'error');
+        if (!/^[A-Za-z0-9_-]{2,40}$/.test(c)) return toast('Key name: letters, numbers, - and _ only (2-40)', 'error');
         jobs.push(keyWithPrefix(dur, c));
       }
       q('lxGo').disabled = true;
       q('lxGo').textContent = 'Working...';
-      var done = 0, failed = 0;
+      var created = [], failed = 0, lastErr = '';
       jobs.reduce(function (p, key) {
         return p.then(function () {
           return call('POST', '/api/admin/licenses/bulk', {
             count: 1, duration: dur, custom_key: key, max_devices: max, game: game, key_mode: 'custom'
-          }).then(function () { done++; }).catch(function () { failed++; });
+          }).then(function () { created.push(key); })
+            .catch(function (e) { failed++; lastErr = e.message; });
         });
       }, Promise.resolve()).then(function () {
+        if (!created.length) return;
+        return call('GET', '/api/licenses').then(function (d) {
+          var list = d.licenses || d.keys || d.data || [];
+          var fixes = [];
+          created.forEach(function (key) {
+            var rec = list.filter(function (x) { return String(x.license_key).toLowerCase() === key.toLowerCase(); })[0];
+            if (rec && Number(rec.max_devices) !== max) {
+              fixes.push(call('PUT', '/api/admin/licenses/' + rec.id + '/update', { max_devices: max }));
+            }
+          });
+          return Promise.all(fixes);
+        }).catch(function () {});
+      }).then(function () {
         closeSheet();
-        toast(done + ' key(s) created' + (failed ? ', ' + failed + ' failed' : ''), failed ? 'error' : 'success');
+        if (failed) toast(created.length + ' created, ' + failed + ' failed: ' + lastErr, 'error');
+        else toast(created.length + ' key(s) created');
         load();
       });
     };
