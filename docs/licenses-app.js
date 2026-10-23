@@ -47,6 +47,7 @@
     return mm + 'm left';
   }
   function buzz() { try { navigator.vibrate && navigator.vibrate(8); } catch (e) {} }
+  function durTxt(d){var m=String(d||'').trim().match(/^(\d+)\s*(m|min|h|d|w|day|days|week|weeks|hour|hours)?$/i);if(!m)return d||'-';var n=+m[1],u=(m[2]||'d').toLowerCase()[0];var N={m:'min',h:n==1?'hour':'hours',d:n==1?'day':'days',w:n==1?'week':'weeks'};return n+' '+N[u];}
   function statusOf(l) {
     var s = String(l.status || '').toLowerCase();
     if (s === 'disabled' || s === 'banned') return s;
@@ -200,7 +201,7 @@
       return '<div class="hl-card">' +
         '<div class="hl-top"><div class="hl-key">' + esc(l.license_key) + '</div><div class="hl-badge b-' + s + '">' + s + '</div></div>' +
         '<div class="hl-meta"><span>Game <b>' + esc(l.game || '-') + '</b></span><span>Devices <b>' + esc(l.used_devices || 0) + '/' + esc(l.max_devices || 1) + '</b></span></div>' +
-        '<div class="hl-meta"><span>Time <b>' + esc(l.expires_at || '-') + '</b></span>' + (e ? '<span>' + esc(left(e)) + '</span>' : '') + '</div>' +
+        '<div class="hl-meta"><span>Time <b>' + esc(l.expires_at || durTxt(l.duration)) + '</b></span>' + (e ? '<span>' + esc(left(e)) + '</span>' : '') + '</div>' +
         '<div class="hl-acts">' +
         '<button data-a="copy" data-id="' + esc(l.id) + '">Copy</button>' + act +
         '<button class="bl" data-a="time" data-id="' + esc(l.id) + '">Time</button>' +
@@ -373,7 +374,6 @@
       if (mode === 'custom') {
         var name = q(s.el, '#hcn').value.trim();
         if (!name) return toast('Type the key name', true);
-        if (/\s/.test(name)) return toast('Key cannot contain spaces', true);
         keys.push(name);
       } else {
         var n = Math.max(1, Math.min(50, parseInt(q(s.el, '#hq').value, 10) || 1));
