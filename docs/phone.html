@@ -73,7 +73,7 @@ body{display:flex;align-items:center;justify-content:center;background:#e9e9ee}
 .lv-login{padding:20px 4px}
 .lv-login input{display:block;width:100%;box-sizing:border-box;background:#1c1c1e;border:1px solid #2c2c2e;border-radius:12px;color:#fff;padding:13px 14px;font-size:16px;margin-bottom:10px;outline:none}
 .lv-login button{width:100%;background:linear-gradient(135deg,#0a84ff,#5e5ce6);border:0;color:#fff;border-radius:14px;padding:13px;font-size:16px;font-weight:700;margin-top:6px}
-</style><style>.lv-big{font-size:30px;line-height:1.1}#grid .ic{white-space:normal;text-align:center;line-height:1.15}</style><style>#edm{display:none;position:fixed;top:0;right:0;bottom:0;left:0;z-index:9999;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}#edm .sh{width:100%;max-width:480px;max-height:80%;overflow:auto;box-sizing:border-box;background:rgba(30,30,40,.95);border-radius:24px 24px 0 0;padding:20px 20px calc(24px + env(safe-area-inset-bottom,0px));color:#fff}#edm h3{margin:0 0 10px;font-size:18px}#edm input{width:100%;box-sizing:border-box;margin:6px 0;padding:13px;border-radius:12px;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:16px;outline:0}#edm .row{display:flex;gap:10px;margin-top:10px}#edm .row button{flex:1;padding:13px;border:0;border-radius:12px;font-size:16px;font-weight:600;color:#fff;background:rgba(255,255,255,.14)}#edm .row .ok{background:linear-gradient(135deg,#7c3aed,#2563eb)}.edr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid rgba(255,255,255,.12)}.edr button{border:0;border-radius:10px;padding:6px 12px;color:#fff;background:#ef4444}@media (prefers-color-scheme:light){#edm .sh{background:rgba(250,250,252,.97);color:#111}#edm input{background:rgba(0,0,0,.07);color:#111}#edm .row button:not(.ok){color:#111;background:rgba(0,0,0,.08)}}</style></head><body>
+</style><style>.lv-big{font-size:30px;line-height:1.1}#grid .ic{white-space:normal;text-align:center;line-height:1.15}</style></head><body>
 <div class="dev">
 <div class="btn vol1"></div><div class="btn vol2"></div><div class="btn vol3"></div><div class="btn sb" onclick="lockPhone()"></div>
 <div class="phone">
@@ -110,43 +110,17 @@ body{display:flex;align-items:center;justify-content:center;background:#e9e9ee}
 </div></div>
 <script>
 var PASSCODE='0960', entered='', loaded=false, current='';
-var APPS=[{n:'License Key Management',i:'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3L20 3"/><path d="M16 7l3 3"/><path d="M13.5 9.5l2.5 2.5"/></svg>',c:'linear-gradient(135deg,#7c3aed,#2563eb)',s:'licenses'},{n:'Edit',i:'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>',c:'linear-gradient(135deg,#f59e0b,#ef4444)',f:function(){openEd();}}];
+var APPS=[{n:'License Key Management',i:'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3L20 3"/><path d="M16 7l3 3"/><path d="M13.5 9.5l2.5 2.5"/></svg>',c:'linear-gradient(135deg,#7c3aed,#2563eb)',s:'licenses'}];
 var DOCK=[];
 function mk(a,dock){
  var d=document.createElement('div');d.className='ic';
  var d0=new Date();
  var inner=a.cal?'<b class="cal"><i>'+d0.toLocaleDateString('en-US',{weekday:'short'}).toUpperCase()+'</i><span>'+d0.getDate()+'</span></b>':'<b style="background:'+a.c+'">'+a.i+'</b>';
  d.innerHTML=inner+(dock?'':a.n)+(a.badge?'<div class="badge">1</div>':'');
- d.onclick=function(){ if(a.f)a.f(); else if(a.s)openApp(a.s); };
+ d.onclick=function(){ if(a.s)openApp(a.s); };
  return d;
 }
 APPS.forEach(function(a){document.getElementById('grid').appendChild(mk(a,false));});
-var CK='hamse_apps_v2',CUST=[];
-try{CUST=JSON.parse(localStorage.getItem(CK)||'[]')||[];}catch(e){CUST=[];}
-function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-function svC(){try{localStorage.setItem(CK,JSON.stringify(CUST));}catch(e){}}
-function renderCust(){
- var g=document.getElementById('grid');
- Array.prototype.slice.call(g.querySelectorAll('.cust')).forEach(function(n){n.remove();});
- CUST.forEach(function(c){
-  var img=/^https?:\/\//i.test(c.i||'');
-  var el=mk({n:esc(c.n),i:img?'<img src="'+esc(c.i)+'" style="width:100%;height:100%;border-radius:inherit;object-fit:cover" alt="">':esc(c.i||'\u2B50'),c:img?'transparent':'linear-gradient(135deg,#475569,#1e293b)',f:function(){window.open(c.u,'_blank');}},false);
-  el.className+=' cust';g.appendChild(el);
- });
- var l=document.getElementById('edl');
- if(l){l.innerHTML='';CUST.forEach(function(c,k){var r=document.createElement('div');r.className='edr';var sp=document.createElement('span');sp.textContent=c.n;r.appendChild(sp);var b=document.createElement('button');b.textContent='Delete';b.onclick=function(){CUST.splice(k,1);svC();renderCust();};r.appendChild(b);l.appendChild(r);});}
-}
-function openEd(){document.getElementById('edm').style.display='flex';}
-function closeEd(){document.getElementById('edm').style.display='none';}
-function addEd(){
- var n=document.getElementById('en').value.trim(),i=document.getElementById('ei').value.trim(),u=document.getElementById('eu').value.trim();
- if(!n||!u){alert('Name and link required');return;}
- if(!/^https?:\/\//i.test(u))u='https://'+u;
- CUST.push({n:n,i:i,u:u});svC();
- ['en','ei','eu'].forEach(function(k){document.getElementById(k).value='';});
- renderCust();
-}
-renderCust();
 DOCK.forEach(function(a){document.getElementById('dock').appendChild(mk(a,true));});
 function tick(){
  var d=new Date(),h=d.getHours(),m=('0'+d.getMinutes()).slice(-2),t=(h%12||12)+':'+m;
@@ -329,4 +303,4 @@ ic.addEventListener('pointercancel',end);
 ic.addEventListener('click',function(e){if(suppress){e.stopImmediatePropagation();e.preventDefault();}},true);
 })();
 </script>
-<div id="edm"><div class="sh"><h3>Edit apps</h3><input id="en" placeholder="Name (e.g. MT Manager VIP)"><input id="ei" placeholder="Icon: emoji or image URL"><input id="eu" placeholder="Link / APK download URL"><div class="row"><button onclick="closeEd()">Close</button><button class="ok" onclick="addEd()">Add app</button></div><div id="edl" style="margin-top:14px"></div></div></div></body></html>
+</body></html>
