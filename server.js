@@ -203,7 +203,7 @@ app.post("/api/admin/licenses/bulk", authMiddleware, adminMiddleware, (req, res)
   for (let i = 0; i < count; i++) {
     let key;
     if (keyMode === 'custom' && custom_key) {
-      key = custom_key.toUpperCase();
+      key = String(custom_key).trim();
     } else {
       key = durationLabel + '-HAMSE-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     }

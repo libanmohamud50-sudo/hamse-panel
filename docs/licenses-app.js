@@ -165,7 +165,7 @@
       '<label class="lx-l">Key name</label>' +
       '<div class="lx-seg"><button type="button" class="on" id="lxSegA">Auto</button><button type="button" id="lxSegC">Custom</button></div>' +
       '<div id="lxCustomWrap" style="display:none"><label class="lx-l">Your key name (letters, numbers, - and _)</label>' +
-      '<input class="lx-in" id="lxCustom" placeholder="e.g. HAMSE-VIP-001" autocomplete="off" autocapitalize="characters"></div>' +
+      '<input class="lx-in" id="lxCustom" placeholder="e.g. HAMSE-VIP-001" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div>' +
       '<div class="lx-two"><div><label class="lx-l">Max devices (1-1000)</label>' +
       '<input class="lx-in" id="lxMax" type="number" min="1" max="1000" value="1"></div>' +
       '<div><label class="lx-l">Quantity (Auto only)</label>' +
@@ -226,7 +226,7 @@
           created.forEach(function (key) {
             var rec = list.filter(function (x) { return String(x.license_key).toLowerCase() === key.toLowerCase(); })[0];
             if (rec && Number(rec.max_devices) !== max) {
-              fixes.push(call('PUT', '/api/admin/licenses/' + rec.id + '/update', { max_devices: max }));
+              fixes.push(setMax(rec.id, max));
             }
           });
           return Promise.all(fixes);
@@ -271,10 +271,15 @@
     q('lxDvGo').onclick = function () {
       var n = parseInt(q('lxDv').value, 10);
       if (!(n >= 1 && n <= 1000)) return toast('Must be 1-1000', 'error');
-      call('PUT', '/api/admin/licenses/' + k.id + '/update', { max_devices: n })
+      setMax(k.id, n)
         .then(function () { closeSheet(); toast('Max devices updated'); load(); })
         .catch(function (e) { toast(e.message, 'error'); });
     };
+  }
+
+  function setMax(id, n) {
+    return call('PUT', '/api/admin/licenses/' + id + '/update', { max_devices: n })
+      .catch(function () { return call('PUT', '/api/admin/licenses/' + id + '/edit', { max_devices: n }); });
   }
 
   function setStatus(k, status, msg) {
