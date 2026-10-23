@@ -1,337 +1,412 @@
-/* HAMSE VIP - Licenses app (iPhone-style key management) */
+/* HAMSE License Key Management - iPhone style (v3) */
 (function () {
-  var BASE = (typeof API_BASE !== 'undefined') ? API_BASE : '';
-  var DURATIONS = [
-    ['30m', '30 min'], ['1h', '1 hour'], ['2h', '2 hours'], ['6h', '6 hours'],
-    ['12h', '12 hours'], ['1d', '1 day'], ['7d', '7 days'], ['30d', '30 days'],
-    ['90d', '90 days'], ['365d', '365 days'], ['lifetime', 'Lifetime']
-  ];
-  var cache = [];
-  var filter = 'all';
-  var query = '';
+  'use strict';
+  var BASE = '';
 
-  function toast(m, t) { try { showToast(m, t || 'success'); } catch (e) { console.log(m); } }
-  function tok() { try { return TOKEN; } catch (e) { return ''; } }
-
-  function call(method, path, body) {
-    return fetch(BASE + path, {
-      method: method,
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok() },
-      body: body ? JSON.stringify(body) : undefined
-    }).then(function (r) {
-      return r.json().catch(function () { return {}; }).then(function (d) {
-        if (!r.ok || d.error) throw new Error(d.error || ('HTTP ' + r.status));
-        return d;
-      });
-    });
+  /* ---------- helpers ---------- */
+  function tok() {
+    try { if (typeof TOKEN !== 'undefined' && TOKEN) return TOKEN; } catch (e) {}
+    try { return localStorage.getItem('hamse_token') || localStorage.getItem('token') || ''; } catch (e) { return ''; }
   }
-
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-
-  var css = '' +
-    '.lx{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Segoe UI,sans-serif;color:#f2f2f7}' +
-    '.lx-top{display:flex;gap:8px;align-items:center;margin-bottom:10px}' +
-    '.lx-search{flex:1;background:#1c1c1e;border:1px solid #2c2c2e;border-radius:12px;color:#fff;padding:10px 12px;font-size:14px;outline:none}' +
-    '.lx-add{background:linear-gradient(135deg,#0a84ff,#5e5ce6);border:0;color:#fff;border-radius:12px;padding:10px 14px;font-weight:600;font-size:14px;cursor:pointer}' +
-    '.lx-chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}' +
-    '.lx-chip{background:#1c1c1e;border:1px solid #2c2c2e;color:#aeaeb2;border-radius:999px;padding:6px 12px;font-size:12px;white-space:nowrap;cursor:pointer}' +
-    '.lx-chip.on{background:#0a84ff;border-color:#0a84ff;color:#fff}' +
-    '.lx-card{background:#1c1c1e;border:1px solid #2c2c2e;border-radius:16px;padding:12px;margin-bottom:10px}' +
-    '.lx-row{display:flex;justify-content:space-between;align-items:center;gap:8px}' +
-    '.lx-key{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;word-break:break-all;color:#fff}' +
-    '.lx-badge{font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}' +
-    '.st-active{background:#12361f;color:#30d158}.st-unused{background:#2a2a2e;color:#aeaeb2}' +
-    '.st-disabled{background:#3a2a10;color:#ff9f0a}.st-banned{background:#3d1517;color:#ff453a}.st-expired{background:#3d1517;color:#ff6961}' +
-    '.lx-meta{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 10px;font-size:12px;color:#8e8e93}' +
-    '.lx-meta b{color:#e5e5ea;font-weight:600}' +
-    '.lx-acts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}' +
-    '.lx-b{border:0;border-radius:10px;padding:9px 0;font-size:11.5px;font-weight:600;color:#fff;cursor:pointer;background:#2c2c2e}' +
-    '.lx-b.go{background:#248a3d}.lx-b.off{background:#b25000}.lx-b.del{background:#d70015}.lx-b.t{background:#0a84ff}' +
-    '.lx-empty{text-align:center;color:#8e8e93;padding:30px 0;font-size:14px}' +
-    '.lx-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:flex-end;justify-content:center}' +
-    '.lx-sheet{background:#1c1c1e;width:100%;max-width:480px;border-radius:22px 22px 0 0;padding:16px;max-height:88vh;overflow:auto;color:#f2f2f7}' +
-    '.lx-sheet h3{margin:0 0 12px;font-size:17px}' +
-    '.lx-l{display:block;font-size:12px;color:#8e8e93;margin:10px 0 5px}' +
-    '.lx-in{width:100%;box-sizing:border-box;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:12px;color:#fff;padding:11px 12px;font-size:15px;outline:none}' +
-    '.lx-sw{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:14px}' +
-    '.lx-sw input{width:44px;height:26px}' +
-    '.lx-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}' +
-    '.lx-pri{width:100%;margin-top:16px;background:linear-gradient(135deg,#0a84ff,#5e5ce6);border:0;color:#fff;border-radius:14px;padding:13px;font-size:15px;font-weight:700;cursor:pointer}' +
-    '.lx-sec{width:100%;margin-top:8px;background:#2c2c2e;border:0;color:#fff;border-radius:14px;padding:12px;font-size:14px;cursor:pointer}';
-  var st = document.createElement('style');
-  st.textContent = css;
-  document.head.appendChild(st);
-  var st2 = document.createElement('style');
-  st2.textContent = '.lx-seg{display:grid;grid-template-columns:1fr 1fr;background:#2c2c2e;border-radius:12px;padding:3px;gap:3px}.lx-seg button{border:0;background:transparent;color:#aeaeb2;border-radius:10px;padding:10px 0;font-size:15px;font-weight:600}.lx-seg button.on{background:#0a84ff;color:#fff}';
-  document.head.appendChild(st2);
-
-  function usedCount(k) {
-    try { return JSON.parse(k.used_devices || '[]').length; } catch (e) { return 0; }
+  function api(method, path, body) {
+    var o = { method: method, headers: { 'Authorization': 'Bearer ' + tok() } };
+    if (body) { o.headers['Content-Type'] = 'application/json'; o.body = JSON.stringify(body); }
+    return fetch(BASE + path, o).then(function (r) {
+      return r.text().then(function (t) {
+        var d = {}; try { d = t ? JSON.parse(t) : {}; } catch (e) {}
+        return { ok: r.ok && !(d && d.error), status: r.status, data: d || {} };
+      });
+    }).catch(function () { return { ok: false, status: 0, data: {} }; });
   }
-  function remaining(k) {
-    try { if (typeof countdown === 'function') return countdown(k.expires_at); } catch (e) {}
-    return k.expires_at ? String(k.expires_at) : '-';
+  function errMsg(r) {
+    if (r.status === 0) return 'No connection to server';
+    if (r.status === 401) return 'Session expired - sign in again';
+    if (r.status === 404) return 'Server route not found (404)';
+    return (r.data && (r.data.error || r.data.message)) || ('Error ' + r.status);
   }
-  function randPart(n) {
-    var c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = '';
-    for (var i = 0; i < n; i++) s += c[Math.floor(Math.random() * c.length)];
-    return s;
+  function parseT(x) {
+    if (!x) return null;
+    var s = String(x);
+    if (!/[zZ]|[+-]\d\d:?\d\d$/.test(s)) s = s.replace(' ', 'T') + 'Z';
+    var t = Date.parse(s);
+    return isNaN(t) ? null : t;
   }
-  function autoKey(dur) { return dur + '-HAMSE-' + randPart(4) + '-' + randPart(4); }
+  function fmt(ms) { return new Date(ms).toISOString().slice(0, 19).replace('T', ' '); }
+  function left(ms) {
+    var d = ms - Date.now();
+    if (d <= 0) return 'expired';
+    var m = Math.floor(d / 60000), dd = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
+    if (dd > 3650) return 'lifetime';
+    if (dd > 0) return dd + 'd ' + h + 'h left';
+    if (h > 0) return h + 'h ' + mm + 'm left';
+    return mm + 'm left';
+  }
+  function buzz() { try { navigator.vibrate && navigator.vibrate(8); } catch (e) {} }
+  function statusOf(l) {
+    var s = String(l.status || '').toLowerCase();
+    if (s === 'disabled' || s === 'banned') return s;
+    var e = parseT(l.expires_at);
+    if (s !== 'unused' && e && e < Date.now()) return 'expired';
+    if (s === 'active') return 'active';
+    if (s === 'expired') return 'expired';
+    return 'unused';
+  }
 
-  function render() {
-    var host = document.getElementById('licensesList');
-    if (!host) return;
-    var list = cache.filter(function (k) {
-      if (filter !== 'all' && k.status !== filter) return false;
-      if (query && String(k.license_key || '').toLowerCase().indexOf(query) === -1) return false;
+  /* ---------- css ---------- */
+  function css() {
+    if (document.getElementById('hl-css')) return;
+    var st = document.createElement('style');
+    st.id = 'hl-css';
+    st.textContent =
+      '.hl,.hl *,.hl-ov,.hl-ov *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}' +
+      '.hl{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Inter,Roboto,sans-serif;color:#fff;padding:0 0 40px}' +
+      '.hl-bar{display:flex;gap:10px;margin:6px 0 12px}' +
+      '.hl-search{flex:1;min-width:0;background:#1c1c1e;border:1px solid #2c2c2e;border-radius:14px;color:#fff;font-size:17px;padding:13px 16px;outline:none}' +
+      '.hl-search::placeholder{color:#6e6e73}' +
+      '.hl-new{border:0;border-radius:14px;padding:0 20px;font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0a84ff,#5e5ce6);cursor:pointer}' +
+      '.hl-new:active{transform:scale(.96)}' +
+      '.hl-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}.hl-chips::-webkit-scrollbar{display:none}' +
+      '.hl-chip{flex:none;border:1px solid #2c2c2e;background:#1c1c1e;color:#aeaeb2;border-radius:999px;padding:9px 16px;font-size:15px;font-weight:600;cursor:pointer}' +
+      '.hl-chip.on{background:#0a84ff;border-color:#0a84ff;color:#fff}' +
+      '.hl-card{background:#1c1c1e;border:1px solid #2c2c2e;border-radius:22px;padding:16px;margin:0 0 12px;animation:hlin .25s ease both}' +
+      '@keyframes hlin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}' +
+      '.hl-top{display:flex;align-items:center;justify-content:space-between;gap:10px}' +
+      '.hl-key{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:17px;font-weight:600;word-break:break-all;letter-spacing:.2px}' +
+      '.hl-badge{flex:none;border-radius:999px;padding:7px 13px;font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase}' +
+      '.b-active{background:rgba(48,209,88,.18);color:#30d158}.b-unused{background:#2c2c2e;color:#aeaeb2}' +
+      '.b-disabled{background:rgba(255,159,10,.18);color:#ff9f0a}.b-banned,.b-expired{background:rgba(255,69,58,.18);color:#ff453a}' +
+      '.hl-meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin:12px 0 4px;color:#8e8e93;font-size:15px}.hl-meta b{color:#fff;font-weight:600}' +
+      '.hl-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}' +
+      '.hl-acts button{border:0;border-radius:14px;padding:12px 16px;font-size:16px;font-weight:700;color:#fff;background:#2c2c2e;cursor:pointer;flex:1 1 auto}' +
+      '.hl-acts button:active,.hl-pri:active,.hl-sec:active{transform:scale(.96);opacity:.85}' +
+      '.hl-acts .g{background:#248a3d}.hl-acts .o{background:#c93400}.hl-acts .bl{background:#0a84ff}.hl-acts .r{background:#d70015}' +
+      '.hl-empty{text-align:center;color:#8e8e93;padding:50px 10px;font-size:16px}' +
+      '.hl-ov{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0);display:flex;align-items:flex-end;justify-content:center;transition:background .22s;-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}' +
+      '.hl-ov.in{background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}' +
+      '.hl-sh{width:100%;max-width:520px;max-height:92vh;overflow:auto;background:#1c1c1e;color:#fff;border-radius:26px 26px 0 0;padding:10px 20px 28px;transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.9,.25,1);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,Roboto,sans-serif}' +
+      '.hl-ov.in .hl-sh{transform:none}' +
+      '.hl-grab{width:40px;height:5px;border-radius:3px;background:#48484a;margin:0 auto 14px}' +
+      '.hl-sh h3{margin:0 0 6px;font-size:24px;font-weight:800}.hl-sub{margin:0 0 14px;color:#8e8e93;font-size:15px;line-height:1.45;word-break:break-all}' +
+      '.hl-seg{display:flex;background:#2c2c2e;border-radius:12px;padding:3px;margin:0 0 14px}' +
+      '.hl-seg button{flex:1;border:0;background:none;color:#aeaeb2;font-size:16px;font-weight:700;padding:10px 0;border-radius:10px;cursor:pointer}' +
+      '.hl-seg button.on{background:#636366;color:#fff}' +
+      '.hl-f{margin:0 0 12px;flex:1;min-width:0}.hl-f label{display:block;color:#8e8e93;font-size:13px;font-weight:600;margin:0 0 6px;text-transform:uppercase;letter-spacing:.5px}' +
+      '.hl-f input,.hl-f select{width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:12px;color:#fff;font-size:17px;padding:13px 14px;outline:none;-webkit-appearance:none;appearance:none}' +
+      '.hl-row2{display:flex;gap:10px}' +
+      '.hl-pri,.hl-sec{display:block;width:100%;border:0;border-radius:15px;padding:15px;font-size:17px;font-weight:700;color:#fff;cursor:pointer;margin-top:8px}' +
+      '.hl-pri{background:linear-gradient(135deg,#0a84ff,#5e5ce6)}.hl-sec{background:#2c2c2e}' +
+      '.hl-pri.g{background:#248a3d}.hl-pri.r{background:#d70015}' +
+      '.hl-qr{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.hl-qr button{border:0;background:#2c2c2e;color:#fff;border-radius:999px;padding:9px 15px;font-size:15px;font-weight:600;cursor:pointer}' +
+      '.hl-two{display:flex;gap:10px}.hl-two .hl-pri{flex:1}' +
+      '.hl-step{display:flex;gap:10px;align-items:center;margin:0 0 12px}.hl-step button{width:52px;height:52px;border:0;border-radius:14px;background:#2c2c2e;color:#fff;font-size:26px;font-weight:600;cursor:pointer}' +
+      '.hl-step input{flex:1;text-align:center;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:14px;color:#fff;font-size:24px;font-weight:700;padding:11px;outline:none;min-width:0}' +
+      '.hl-toast{position:fixed;left:50%;top:16px;transform:translate(-50%,-80px);z-index:100000;background:#2c2c2e;color:#fff;border-radius:999px;padding:12px 22px;font:600 16px -apple-system,BlinkMacSystemFont,Inter,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.2,.9,.25,1);max-width:90vw;text-align:center}' +
+      '.hl-toast.in{transform:translate(-50%,0)}.hl-toast.bad{background:#d70015}';
+    document.head.appendChild(st);
+  }
+
+  /* ---------- toast & sheet ---------- */
+  var toastT;
+  function toast(msg, bad) {
+    var t = document.getElementById('hl-toast');
+    if (!t) { t = document.createElement('div'); t.id = 'hl-toast'; document.body.appendChild(t); }
+    t.className = 'hl-toast' + (bad ? ' bad' : '');
+    t.textContent = msg;
+    void t.offsetWidth;
+    t.classList.add('in');
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { t.classList.remove('in'); }, bad ? 3200 : 1800);
+  }
+  function sheet(html) {
+    var ov = document.createElement('div');
+    ov.className = 'hl-ov';
+    ov.innerHTML = '<div class="hl-sh">' + html + '</div>';
+    document.body.appendChild(ov);
+    var sh = ov.firstChild;
+    requestAnimationFrame(function () { requestAnimationFrame(function () { ov.classList.add('in'); }); });
+    function close() {
+      ov.classList.remove('in');
+      setTimeout(function () { if (ov.parentNode) ov.parentNode.removeChild(ov); }, 260);
+    }
+    ov.addEventListener('click', function (e) {
+      if (e.target === ov || (e.target.closest && e.target.closest('[data-close]'))) close();
+    });
+    return { el: sh, close: close };
+  }
+  function q(el, sel) { return el.querySelector(sel); }
+  function setSeg(seg, v) {
+    var bs = seg.querySelectorAll('button');
+    for (var i = 0; i < bs.length; i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-v') === v);
+  }
+
+  /* ---------- state ---------- */
+  var S = { list: [], q: '', f: 'all', loaded: false };
+  function root() { return document.getElementById('licensesList'); }
+
+  function byId(id) {
+    for (var i = 0; i < S.list.length; i++) if (String(S.list[i].id) === String(id)) return S.list[i];
+    return null;
+  }
+  function authFail() {
+    try { localStorage.removeItem('hamse_token'); } catch (e) {}
+    try { if (typeof window.licenseAuthFail === 'function') window.licenseAuthFail(); } catch (e) {}
+    try { window.dispatchEvent(new CustomEvent('hamse-unauth')); } catch (e) {}
+  }
+
+  /* ---------- render ---------- */
+  function shell() {
+    var r = root();
+    if (!r) return null;
+    if (r.querySelector('.hl')) return r;
+    css();
+    r.innerHTML =
+      '<div class="hl">' +
+      '<div class="hl-bar"><input class="hl-search" type="search" placeholder="Search keys" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="hl-new" data-a="new">+ New</button></div>' +
+      '<div class="hl-chips"></div><div class="hl-list"></div></div>';
+    var inp = r.querySelector('.hl-search');
+    inp.addEventListener('input', function () { S.q = inp.value.trim().toLowerCase(); renderList(); });
+    r.querySelector('.hl').addEventListener('click', onClick);
+    return r;
+  }
+  function renderChips() {
+    var r = root(); if (!r) return;
+    var c = { all: S.list.length, active: 0, unused: 0, disabled: 0, banned: 0, expired: 0 };
+    S.list.forEach(function (l) { c[statusOf(l)]++; });
+    var names = [['all', 'All'], ['active', 'Active'], ['unused', 'Unused'], ['disabled', 'Disabled'], ['banned', 'Banned'], ['expired', 'Expired']];
+    r.querySelector('.hl-chips').innerHTML = names.map(function (n) {
+      return '<button class="hl-chip' + (S.f === n[0] ? ' on' : '') + '" data-a="f" data-f="' + n[0] + '">' + n[1] + ' ' + c[n[0]] + '</button>';
+    }).join('');
+  }
+  function renderList() {
+    var r = root(); if (!r) return;
+    var box = r.querySelector('.hl-list'); if (!box) return;
+    if (!S.loaded) { box.innerHTML = '<div class="hl-empty">Loading...</div>'; return; }
+    var items = S.list.filter(function (l) {
+      if (S.f !== 'all' && statusOf(l) !== S.f) return false;
+      if (S.q && String(l.license_key || '').toLowerCase().indexOf(S.q) < 0 && String(l.game || '').toLowerCase().indexOf(S.q) < 0) return false;
       return true;
     });
-    var counts = { all: cache.length };
-    cache.forEach(function (k) { counts[k.status] = (counts[k.status] || 0) + 1; });
-    var chips = ['all', 'active', 'unused', 'disabled', 'banned', 'expired'].map(function (s) {
-      return '<span class="lx-chip' + (filter === s ? ' on' : '') + '" data-f="' + s + '">' +
-        s.charAt(0).toUpperCase() + s.slice(1) + ' ' + (counts[s] || 0) + '</span>';
+    if (!items.length) { box.innerHTML = '<div class="hl-empty">No keys</div>'; return; }
+    box.innerHTML = items.map(function (l) {
+      var s = statusOf(l), e = parseT(l.expires_at);
+      var act = s === 'active'
+        ? '<button class="o" data-a="deact" data-id="' + esc(l.id) + '">Deactivate</button>'
+        : '<button class="g" data-a="act" data-id="' + esc(l.id) + '">Activate</button>';
+      return '<div class="hl-card">' +
+        '<div class="hl-top"><div class="hl-key">' + esc(l.license_key) + '</div><div class="hl-badge b-' + s + '">' + s + '</div></div>' +
+        '<div class="hl-meta"><span>Game <b>' + esc(l.game || '-') + '</b></span><span>Devices <b>' + esc(l.used_devices || 0) + '/' + esc(l.max_devices || 1) + '</b></span></div>' +
+        '<div class="hl-meta"><span>Time <b>' + esc(l.expires_at || '-') + '</b></span>' + (e ? '<span>' + esc(left(e)) + '</span>' : '') + '</div>' +
+        '<div class="hl-acts">' +
+        '<button data-a="copy" data-id="' + esc(l.id) + '">Copy</button>' + act +
+        '<button class="bl" data-a="time" data-id="' + esc(l.id) + '">Time</button>' +
+        '<button data-a="dev" data-id="' + esc(l.id) + '">Devices</button>' +
+        '<button class="r" data-a="del" data-id="' + esc(l.id) + '">Delete</button>' +
+        '</div></div>';
     }).join('');
-
-    var h = '<div class="lx">' +
-      '<div class="lx-top"><input class="lx-search" id="lxSearch" placeholder="Search keys" value="' + esc(query) + '">' +
-      '<button class="lx-add" data-a="gen">+ New</button></div>' +
-      '<div class="lx-chips">' + chips + '</div>';
-
-    if (!list.length) h += '<div class="lx-empty">No keys found</div>';
-    list.forEach(function (k) {
-      var on = k.status === 'active';
-      h += '<div class="lx-card" data-id="' + k.id + '">' +
-        '<div class="lx-row"><div class="lx-key">' + esc(k.license_key) + '</div>' +
-        '<span class="lx-badge st-' + esc(k.status) + '">' + esc(k.status) + '</span></div>' +
-        '<div class="lx-meta"><span>Game <b>' + esc(k.game || 'PUBG MOBILE') + '</b></span>' +
-        '<span>Devices <b>' + usedCount(k) + '/' + (k.max_devices || 1) + '</b></span>' +
-        '<span>Time <b>' + esc(remaining(k)) + '</b></span></div>' +
-        '<div class="lx-acts">' +
-        '<button class="lx-b" data-a="copy">Copy</button>' +
-        (on ? '<button class="lx-b off" data-a="deact">Disable</button>'
-            : '<button class="lx-b go" data-a="act">Activate</button>') +
-        '<button class="lx-b t" data-a="time">Time</button>' +
-        '<button class="lx-b" data-a="dev">Devices</button>' +
-        '<button class="lx-b del" data-a="del">Delete</button></div></div>';
-    });
-    h += '</div>';
-    host.innerHTML = h;
   }
+  function render() { if (!shell()) return; renderChips(); renderList(); }
 
   function load() {
-    return call('GET', '/api/licenses').then(function (d) {
-      cache = d.licenses || d.keys || d.data || (Array.isArray(d) ? d : []);
+    shell();
+    return api('GET', '/api/licenses').then(function (r) {
+      if (r.status === 401) { authFail(); return; }
+      if (!r.ok) { S.loaded = true; render(); toast(errMsg(r), true); return; }
+      S.list = (r.data.licenses || []).slice().sort(function (a, b) { return (b.id || 0) - (a.id || 0); });
+      S.loaded = true;
       render();
-    }).catch(function (e) { toast(e.message, 'error'); });
-  }
-
-  function sheet(html) {
-    closeSheet();
-    var ov = document.createElement('div');
-    ov.className = 'lx-ov';
-    ov.id = 'lxOv';
-    ov.innerHTML = '<div class="lx-sheet">' + html + '<button class="lx-sec" data-a="close">Cancel</button></div>';
-    ov.addEventListener('click', function (e) {
-      if (e.target === ov || (e.target.getAttribute && e.target.getAttribute('data-a') === 'close')) closeSheet();
     });
-    document.body.appendChild(ov);
-    return ov;
-  }
-  function closeSheet() {
-    var o = document.getElementById('lxOv');
-    if (o) o.remove();
-  }
-  function q(id) { return document.getElementById(id); }
-
-  function keyWithPrefix(dur, key) {
-    key = String(key).trim();
-    return key.toLowerCase().indexOf(dur.toLowerCase() + '-') === 0 ? key : dur + '-' + key;
   }
 
-  function genSheet() {
-    var mode = 'auto';
-    var opts = DURATIONS.map(function (d) {
-      return '<option value="' + d[0] + '"' + (d[0] === '30d' ? ' selected' : '') + '>' + d[1] + '</option>';
-    }).join('');
-    sheet(
-      '<h3>Generate License</h3>' +
-      '<label class="lx-l">Duration</label><select class="lx-in" id="lxDur">' + opts + '</select>' +
-      '<label class="lx-l">Key name</label>' +
-      '<div class="lx-seg"><button type="button" class="on" id="lxSegA">Auto</button><button type="button" id="lxSegC">Custom</button></div>' +
-      '<div id="lxCustomWrap" style="display:none"><label class="lx-l">Your key name (letters, numbers, - and _)</label>' +
-      '<input class="lx-in" id="lxCustom" placeholder="e.g. HAMSE-VIP-001" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div>' +
-      '<div class="lx-two"><div><label class="lx-l">Max devices (1-1000)</label>' +
-      '<input class="lx-in" id="lxMax" type="number" min="1" max="1000" value="1"></div>' +
-      '<div><label class="lx-l">Quantity (Auto only)</label>' +
-      '<input class="lx-in" id="lxCnt" type="number" min="1" max="50" value="1"></div></div>' +
-      '<label class="lx-l">Game</label><input class="lx-in" id="lxGame" value="PUBG MOBILE">' +
-      '<div class="lx-l" id="lxPrev" style="color:#0a84ff"></div>' +
-      '<button class="lx-pri" id="lxGo">Generate</button>');
-
-    function prev() {
-      var d = q('lxDur').value;
-      q('lxPrev').textContent = (mode === 'auto' ? 'Example: ' + autoKey(d) : 'Final key: ' + keyWithPrefix(d, q('lxCustom').value.trim() || 'YOURNAME'));
+  /* ---------- actions ---------- */
+  function onClick(e) {
+    var b = e.target.closest && e.target.closest('[data-a]');
+    if (!b) return;
+    var a = b.getAttribute('data-a'), id = b.getAttribute('data-id'), l = id ? byId(id) : null;
+    buzz();
+    if (a === 'new') return openCreate();
+    if (a === 'f') { S.f = b.getAttribute('data-f'); return render(); }
+    if (!l) return;
+    if (a === 'copy') return copy(l.license_key);
+    if (a === 'act') return setStatus(l, 'active');
+    if (a === 'deact') return setStatus(l, 'disabled');
+    if (a === 'time') return openTime(l);
+    if (a === 'dev') return openDevices(l);
+    if (a === 'del') return openDelete(l);
+  }
+  function copy(text) {
+    function fb() {
+      var t = document.createElement('textarea');
+      t.value = text; t.style.cssText = 'position:fixed;opacity:0;top:0';
+      document.body.appendChild(t); t.focus(); t.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(t);
+      toast(ok ? 'Copied' : 'Copy failed', !ok);
     }
-    function setMode(m) {
-      mode = m;
-      q('lxSegA').className = m === 'auto' ? 'on' : '';
-      q('lxSegC').className = m === 'custom' ? 'on' : '';
-      q('lxCustomWrap').style.display = m === 'custom' ? 'block' : 'none';
-      q('lxCnt').disabled = (m === 'custom');
-      if (m === 'custom') { q('lxCnt').value = 1; q('lxCustom').focus(); }
-      prev();
-    }
-    q('lxSegA').onclick = function () { setMode('auto'); };
-    q('lxSegC').onclick = function () { setMode('custom'); };
-    q('lxDur').onchange = prev;
-    q('lxCustom').oninput = prev;
-    prev();
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { toast('Copied'); }, fb);
+    else fb();
+  }
+  function setStatus(l, status) {
+    var old = l.status;
+    l.status = status; render();
+    api('PUT', '/api/admin/licenses/' + l.id + '/update', { status: status }).then(function (r) {
+      if (r.status === 401) { authFail(); return; }
+      if (!r.ok) { l.status = old; render(); toast(errMsg(r), true); return; }
+      toast(status === 'active' ? 'Key activated' : 'Key deactivated');
+    });
+  }
 
-    q('lxGo').onclick = function () {
-      var dur = q('lxDur').value;
-      var max = parseInt(q('lxMax').value, 10);
-      if (!(max >= 1 && max <= 1000)) return toast('Max devices must be 1-1000', 'error');
-      var game = (q('lxGame').value || 'PUBG MOBILE').trim();
-      var jobs = [];
-      if (mode === 'auto') {
-        var n = Math.min(Math.max(parseInt(q('lxCnt').value, 10) || 1, 1), 50);
-        for (var i = 0; i < n; i++) jobs.push(autoKey(dur));
-      } else {
-        var c = (q('lxCustom').value || '').trim();
-        if (!c) return toast('Type your key name', 'error');
-        if (!/^[A-Za-z0-9_-]{2,40}$/.test(c)) return toast('Key name: letters, numbers, - and _ only (2-40)', 'error');
-        jobs.push(keyWithPrefix(dur, c));
-      }
-      q('lxGo').disabled = true;
-      q('lxGo').textContent = 'Working...';
-      var created = [], failed = 0, lastErr = '';
-      jobs.reduce(function (p, key) {
-        return p.then(function () {
-          return call('POST', '/api/admin/licenses/bulk', {
-            count: 1, duration: dur, custom_key: key, max_devices: max, game: game, key_mode: 'custom'
-          }).then(function () { created.push(key); })
-            .catch(function (e) { failed++; lastErr = e.message; });
-        });
-      }, Promise.resolve()).then(function () {
-        if (!created.length) return;
-        return call('GET', '/api/licenses').then(function (d) {
-          var list = d.licenses || d.keys || d.data || [];
-          var fixes = [];
-          created.forEach(function (key) {
-            var rec = list.filter(function (x) { return String(x.license_key).toLowerCase() === key.toLowerCase(); })[0];
-            if (rec && Number(rec.max_devices) !== max) {
-              fixes.push(setMax(rec.id, max));
-            }
-          });
-          return Promise.all(fixes);
-        }).catch(function () {});
-      }).then(function () {
-        closeSheet();
-        if (failed) toast(created.length + ' created, ' + failed + ' failed: ' + lastErr, 'error');
-        else toast(created.length + ' key(s) created');
-        load();
+  function openTime(l) {
+    var mult = { m: 1, h: 60, d: 1440 }, unit = 'd';
+    var s = sheet('<div class="hl-grab"></div><h3>Time</h3><p class="hl-sub">' + esc(l.license_key) + '<br>Expires <b id="tx">' + esc(l.expires_at || '-') + '</b></p>' +
+      '<div class="hl-qr"><button data-n="1" data-u="h">1 hour</button><button data-n="1" data-u="d">1 day</button><button data-n="7" data-u="d">7 days</button><button data-n="30" data-u="d">30 days</button></div>' +
+      '<div class="hl-seg" id="tu"><button data-v="m">Minutes</button><button data-v="h">Hours</button><button class="on" data-v="d">Days</button></div>' +
+      '<div class="hl-f"><label>Amount</label><input id="tn" type="number" inputmode="decimal" min="0" value="1"></div>' +
+      '<div class="hl-two"><button class="hl-pri r" id="trm">Remove</button><button class="hl-pri g" id="tad">Add</button></div>' +
+      '<button class="hl-sec" data-close>Close</button>');
+    var seg = q(s.el, '#tu'), amt = q(s.el, '#tn');
+    seg.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { unit = b.getAttribute('data-v'); setSeg(seg, unit); } });
+    s.el.querySelector('.hl-qr').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      amt.value = b.getAttribute('data-n'); unit = b.getAttribute('data-u'); setSeg(seg, unit);
+    });
+    function go(sign) {
+      var n = parseFloat(amt.value);
+      if (!(n > 0)) return toast('Enter an amount', true);
+      var m = Math.round(n * mult[unit]) * sign;
+      if (!m) return toast('Amount too small', true);
+      var btns = s.el.querySelectorAll('.hl-pri'); btns.forEach(function (x) { x.disabled = true; });
+      api('PUT', '/api/admin/licenses/' + l.id + '/update', { add_minutes: m }).then(function (r) {
+        btns.forEach(function (x) { x.disabled = false; });
+        if (r.status === 401) { s.close(); authFail(); return; }
+        if (!r.ok) return toast(errMsg(r), true);
+        var d = r.data || {}, ne = d.expires_at || (d.license && d.license.expires_at);
+        if (!ne) { var e = parseT(l.expires_at); if (e) ne = fmt(e + m * 60000); }
+        if (ne) l.expires_at = ne;
+        var tx = q(s.el, '#tx'); if (tx) tx.textContent = l.expires_at || '-';
+        render();
+        toast(sign > 0 ? 'Time added' : 'Time removed');
+      });
+    }
+    q(s.el, '#tad').onclick = function () { buzz(); go(1); };
+    q(s.el, '#trm').onclick = function () { buzz(); go(-1); };
+  }
+
+  function openDevices(l) {
+    var s = sheet('<div class="hl-grab"></div><h3>Devices</h3><p class="hl-sub">' + esc(l.license_key) + '<br>In use: ' + esc(l.used_devices || 0) + '</p>' +
+      '<div class="hl-step"><button id="dm">-</button><input id="dv" type="number" inputmode="numeric" min="1" max="1000" value="' + esc(l.max_devices || 1) + '"><button id="dp">+</button></div>' +
+      '<div class="hl-qr"><button data-n="1">1</button><button data-n="2">2</button><button data-n="5">5</button><button data-n="10">10</button><button data-n="50">50</button><button data-n="100">100</button></div>' +
+      '<button class="hl-pri" id="ds">Save</button><button class="hl-sec" data-close>Cancel</button>');
+    var inp = q(s.el, '#dv');
+    function val() { var n = parseInt(inp.value, 10); if (isNaN(n)) n = 1; return Math.max(1, Math.min(1000, n)); }
+    q(s.el, '#dm').onclick = function () { inp.value = Math.max(1, val() - 1); buzz(); };
+    q(s.el, '#dp').onclick = function () { inp.value = Math.min(1000, val() + 1); buzz(); };
+    s.el.querySelector('.hl-qr').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) inp.value = b.getAttribute('data-n'); });
+    q(s.el, '#ds').onclick = function () {
+      var n = val(), btn = this; btn.disabled = true;
+      setMax(l, n).then(function (r) {
+        btn.disabled = false;
+        if (r.status === 401) { s.close(); authFail(); return; }
+        if (!r.ok) return toast(errMsg(r), true);
+        l.max_devices = n; render(); s.close(); toast('Devices set to ' + n);
+      });
+    };
+  }
+  function setMax(l, n) {
+    return api('PUT', '/api/admin/licenses/' + l.id + '/update', { max_devices: n }).then(function (r) {
+      if (r.ok) return r;
+      return api('PUT', '/api/admin/licenses/' + l.id + '/edit', { max_devices: n });
+    });
+  }
+
+  function openDelete(l) {
+    var s = sheet('<div class="hl-grab"></div><h3>Delete key?</h3><p class="hl-sub">' + esc(l.license_key) + '<br>This cannot be undone.</p>' +
+      '<button class="hl-pri r" id="dy">Delete</button><button class="hl-sec" data-close>Cancel</button>');
+    q(s.el, '#dy').onclick = function () {
+      var btn = this; btn.disabled = true;
+      api('DELETE', '/api/admin/licenses/' + l.id).then(function (r) {
+        btn.disabled = false;
+        if (r.status === 401) { s.close(); authFail(); return; }
+        if (!r.ok) return toast(errMsg(r), true);
+        S.list = S.list.filter(function (x) { return x !== l; });
+        render(); s.close(); toast('Key deleted');
       });
     };
   }
 
-  function timeSheet(k) {
-    sheet(
-      '<h3>Add / subtract time</h3><div class="lx-key" style="margin-bottom:6px">' + esc(k.license_key) + '</div>' +
-      '<div class="lx-two"><div><label class="lx-l">Amount</label>' +
-      '<input class="lx-in" id="lxAmt" type="number" min="1" value="1"></div>' +
-      '<div><label class="lx-l">Unit</label><select class="lx-in" id="lxUnit">' +
-      '<option value="1">Minutes</option><option value="60">Hours</option><option value="1440" selected>Days</option></select></div></div>' +
-      '<div class="lx-two" style="margin-top:12px">' +
-      '<button class="lx-pri" style="background:#248a3d" id="lxPlus">+ Add</button>' +
-      '<button class="lx-pri" style="background:#d70015" id="lxMinus">- Subtract</button></div>');
-    function go(sign) {
-      var n = parseInt(q('lxAmt').value, 10);
-      if (!(n > 0)) return toast('Enter a valid amount', 'error');
-      var mins = sign * n * parseInt(q('lxUnit').value, 10);
-      call('PUT', '/api/admin/licenses/' + k.id + '/update', { add_minutes: mins })
-        .then(function () { closeSheet(); toast('Time updated'); load(); })
-        .catch(function (e) { toast(e.message, 'error'); });
-    }
-    q('lxPlus').onclick = function () { go(1); };
-    q('lxMinus').onclick = function () { go(-1); };
+  /* ---------- create ---------- */
+  var DUR = [['30m', '30 minutes'], ['1h', '1 hour'], ['2h', '2 hours'], ['6h', '6 hours'], ['12h', '12 hours'], ['1d', '1 day'], ['7d', '7 days'], ['30d', '30 days'], ['90d', '90 days'], ['365d', '365 days'], ['lifetime', 'Lifetime']];
+  function rnd(n) {
+    var ch = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', o = '', a = new Uint8Array(n);
+    (window.crypto || window.msCrypto).getRandomValues(a);
+    for (var i = 0; i < n; i++) o += ch[a[i] % ch.length];
+    return o;
   }
-
-  function devSheet(k) {
-    sheet(
-      '<h3>Max devices</h3><div class="lx-key" style="margin-bottom:6px">' + esc(k.license_key) + '</div>' +
-      '<label class="lx-l">Max devices (1-1000)</label>' +
-      '<input class="lx-in" id="lxDv" type="number" min="1" max="1000" value="' + (k.max_devices || 1) + '">' +
-      '<button class="lx-pri" id="lxDvGo">Save</button>');
-    q('lxDvGo').onclick = function () {
-      var n = parseInt(q('lxDv').value, 10);
-      if (!(n >= 1 && n <= 1000)) return toast('Must be 1-1000', 'error');
-      setMax(k.id, n)
-        .then(function () { closeSheet(); toast('Max devices updated'); load(); })
-        .catch(function (e) { toast(e.message, 'error'); });
+  function openCreate() {
+    var mode = 'auto';
+    var s = sheet('<div class="hl-grab"></div><h3>New Key</h3>' +
+      '<div class="hl-seg" id="hm"><button class="on" data-v="auto">Auto</button><button data-v="custom">Custom</button></div>' +
+      '<div class="hl-f" id="hcw" style="display:none"><label>Key name (saved exactly as typed)</label><input id="hcn" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" placeholder="Type your key"></div>' +
+      '<div class="hl-row2"><div class="hl-f"><label>Duration</label><select id="hd">' +
+      DUR.map(function (d) { return '<option value="' + d[0] + '"' + (d[0] === '1d' ? ' selected' : '') + '>' + d[1] + '</option>'; }).join('') +
+      '</select></div><div class="hl-f"><label>Max devices</label><input id="hmx" type="number" inputmode="numeric" min="1" max="1000" value="1"></div></div>' +
+      '<div class="hl-row2"><div class="hl-f" id="hqw"><label>Quantity</label><input id="hq" type="number" inputmode="numeric" min="1" max="50" value="1"></div>' +
+      '<div class="hl-f"><label>Game</label><input id="hg" value="PUBG MOBILE" autocomplete="off"></div></div>' +
+      '<button class="hl-pri" id="hgo">Create</button><button class="hl-sec" data-close>Cancel</button>');
+    var seg = q(s.el, '#hm');
+    seg.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      mode = b.getAttribute('data-v'); setSeg(seg, mode);
+      q(s.el, '#hcw').style.display = mode === 'custom' ? '' : 'none';
+      q(s.el, '#hqw').style.display = mode === 'custom' ? 'none' : '';
+      if (mode === 'custom') q(s.el, '#hcn').focus();
+    });
+    q(s.el, '#hgo').onclick = function () {
+      var btn = this, dur = q(s.el, '#hd').value;
+      var mx = Math.max(1, Math.min(1000, parseInt(q(s.el, '#hmx').value, 10) || 1));
+      var game = q(s.el, '#hg').value.trim() || 'PUBG MOBILE';
+      var keys = [];
+      if (mode === 'custom') {
+        var name = q(s.el, '#hcn').value.trim();
+        if (!name) return toast('Type the key name', true);
+        if (/\s/.test(name)) return toast('Key cannot contain spaces', true);
+        keys.push(name);
+      } else {
+        var n = Math.max(1, Math.min(50, parseInt(q(s.el, '#hq').value, 10) || 1));
+        for (var i = 0; i < n; i++) keys.push(dur + '-HAMSE-' + rnd(4) + '-' + rnd(4));
+      }
+      btn.disabled = true; btn.textContent = 'Creating...';
+      var okN = 0, lastErr = '', i2 = 0;
+      (function next() {
+        if (i2 >= keys.length) {
+          btn.disabled = false; btn.textContent = 'Create';
+          if (okN) { s.close(); toast(okN + ' key(s) created'); }
+          if (lastErr) toast(lastErr, true);
+          return load().then(function () { fixMax(keys, mx); });
+        }
+        var k = keys[i2++];
+        api('POST', '/api/admin/licenses/bulk', { count: 1, duration: dur, custom_key: k, max_devices: mx, game: game, key_mode: 'custom' }).then(function (r) {
+          if (r.status === 401) { s.close(); authFail(); return; }
+          if (r.ok) okN++; else lastErr = errMsg(r);
+          next();
+        });
+      })();
     };
   }
-
-  function setMax(id, n) {
-    return call('PUT', '/api/admin/licenses/' + id + '/update', { max_devices: n })
-      .catch(function () { return call('PUT', '/api/admin/licenses/' + id + '/edit', { max_devices: n }); });
+  function fixMax(keys, mx) {
+    S.list.forEach(function (l) {
+      if (keys.indexOf(l.license_key) >= 0 && Number(l.max_devices) !== mx) {
+        setMax(l, mx).then(function (r) { if (r.ok) { l.max_devices = mx; render(); } });
+      }
+    });
   }
 
-  function setStatus(k, status, msg) {
-    call('PUT', '/api/admin/licenses/' + k.id + '/update', { status: status })
-      .then(function () { toast(msg); load(); })
-      .catch(function (e) { toast(e.message, 'error'); });
-  }
-
-  function del(k) {
-    sheet('<h3>Delete key?</h3><div class="lx-key" style="margin-bottom:6px">' + esc(k.license_key) +
-      '</div><div class="lx-l">This cannot be undone.</div>' +
-      '<button class="lx-pri" style="background:#d70015" id="lxDel">Delete</button>');
-    q('lxDel').onclick = function () {
-      call('DELETE', '/api/admin/licenses/' + k.id)
-        .then(function () { closeSheet(); toast('Key deleted'); load(); })
-        .catch(function (e) { toast(e.message, 'error'); });
-    };
-  }
-
-  document.addEventListener('click', function (e) {
-    var host = document.getElementById('licensesList');
-    if (!host || !host.contains(e.target)) return;
-    var chip = e.target.closest && e.target.closest('.lx-chip');
-    if (chip) { filter = chip.getAttribute('data-f'); render(); return; }
-    var btn = e.target.closest && e.target.closest('[data-a]');
-    if (!btn) return;
-    var a = btn.getAttribute('data-a');
-    if (a === 'gen') return genSheet();
-    var card = btn.closest('.lx-card');
-    if (!card) return;
-    var id = card.getAttribute('data-id');
-    var k = cache.filter(function (x) { return String(x.id) === String(id); })[0];
-    if (!k) return;
-    if (a === 'copy') {
-      try { navigator.clipboard.writeText(k.license_key); toast('Copied: ' + k.license_key); }
-      catch (err) { toast('Copy failed', 'error'); }
-    } else if (a === 'act') setStatus(k, 'active', 'Key activated');
-    else if (a === 'deact') setStatus(k, 'disabled', 'Key disabled');
-    else if (a === 'time') timeSheet(k);
-    else if (a === 'dev') devSheet(k);
-    else if (a === 'del') del(k);
-  });
-  document.addEventListener('input', function (e) {
-    if (e.target && e.target.id === 'lxSearch') {
-      query = e.target.value.toLowerCase();
-      var pos = e.target.selectionStart;
-      render();
-      var s = q('lxSearch');
-      if (s) { s.focus(); try { s.setSelectionRange(pos, pos); } catch (x) {} }
-    }
-  });
-
-  window.loadLicenses = load;
-  window.openLicenseModal = genSheet;
+  /* ---------- public overrides ---------- */
+  window.loadLicenses = function () { return load(); };
+  window.openLicenseModal = function () { shell(); openCreate(); };
+  window.HLIC = { reload: load, state: S };
 })();
