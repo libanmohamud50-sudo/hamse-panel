@@ -1,2 +1,8 @@
 apps_store/
 apps_store/
+.env
+token.txt
+*.db
+test_keys.json
+*.env_backup
+worker.js
