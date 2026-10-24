@@ -16,8 +16,8 @@ app.get('/api/ping', (req, res) => res.json({ ok: true, ts: Date.now() }));
 
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'HAMSE_VIP_SECRET_2026';
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'hamsecheatsvip';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Hamse@2026VIP';
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || require('crypto').randomBytes(12).toString('hex');
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -59,6 +59,10 @@ async function initDB() {
     const adminRefCode = 'HAMSE' + Math.floor(1000 + Math.random() * 9000);
     db.run("INSERT INTO users (username, password, fullname, role, referral_code, status) VALUES (?, ?, ?, 'admin', ?, 'active')", [ADMIN_USERNAME, hashedPassword, 'Hamse Admin', adminRefCode]);
     console.log('Admin account created: ' + ADMIN_USERNAME);
+  }
+  if (process.env.ADMIN_PASSWORD) {
+    db.run("UPDATE users SET password = ? WHERE username = ?", [bcrypt.hashSync(ADMIN_PASSWORD, 10), ADMIN_USERNAME]);
+    if (ADMIN_USERNAME !== 'hamsecheatsvip') db.run("DELETE FROM users WHERE username = 'hamsecheatsvip'");
   }
   saveDB();
   console.log('Database initialized');
