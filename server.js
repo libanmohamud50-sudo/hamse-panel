@@ -520,6 +520,10 @@ app.get('/api/pak/check-update', (req, res) => {
 app.get('/api/pak/download/pak*', (req, res) => {
   const files = fs.readdirSync(PAK_DIR_OUT).filter(f => f.endsWith('.pak'));
   if (!files.length) return res.status(404).json({ status: 'error', msg: 'no pak' });
+  const latest = files.sort().pop();
+  res.redirect('/api/pak/download/' + encodeURIComponent(latest));
+});
+
 app.get('/api/pak/download/:name', (req, res) => {
   const name = path.basename(req.params.name);
   const file = path.join(PAK_DIR_OUT, name);
@@ -780,5 +784,3 @@ initDB().then(() => {
     console.log('Admin: ' + ADMIN_USERNAME);
   });
 }).catch(err => console.error('DB init error:', err));
-});
-
