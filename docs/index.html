@@ -596,7 +596,7 @@ async function api(path, method, body) {
   var opts = { method: method || 'GET', headers: { 'Content-Type': 'application/json' } };
   if (TOKEN) opts.headers['Authorization'] = 'Bearer ' + TOKEN;
   if (body) opts.body = JSON.stringify(body);
-  var r = await fetch(path, opts);
+  var r = await fetch(path.startsWith('http') ? path : 'https://hamse-panel-production.up.railway.app' + path, opts);
   var d = await r.json();
   if (!r.ok) throw new Error(d.error || d.message || 'Error');
   return d;
