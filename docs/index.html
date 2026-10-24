@@ -606,14 +606,30 @@ async function doLogin() {
   var u = document.getElementById('loginUsername').value.trim();
   var p = document.getElementById('loginPassword').value;
   if (!u || !p) return showToast('Username iyo password geli', 'error');
+  var btn = document.querySelector('[onclick*="doLogin"]');
+  var oldText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Sugaya...'; }
+  var ctrl = new AbortController();
+  var timer = setTimeout(function(){ ctrl.abort(); }, 15000);
   try {
-    var d = await api('https://hamse-panel-production.up.railway.app/api/login', 'POST', { username: u, password: p });
+    var r = await fetch('https://hamse-panel-production.up.railway.app/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p }),
+      signal: ctrl.signal
+    });
+    var d = await r.json().catch(function(){ return {}; });
+    if (!r.ok || !d.token) throw new Error(d.error || d.message || ('Login failed (' + r.status + ')'));
     TOKEN = d.token; CURRENT_USER = d.user;
     localStorage.setItem('hamse_token', TOKEN);
     localStorage.setItem('hamse_user', JSON.stringify(CURRENT_USER));
-    showToast('Ku soo dhawoow, ' + CURRENT_USER.username + '!', 'success');
     enterPanel();
-  } catch(e) { showToast(e.message, 'error'); }
+  } catch (e) {
+    showToast(e.name === 'AbortError' ? 'Server-ku wuu daahay, dib u isku day' : e.message, 'error');
+  } finally {
+    clearTimeout(timer);
+    if (btn) { btn.disabled = false; btn.textContent = oldText; }
+  }
 }
 
 function doLogout() {
