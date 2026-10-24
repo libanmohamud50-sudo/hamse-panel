@@ -116,7 +116,7 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
   if (!el) return;
   el.innerHTML = 'Loading...';
   try {
-    var r = await fetch('http://localhost:3000/api/github/releases', {
+    var r = await fetch('https://hamse-panel-production.up.railway.app/api/github/releases', {
       headers: { 'Authorization': 'Bearer ' + TOKEN }
     });
     var d = await r.json();
@@ -612,7 +612,7 @@ async function doLogin() {
   var ctrl = new AbortController();
   var timer = setTimeout(function(){ ctrl.abort(); }, 15000);
   try {
-    var r = await fetch('http://localhost:3000/api/login', {
+    var r = await fetch('https://hamse-panel-production.up.railway.app/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: u, password: p }),
@@ -685,7 +685,7 @@ async function loadStats() {
     if (wu) wu.textContent = CURRENT_USER.username || 'admin';
   }
   try {
-    var s = await api('http://localhost:3000/api/stats');
+    var s = await api('https://hamse-panel-production.up.railway.app/api/stats');
     (document.getElementById('statUsers')||{}).textContent = s.totalUsers || 0;
     (document.getElementById('statLicenses')||{}).textContent = s.totalLicenses || 0;
     (document.getElementById('statActive')||{}).textContent = s.activeLicenses || 0;
@@ -695,7 +695,7 @@ async function loadStats() {
 
 async function loadUsers() {
   try {
-    var d = await api('http://localhost:3000/api/admin/users');
+    var d = await api('https://hamse-panel-production.up.railway.app/api/admin/users');
     var html = '<table><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th></tr>';
     (d.users || []).forEach(function(u){
       html += '<tr><td>#'+u.id+'</td><td>'+u.username+'</td><td>'+u.role+'</td><td>'+u.status+'</td></tr>';
@@ -707,7 +707,7 @@ async function loadUsers() {
 
 async function loadLicenses() {
   try {
-    var d = await api('http://localhost:3000/api/licenses');
+    var d = await api('https://hamse-panel-production.up.railway.app/api/licenses');
     var list = d.licenses || [];
     var html = '<table><tr><th>Key</th><th>Game</th><th>Devices</th><th>Status</th><th>Expires</th><th></th></tr>';
     if (list.length === 0) html += '<tr><td colspan="6" style="text-align:center;color:#8b949e">Ma jiro license</td></tr>';
@@ -760,7 +760,7 @@ function editLicense(id, current) {
   if (!v) return;
   var n = parseInt(v);
   if (!n || n < 1 || n > 1000) { showToast('Max devices waa inuu yahay 1-1000', 'error'); return; }
-  fetch('http://localhost:3000/api/admin/licenses/' + id + '/edit', {
+  fetch('https://hamse-panel-production.up.railway.app/api/admin/licenses/' + id + '/edit', {
     method: 'PUT',
     headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
     body: JSON.stringify({ max_devices: n })
@@ -792,7 +792,7 @@ function copyKey(k) {
 
 async function loadReferrals() {
   try {
-    var d = await api('http://localhost:3000/api/admin/referrals');
+    var d = await api('https://hamse-panel-production.up.railway.app/api/admin/referrals');
     var list = d.referrals || [];
     var html = '<table><tr><th>ID</th><th>Referrer</th><th>Referred</th></tr>';
     if (list.length === 0) html += '<tr><td colspan="3" style="text-align:center;color:#8b949e">Ma jiro referral</td></tr>';
@@ -806,8 +806,8 @@ async function loadReferrals() {
 
 async function loadStatus() {
   try {
-    var h = await api('http://localhost:3000/api/health');
-    var w = await api('http://localhost:3000/api/worker-check');
+    var h = await api('https://hamse-panel-production.up.railway.app/api/health');
+    var w = await api('https://hamse-panel-production.up.railway.app/api/worker-check');
     var html = '<p style="margin-bottom:8px">Railway Server: <span class="badge badge-online">Online</span></p>';
     html += '<p style="margin-bottom:8px">Cloudflare Worker: <span class="badge badge-online">Online</span></p>';
     document.getElementById('statusList').innerHTML = html;
@@ -816,12 +816,12 @@ async function loadStatus() {
 
 async function loadWorkerPage() {
   try {
-    var d = await api('http://localhost:3000/api/worker/status');
+    var d = await api('https://hamse-panel-production.up.railway.app/api/worker/status');
     document.getElementById('cw-status').textContent = d.online ? 'Online' : 'Offline';
     document.getElementById('cw-code-size').textContent = (d.code_length || 0) + ' bytes';
     document.getElementById('cw-response').textContent = d.response_time || '-';
     document.getElementById('cw-url').textContent = d.worker_url || '-';
-    var cd = await api('http://localhost:3000/api/worker/code');
+    var cd = await api('https://hamse-panel-production.up.railway.app/api/worker/code');
     document.getElementById('cw-code').value = cd.code || '// Code lama helin';
   } catch(e) { showToast('Worker: ' + e.message, 'error'); }
 }
@@ -843,7 +843,7 @@ async function cwDeploy() {
   showToast('Deploy socda...', 'info');
   try {
     var t = localStorage.getItem('hamse_token');
-    var r = await fetch('http://localhost:3000/api/worker/code', {
+    var r = await fetch('https://hamse-panel-production.up.railway.app/api/worker/code', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' },
       body: JSON.stringify({ code: code })
@@ -873,7 +873,7 @@ async function createLicenses() {
   var max_devices = parseInt(document.getElementById('licMaxDevices').value);
   var game = document.getElementById('licGame').value;
   try {
-    var d = await api('http://localhost:3000/api/admin/licenses/bulk', 'POST', { count: count, duration: duration, custom_key: custom_key, max_devices: max_devices, game: game, key_mode: key_mode });
+    var d = await api('https://hamse-panel-production.up.railway.app/api/admin/licenses/bulk', 'POST', { count: count, duration: duration, custom_key: custom_key, max_devices: max_devices, game: game, key_mode: key_mode });
     showToast(d.count + ' licenses la abuuray!', 'success');
     closeLicenseModal();
     loadLicenses();
@@ -885,7 +885,7 @@ function toggleCustomKey() {
 }
 function deleteLicense(id) {
   if (!confirm('Ma tirtiraysaa license-kan?')) return;
-  fetch('http://localhost:3000/api/admin/licenses/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + TOKEN } })
+  fetch('https://hamse-panel-production.up.railway.app/api/admin/licenses/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + TOKEN } })
     .then(function(r){ return r.json(); })
     .then(function(d){ showToast('License la tirtiray', 'success'); loadLicenses(); })
     .catch(function(e){ showToast(e.message, 'error'); });
@@ -942,7 +942,7 @@ let loaderFileSel = null;
 async function loaderLoadCurrent() {
   const token = localStorage.getItem('token') || '';
   try {
-    const r = await fetch('http://localhost:3000/api/loader/current', { headers: { 'Authorization': 'Bearer ' + token } });
+    const r = await fetch('https://hamse-panel-production.up.railway.app/api/loader/current', { headers: { 'Authorization': 'Bearer ' + token } });
     const j = await r.json();
     const el = document.getElementById('loaderCurrent');
     if (j.status === 'ok') el.innerHTML = '<b style="color:#e6edf3">' + j.name + '</b> — ' + (j.size/1024/1024).toFixed(2) + ' MB<br>Uploaded: ' + j.uploaded;
@@ -966,7 +966,7 @@ async function loaderUpload() {
   const fd = new FormData(); fd.append('apk', loaderFileSel);
   const token = localStorage.getItem('token') || '';
   try {
-    const r = await fetch('http://localhost:3000/api/loader/upload', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+    const r = await fetch('https://hamse-panel-production.up.railway.app/api/loader/upload', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
     const j = await r.json();
     if (!r.ok || j.status !== 'ok') { st.textContent = '❌ Failed: ' + (j.msg||'error'); st.style.color = '#f85149'; return; }
     st.textContent = '✅ Uploaded'; st.style.color = '#3fb950';
