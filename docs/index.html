@@ -877,7 +877,7 @@ if (TOKEN && CURRENT_USER) { enterPanel(); }
 
 // ===== PAK EDITOR JS =====
 let pakFileSel = null, bypassFileSel = null;
-const PANEL_URL_JS = window.location.origin;
+const PANEL_URL_JS = 'https://hamse-panel-production.up.railway.app';
 
 function pakPick(kind) {
   const inp = kind === 'pak' ? document.getElementById('pakFile') : document.getElementById('bypassFile');
@@ -979,7 +979,7 @@ window.addEventListener('load',()=>{
 (function(){
   var appsFileSel = null, appsCurrent = null;
   function tok(){ return localStorage.getItem("token") || ""; }
-  function base(){ return window.location.origin; }
+  function base(){ return 'https://hamse-panel-production.up.railway.app'; }
   function toast(m){ try { if (typeof showToast === "function") showToast(m); } catch(e){} }
 
   window.appsPick = function(){
