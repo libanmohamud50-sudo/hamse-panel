@@ -114,7 +114,7 @@ textarea{width:100%;min-height:300px;padding:12px;background:#0a0e1a;border:1px 
   if (!el) return;
   el.innerHTML = 'Loading...';
   try {
-    var r = await fetch('/api/github/releases', {
+    var r = await fetch('https://hamse-panel-production.up.railway.app/api/github/releases', {
       headers: { 'Authorization': 'Bearer ' + TOKEN }
     });
     var d = await r.json();
@@ -742,7 +742,7 @@ function editLicense(id, current) {
   if (!v) return;
   var n = parseInt(v);
   if (!n || n < 1 || n > 1000) { showToast('Max devices waa inuu yahay 1-1000', 'error'); return; }
-  fetch('/api/admin/licenses/' + id + '/edit', {
+  fetch('https://hamse-panel-production.up.railway.app/api/admin/licenses/' + id + '/edit', {
     method: 'PUT',
     headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
     body: JSON.stringify({ max_devices: n })
@@ -825,7 +825,7 @@ async function cwDeploy() {
   showToast('Deploy socda...', 'info');
   try {
     var t = localStorage.getItem('hamse_token');
-    var r = await fetch('/api/worker/code', {
+    var r = await fetch('https://hamse-panel-production.up.railway.app/api/worker/code', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' },
       body: JSON.stringify({ code: code })
@@ -867,7 +867,7 @@ function toggleCustomKey() {
 }
 function deleteLicense(id) {
   if (!confirm('Ma tirtiraysaa license-kan?')) return;
-  fetch('/api/admin/licenses/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + TOKEN } })
+  fetch('https://hamse-panel-production.up.railway.app/api/admin/licenses/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + TOKEN } })
     .then(function(r){ return r.json(); })
     .then(function(d){ showToast('License la tirtiray', 'success'); loadLicenses(); })
     .catch(function(e){ showToast(e.message, 'error'); });
@@ -924,7 +924,7 @@ let loaderFileSel = null;
 async function loaderLoadCurrent() {
   const token = localStorage.getItem('token') || '';
   try {
-    const r = await fetch(window.location.origin + '/api/loader/current', { headers: { 'Authorization': 'Bearer ' + token } });
+    const r = await fetch('https://hamse-panel-production.up.railway.app/api/loader/current', { headers: { 'Authorization': 'Bearer ' + token } });
     const j = await r.json();
     const el = document.getElementById('loaderCurrent');
     if (j.status === 'ok') el.innerHTML = '<b style="color:#e6edf3">' + j.name + '</b> — ' + (j.size/1024/1024).toFixed(2) + ' MB<br>Uploaded: ' + j.uploaded;
@@ -948,7 +948,7 @@ async function loaderUpload() {
   const fd = new FormData(); fd.append('apk', loaderFileSel);
   const token = localStorage.getItem('token') || '';
   try {
-    const r = await fetch(window.location.origin + '/api/loader/upload', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+    const r = await fetch('https://hamse-panel-production.up.railway.app/api/loader/upload', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
     const j = await r.json();
     if (!r.ok || j.status !== 'ok') { st.textContent = '❌ Failed: ' + (j.msg||'error'); st.style.color = '#f85149'; return; }
     st.textContent = '✅ Uploaded'; st.style.color = '#3fb950';
