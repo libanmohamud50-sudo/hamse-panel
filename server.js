@@ -19,7 +19,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'HAMSE_VIP_SECRET_2026';
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || require('crypto').randomBytes(12).toString('hex');
 
-app.use(cors());
+app.use(cors({
+  origin: ['https://libanmohamud50-sudo.github.io', 'https://hamse-panel-production.up.railway.app', 'http://localhost:3000'],
+  credentials: true
+}));
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
