@@ -6,3 +6,7 @@ token.txt
 test_keys.json
 *.env_backup
 worker.js
+hamse-panel/
+check.py
+*.bak
+*.bak2
