@@ -1101,6 +1101,51 @@ window.addEventListener('load',()=>{
   window.addEventListener("load", function(){ setTimeout(function(){ try { appsReload(); } catch(e){} }, 800); });
 })();
 </script>
-<script src="licenses-app.js"></script>
+<script src="licenses-app.js">
+/* ===== Cloudflare Worker editor ===== */
+var HAMSE_API = "https://hamse-panel-production.up.railway.app";
+function workerStatus(msg, ok){
+  var s = document.getElementById("worker-status");
+  if(!s) return;
+  s.textContent = msg;
+  s.style.color = ok === true ? "#30d158" : ok === false ? "#ff453a" : "#9a9a9f";
+}
+async function loadWorkerCode(){
+  workerStatus("Loading...");
+  try{
+    var r = await fetch(HAMSE_API + "/api/worker/code", {
+      headers: { "Authorization": `Bearer ${localStorage.getItem('hamse_token')}` }
+    });
+    var txt = await r.text();
+    var code = txt;
+    try{ var j = JSON.parse(txt); code = (j.code !== undefined) ? j.code : (j.script !== undefined ? j.script : txt); }catch(e){}
+    if(!r.ok) throw new Error(typeof code === "string" ? code : ("HTTP " + r.status));
+    document.getElementById("worker-code").value = code;
+    workerStatus("Loaded", true);
+  }catch(e){
+    workerStatus("Error: " + e.message, false);
+  }
+}
+async function deployWorker(){
+  var code = document.getElementById("worker-code").value;
+  if(!code.trim()){ workerStatus("Code is empty", false); return; }
+  workerStatus("Deploying...");
+  try{
+    var r = await fetch(HAMSE_API + "/api/worker/code", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem('hamse_token')}`
+      },
+      body: JSON.stringify({ code: code })
+    });
+    var txt = await r.text();
+    if(!r.ok) throw new Error(txt || ("HTTP " + r.status));
+    workerStatus("Deployed successfully", true);
+  }catch(e){
+    workerStatus("Error: " + e.message, false);
+  }
+}
+</script>
 </body>
 </html>

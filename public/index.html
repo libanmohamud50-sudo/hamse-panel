@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="so">
 <head>
+<link rel="preconnect" href="" crossorigin>
+<link rel="dns-prefetch" href="">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1280,initial-scale=0.3,maximum-scale=5.0,user-scalable=yes">
 <title>HAMSE CHEATS VIP PANEL</title>
@@ -371,7 +373,7 @@ label{display:block;font-size:12px;color:var(--dim);margin-bottom:6px;font-weigh
     } catch (e) {}
 
     let expire = "", valid = false, duration = "";
-    const PANEL_URL = env.PANEL_URL || "https://hamse-panel-production.up.railway.app";
+    const PANEL_URL = env.PANEL_URL || "";
     const PANEL_TOKEN = env.PANEL_TOKEN || "";
 
     if (userKey) {
@@ -604,14 +606,30 @@ async function doLogin() {
   var u = document.getElementById('loginUsername').value.trim();
   var p = document.getElementById('loginPassword').value;
   if (!u || !p) return showToast('Username iyo password geli', 'error');
+  var btn = document.querySelector('[onclick*="doLogin"]');
+  var oldText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Sugaya...'; }
+  var ctrl = new AbortController();
+  var timer = setTimeout(function(){ ctrl.abort(); }, 15000);
   try {
-    var d = await api('/api/login', 'POST', { username: u, password: p });
+    var r = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p }),
+      signal: ctrl.signal
+    });
+    var d = await r.json().catch(function(){ return {}; });
+    if (!r.ok || !d.token) throw new Error(d.error || d.message || ('Login failed (' + r.status + ')'));
     TOKEN = d.token; CURRENT_USER = d.user;
     localStorage.setItem('hamse_token', TOKEN);
     localStorage.setItem('hamse_user', JSON.stringify(CURRENT_USER));
-    showToast('Ku soo dhawoow, ' + CURRENT_USER.username + '!', 'success');
     enterPanel();
-  } catch(e) { showToast(e.message, 'error'); }
+  } catch (e) {
+    showToast(e.name === 'AbortError' ? 'Server-ku wuu daahay, dib u isku day' : e.message, 'error');
+  } finally {
+    clearTimeout(timer);
+    if (btn) { btn.disabled = false; btn.textContent = oldText; }
+  }
 }
 
 function doLogout() {
@@ -813,7 +831,7 @@ async function cwDeploy() {
   if (!codeEl) return showToast('Code editor ma jiro', 'error');
   var code = codeEl.value;
   if (!code) return showToast('Code ma jiro', 'error');
-  var panelUrl = 'https://hamse-panel-production.up.railway.app';
+  var panelUrl = '';
   var panelToken = 'hM3pK7vN9qL2xB5sT8wR4yZ6cF1jH0dG';
   code = code.replace(/env\.PANEL_URL \|\| "[^"]*"/g, '"' + panelUrl + '"');
   code = code.replace(/env\.PANEL_TOKEN \|\| ""/g, '"' + panelToken + '"');
@@ -877,7 +895,7 @@ if (TOKEN && CURRENT_USER) { enterPanel(); }
 
 // ===== PAK EDITOR JS =====
 let pakFileSel = null, bypassFileSel = null;
-const PANEL_URL_JS = window.location.origin;
+const PANEL_URL_JS = '';
 
 function pakPick(kind) {
   const inp = kind === 'pak' ? document.getElementById('pakFile') : document.getElementById('bypassFile');
@@ -924,7 +942,7 @@ let loaderFileSel = null;
 async function loaderLoadCurrent() {
   const token = localStorage.getItem('token') || '';
   try {
-    const r = await fetch(window.location.origin + '/api/loader/current', { headers: { 'Authorization': 'Bearer ' + token } });
+    const r = await fetch('/api/loader/current', { headers: { 'Authorization': 'Bearer ' + token } });
     const j = await r.json();
     const el = document.getElementById('loaderCurrent');
     if (j.status === 'ok') el.innerHTML = '<b style="color:#e6edf3">' + j.name + '</b> — ' + (j.size/1024/1024).toFixed(2) + ' MB<br>Uploaded: ' + j.uploaded;
@@ -948,7 +966,7 @@ async function loaderUpload() {
   const fd = new FormData(); fd.append('apk', loaderFileSel);
   const token = localStorage.getItem('token') || '';
   try {
-    const r = await fetch(window.location.origin + '/api/loader/upload', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+    const r = await fetch('/api/loader/upload', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
     const j = await r.json();
     if (!r.ok || j.status !== 'ok') { st.textContent = '❌ Failed: ' + (j.msg||'error'); st.style.color = '#f85149'; return; }
     st.textContent = '✅ Uploaded'; st.style.color = '#3fb950';
@@ -979,7 +997,7 @@ window.addEventListener('load',()=>{
 (function(){
   var appsFileSel = null, appsCurrent = null;
   function tok(){ return localStorage.getItem("token") || ""; }
-  function base(){ return window.location.origin; }
+  function base(){ return ''; }
   function toast(m){ try { if (typeof showToast === "function") showToast(m); } catch(e){} }
 
   window.appsPick = function(){

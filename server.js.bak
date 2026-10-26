@@ -203,7 +203,7 @@ app.post("/api/admin/licenses/bulk", authMiddleware, adminMiddleware, (req, res)
   for (let i = 0; i < count; i++) {
     let key;
     if (keyMode === 'custom' && custom_key) {
-      key = custom_key.toUpperCase();
+      key = String(custom_key).trim();
     } else {
       key = durationLabel + '-HAMSE-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     }
@@ -236,6 +236,35 @@ app.put('/api/admin/licenses/:id/edit', authMiddleware, adminMiddleware, (req, r
     saveDB();
     res.json({ success: true, message: 'Max devices la beddelay' });
   } catch(e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.put('/api/admin/licenses/:id/update', authMiddleware, adminMiddleware, (req, res) => {
+  try {
+    const id = req.params.id;
+    const b = req.body || {};
+    const row = queryAll('SELECT * FROM licenses WHERE id = ?', [id])[0];
+    if (!row) return res.status(404).json({ success: false, error: 'License not found' });
+    if (b.status !== undefined) {
+      if (['active', 'disabled', 'unused'].indexOf(b.status) === -1) return res.status(400).json({ success: false, error: 'Invalid status' });
+      db.run('UPDATE licenses SET status = ? WHERE id = ?', [b.status, id]);
+    }
+    if (b.max_devices !== undefined) {
+      const md = parseInt(b.max_devices);
+      if (!md || md < 1 || md > 1000) return res.status(400).json({ success: false, error: 'max_devices must be 1-1000' });
+      db.run('UPDATE licenses SET max_devices = ? WHERE id = ?', [md, id]);
+    }
+    if (b.add_minutes !== undefined) {
+      const m = parseInt(b.add_minutes);
+      if (isNaN(m)) return res.status(400).json({ success: false, error: 'Invalid minutes' });
+      const base = new Date(String(row.expires_at).replace(' ', 'T') + 'Z');
+      const next = new Date(base.getTime() + m * 60000).toISOString().replace('T', ' ').substring(0, 19);
+      db.run('UPDATE licenses SET expires_at = ? WHERE id = ?', [next, id]);
+    }
+    saveDB();
+    res.json({ success: true, message: 'License updated' });
+  } catch (e) {
     res.status(500).json({ success: false, error: e.message });
   }
 });
@@ -322,6 +351,7 @@ app.post('/api/verify', async (req, res) => {
     const lic = queryOne('SELECT * FROM licenses WHERE license_key = ?', [key]);
     if (!lic) return res.json({ valid: false, reason: 'Key lama helin' });
     if (lic.status === 'banned') return res.json({ valid: false, reason: 'Key waa la xannibay' });
+    if (lic.status === 'disabled') return res.json({ valid: false, reason: 'Key is deactivated' });
     if (lic.expires_at && lic.expires_at !== '2099-12-31 23:59:59') {
       if (new Date(lic.expires_at) < new Date()) {
         db.run("UPDATE licenses SET status='expired' WHERE id=?", [lic.id]);
